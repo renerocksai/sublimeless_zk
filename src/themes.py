@@ -38,10 +38,14 @@ class Theme:
         self.style_infos[style + '.' + 'text'] = ret['text']
 
     def load_theme(self, theme_file):
+        theme_d = {}
         if not os.path.exists(theme_file):
-            return False
+            pass
         with open(theme_file, 'rt') as f:
-            theme_d = json.load(f)
+            try:
+                theme_d = json.load(f)
+            except:
+                print('ERROR loading', theme_file)
 
         # now fill in the blanks
         self.theme_d = theme_d
