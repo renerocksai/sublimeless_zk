@@ -93,9 +93,9 @@ class CustomMainWindow(QMainWindow):
 
         # 4. Caret
         # ---------
-        self._editor.setCaretForegroundColor(QColor(self._lexer.caret))
+        self._editor.setCaretForegroundColor(QColor(self._lexer.theme.caret))
         self._editor.setCaretLineVisible(True)
-        self._editor.setCaretLineBackgroundColor(QColor(self._lexer.highlight))
+        self._editor.setCaretLineBackgroundColor(QColor(self._lexer.theme.highlight))
         self._editor.setCaretWidth(8)
         #self._editor.setMarginsBackgroundColor(QColor("#ff404040"))
         self._editor.setFont(self._lexer.default_font)
