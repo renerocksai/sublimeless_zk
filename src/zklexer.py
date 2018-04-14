@@ -45,7 +45,7 @@ class MyLexer(QsciLexerCustom):
         default_size = self.font_info['size']
 
         for styleid, style in enumerate(self.style_infos):
-            print('Initializing style', styleid, style, self.style_infos[style])
+            print(f'Initializing style {styleid:02d} : {style:22} : {self.style_infos[style]}')
             self.style2id[style] = styleid
             self.id2stylename[styleid] = style
             weight = default_weight
@@ -119,32 +119,30 @@ class MyLexer(QsciLexerCustom):
             'style': font['style']
         }
 
-        for style in 'text.italic', 'text.bold', 'text.bolditalic', 'quote', \
-                     'list.ordered', 'list.unordered':
+        for style in 'text.italic', 'text.bold', 'text.bolditalic', 'quote':
             self.get_theme_symbol_text(style)
+        self.get_theme_style('h.symbol')
         for i in range(6):
-            hname = f'h{i+1}'
-            self.get_theme_symbol_text(hname)
-        for style in 'code.block', 'code.inline', 'tag', 'citekey', 'comment', \
-                'footnote':
+            hname = f'h{i+1}.text'
+            self.get_theme_style(hname)
+        for style in ('code.fenced', 'code', 'list.symbol', 'list.unordered',
+                      'list.ordered', 'tag', 'citekey', 'zettel.link', 'comment',
+                      'footnote'):
             self.get_theme_style(style)
 
-        code_fenced_dict = theme_d.get('code.fenced', {})
-        self.style_infos['code.fenced.language'] = self.get_style(code_fenced_dict, 'language')
-        self.style_infos['code.fenced'] = self.get_style(code_fenced_dict, 'text')
-
         link_dict = theme_d.get('link', {})
-        self.style_infos['link.title'] = self.get_style(link_dict, 'title')
+        self.style_infos['link.caption'] = self.get_style(link_dict, 'title')
         self.style_infos['link.url'] = self.get_style(link_dict, 'url')
+        self.style_infos['link.attr'] = self.get_style(link_dict, 'attr')
 
-        zettel_link_dict = theme_d.get('zettel.link', {})
-        self.style_infos['zettel.link.title'] = self.get_style(zettel_link_dict, 'title')
-        self.style_infos['zettel.link.noteid'] = self.get_style(zettel_link_dict, 'noteid')
-
-        image_dict = theme_d.get('image', {})
-        self.style_infos['image.caption'] = self.get_style(image_dict, 'caption')
-        self.style_infos['image.link'] = self.get_style(image_dict, 'link')
-        self.style_infos['image.attr'] = self.get_style(image_dict, 'attr')
+        ### if code fenced is style 32, its background color will be displayed
+        ### at the end of the text line.
+        ### Aaaah: https://www.scintilla.org/MyScintillaDoc.html#Styling
+        ###   The standard Scintilla settings divide the 8 style bits available for
+        ###   each character into 5 bits (0 to 4 = styles 0 to 31) that set a style
+        ###   and three bits (5 to 7) that define indicators. You can change the
+        ###   balance between styles and indicators with SCI_SETSTYLEBITS
+        ### --> we better not use more than 31 styles
 
 
     def language(self):
@@ -182,7 +180,7 @@ class MyLexer(QsciLexerCustom):
                 style_regions.append((gap_b, 'default'))
             match_b = len(bytearray(region[2], 'utf-8'))
             match = region[1] - region[0]
-            style_regions.append((match_b, 'zettel.link.noteid'))
+            style_regions.append((match_b, 'zettel.link'))
             current_pos += gap + match
         gap = len(text) - current_pos
         if gap > 0:
