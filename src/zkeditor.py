@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 
+from imagescintilla import ImageScintilla
 from zkmdlexer import ZkMdLexer
 
 ''' end Class '''
@@ -47,9 +48,10 @@ class CustomMainWindow(QMainWindow):
 
         # ! Make instance of QSciScintilla class!
         # ----------------------------------------
-        self._editor = QsciScintilla()
+        self._editor = ImageScintilla()
         self._editor.setUtf8(True)             # Set encoding to UTF-8
-        with open('../zettelkasten/201803100758 P.md', mode='r', encoding='utf-8', errors='ignore') as f:
+        with open('../zettelkasten/201804141018 testnote.md',
+                  mode='r', encoding='utf-8', errors='ignore') as f:
             txt = f.read()
         self._editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
         self._editor.setLexer(None)            # We install lexer later
@@ -87,9 +89,9 @@ class CustomMainWindow(QMainWindow):
         # -------------------------------- #
         #          Install lexer           #
         # -------------------------------- #
-        if True:
-            self._lexer = ZkMdLexer(self._editor, '../theme.json')
-            self._editor.setLexer(self._lexer)
+        self._lexer = ZkMdLexer(self._editor, '../theme.json')
+        self._editor.setLexer(self._lexer)
+        self._editor.set_calculation_font(self._lexer.default_font)
 
         # 4. Caret
         # ---------
