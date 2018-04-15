@@ -58,8 +58,7 @@ class ZkMdLexer(QsciLexerCustom):
             self.setColor(QColor(current_style['color']), styleid)
             self.setPaper(QColor(current_style['background']), styleid)
             self.setFont(QFont(default_font, default_size, weight=weight, italic=italic), styleid)
-
-    ''''''
+            self.setEolFill(True, styleid)
 
     def language(self):
         return "MardownZettelkasten"
@@ -93,7 +92,7 @@ class ZkMdLexer(QsciLexerCustom):
             b = match.end()
             n = match.group(1).count('#')
             regions.append((a, a + len(match.group(1)), match.group(1), 'h.symbol'))
-            regions.append((a + len(match.group(1)), b, match.group(2), f'h{n}.text'))
+            regions.append((a + len(match.group(1)), b+1, match.group(2)+'\n', f'h{n}.text'))
 
         # quotes
         p = re.compile('^(>)(.+)$', flags=re.MULTILINE)
@@ -101,7 +100,18 @@ class ZkMdLexer(QsciLexerCustom):
             a = match.start()
             b = match.end()
             regions.append((a, a + len(match.group(1)), match.group(1), 'quote.symbol'))
-            regions.append((a + len(match.group(1)), b, match.group(2), 'quote.text'))
+            regions.append((a + len(match.group(1)), b+1, match.group(2)+'\n', 'quote.text'))
+
+        # block quotes
+        ### NEED TO STYLE THE \n !!!
+        p = re.compile(r'^( {4})+(.+$)', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            print(repr(match.groups()))
+            regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
+            regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
+            # +1 to also style the \n
 
         # list unordered
         p = re.compile(r'^(( {4})*[\*-]\s)(.+)$', flags=re.MULTILINE)
@@ -121,6 +131,17 @@ class ZkMdLexer(QsciLexerCustom):
 
 
         ### inline markup
+
+        p = re.compile(r'([`]{1})(?!\s)(.+?)(?<!\s)(\1)')
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            regions.append((a, a + 1, match.group(1), 'code'))
+            regions.append((a + 1, b - 1, match.group(2), 'code'))
+            regions.append((b - 1, b, match.group(3), 'code'))
+            # consume
+            text = text[:a] + ' ' * len(match.group()) + text[b:]
+
 
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
@@ -157,7 +178,6 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a, a + 1, match.group(1), 'text.italic.symbol'))
             regions.append((a + 1, b - 1, match.group(2), 'text.italic.text'))
             regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
-            print('>' + ''.join(match.group(1, 2, 3)) + '<')
             # consume
             text = text[:a] + ' ' * len(match.group()) + text[b:]
 
@@ -223,14 +243,14 @@ class ZkMdLexer(QsciLexerCustom):
         editor = self.parent()
         if start > 0:
             previous_style_nr = editor.SendScintilla(editor.SCI_GETSTYLEAT, start - 1)
-            if previous_style_nr == 3:
+            if previous_style_nr == 29:
                 multiline_comm_flag = True
             ###
         ###
         # 4.2 Style the text in a loop
         for i, token in enumerate(token_list):
             if multiline_comm_flag:
-                self.setStyling(token[1], 3)
+                self.setStyling(token[1], 29)
                 if token[0] == "-->":
                     multiline_comm_flag = False
                 ###

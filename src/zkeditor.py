@@ -65,7 +65,7 @@ class CustomMainWindow(QMainWindow):
 
         # 2. End-of-line mode
         # --------------------
-        self._editor.setEolMode(QsciScintilla.EolWindows)
+        self._editor.setEolMode(QsciScintilla.EolUnix)
         self._editor.setEolVisibility(False)
 
         # 3. Indentation
