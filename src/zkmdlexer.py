@@ -187,7 +187,6 @@ class ZkMdLexer(QsciLexerCustom):
         # footnotes
         p = re.compile(r'(\[)(\^)([^]]+)(\])')
         for match in p.finditer(text):
-            print('footnote', match.group())
             a = match.start()
             a2 = a + len(match.group(1))
             a3 = a2 + len(match.group(2))
@@ -208,6 +207,45 @@ class ZkMdLexer(QsciLexerCustom):
         # * link image
         # todo end
 
+        # images
+        p = re.compile(r'(!\[)(.*)(\]\()(.*)(\))(\s*\{)?([^\}]*)(\})?')
+        '''
+            '1': meta.image.inline.markdown punctuation.definition.image.begin.markdown
+            '2': meta.image.inline.description.markdown
+            '3': meta.image.inline.markdown punctuation.definition.metadata.begin.markdown
+            '4': meta.image.inline.markdown markup.underline.link.image.markdown
+            '5': meta.image.inline.markdown punctuation.definition.metadata.end.markdown
+            '6': meta.image.inline.markdown punctuation.definition.imageattr.begin.markdown
+            '7': meta.image.inline.markdown.imageattr
+            '8': meta.image.inline.markdown punctuation.definition.imageattr.end.markdown
+        '''
+        for match in p.finditer(text):
+            print('img', match.groups())
+            a = match.start()
+            gstarts = []
+            gstops = []
+            gtexts = []
+            qstart = a
+            for gindex in range(8):
+                gstarts.append(qstart)
+                gtext = match.group(gindex + 1)
+                if gtext is None:
+                    gtext = ''
+                gtexts.append(gtext)
+                qstart += len(gtext)
+                gstops.append(qstart)
+            b = match.end()
+            regions.append((gstarts[0], gstops[0], gtexts[0], 'default'))
+            regions.append((gstarts[1], gstops[1], gtexts[1], 'link.caption'))
+            regions.append((gstarts[2], gstops[2], gtexts[2], 'default'))
+            regions.append((gstarts[3], gstops[3], gtexts[3], 'link.url'))
+            regions.append((gstarts[4], gstops[4], gtexts[4], 'default'))
+            if gtexts[5] and gtexts[6] and gtexts[7]:
+                regions.append((gstarts[5], gstops[5], gtexts[5], 'link.attr'))
+                regions.append((gstarts[6], gstops[6], gtexts[6], 'link.attr'))
+                regions.append((gstarts[7], gstops[7], gtexts[7], 'link.attr'))
+            # consume
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # bolditalic
         p = re.compile(r'([\*_]{3})(?!\s)(.+?)(?<!\s)(\1)')
