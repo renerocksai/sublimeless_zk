@@ -85,6 +85,16 @@ class ZkMdLexer(QsciLexerCustom):
 
         ### non-inline
 
+        # comments
+        p = re.compile(r'(<!--)(.|\n)*?(-->)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, b, match.group(), 'comment'))
+            # consume
+            print(match.groups() , match.group())
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
+
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
@@ -108,7 +118,6 @@ class ZkMdLexer(QsciLexerCustom):
         for match in p.finditer(text):
             a = match.start()
             b = match.end()
-            print(repr(match.groups()))
             regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
             regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
             # +1 to also style the \n
@@ -140,7 +149,7 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a + 1, b - 1, match.group(2), 'code'))
             regions.append((b - 1, b, match.group(3), 'code'))
             # consume
-            text = text[:a] + ' ' * len(match.group()) + text[b:]
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
 
 
         # zettel links
@@ -157,7 +166,7 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a + 3, b - 3, match.group(2), 'text.bolditalic.text'))
             regions.append((b - 3, b, match.group(3), 'text.bolditalic.symbol'))
             # consume
-            text = text[:a] + ' ' * len(match.group()) + text[b:]
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # bold
         p = re.compile(r'([\*_]{2})(?!\s)(.+?)(?<!\s)(\1)')
@@ -168,7 +177,7 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a + 2, b - 2, match.group(2), 'text.bold.text'))
             regions.append((b - 2, b, match.group(3), 'text.bold.symbol'))
             # consume
-            text = text[:a] + ' ' * len(match.group()) + text[b:]
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # italic
         p = re.compile(r'([\*_]{1})(?!\s)(.+?)(?<!\s)(\1)')
@@ -179,7 +188,8 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a + 1, b - 1, match.group(2), 'text.italic.text'))
             regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
             # consume
-            text = text[:a] + ' ' * len(match.group()) + text[b:]
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
+
 
         # todo: sort and split regions
         # layering
