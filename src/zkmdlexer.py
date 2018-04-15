@@ -2,14 +2,13 @@ import re
 
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
-from themes import Theme
 from split_regions import split_regions
 
 
 class ZkMdLexer(QsciLexerCustom):
-    def __init__(self, parent, theme_file):
+    def __init__(self, parent, theme):
         super(ZkMdLexer, self).__init__(parent)
-        self.theme = Theme(theme_file)
+        self.theme = theme
         self.style_infos = {}
         self.style2id = {}
         self.id2stylename = {}
@@ -29,7 +28,8 @@ class ZkMdLexer(QsciLexerCustom):
             weight = QFont.Bold
         self.default_font =  QFont(self.theme.font_info['face'],
                                    self.theme.font_info['size'],
-                                   weight=weight, italic=italic)
+                                   weight=weight, italic=italic,
+                                   )
         self.setDefaultFont(self.default_font)
 
         default_weight = weight

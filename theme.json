@@ -2,6 +2,8 @@
   "background" : "#fffdf6e3",
   "foreground" : "#ff657b83",
   "linehighlight": "#1F3D3812",
+  "line_padding_bottom": 4,
+  "line_padding_top": 4,
   "selection" : {
     "background": "#ffd33682",
     "foreground": "#fffdf6e3"

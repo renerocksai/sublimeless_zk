@@ -6,14 +6,17 @@ from PyQt5.Qsci import *
 
 from imagescintilla import ImageScintilla
 from zkmdlexer import ZkMdLexer
+from themes import Theme
 
 ''' end Class '''
 
 
 class CustomMainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, theme):
         super(CustomMainWindow, self).__init__()
 
+        # load theme
+        self.theme = theme
         # -------------------------------- #
         #           Window setup           #
         # -------------------------------- #
@@ -89,7 +92,7 @@ class CustomMainWindow(QMainWindow):
         # -------------------------------- #
         #          Install lexer           #
         # -------------------------------- #
-        self._lexer = ZkMdLexer(self._editor, '../theme.json')
+        self._lexer = ZkMdLexer(self._editor, self.theme)
         self._editor.setLexer(self._lexer)
         self._editor.set_calculation_font(self._lexer.default_font)
 
@@ -101,6 +104,8 @@ class CustomMainWindow(QMainWindow):
         self._editor.setCaretWidth(8)
         #self._editor.setMarginsBackgroundColor(QColor("#ff404040"))
         self._editor.setFont(self._lexer.default_font)
+        self._editor.setExtraAscent(self.theme.line_pad_top)
+        self._editor.setExtraDescent(self.theme.line_pad_bottom)
 
         # ! Add editor to layout !
         # -------------------------
@@ -118,7 +123,8 @@ class CustomMainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     QApplication.setStyle(QStyleFactory.create('Fusion'))
-    myGUI = CustomMainWindow()
+    theme = Theme('../theme.json')
+    myGUI = CustomMainWindow(theme)
 
     sys.exit(app.exec_())
 

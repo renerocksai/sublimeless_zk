@@ -10,6 +10,9 @@ class Theme:
         self.font_info = {}
         self.hightlight = None
         self.selection = None
+        self.line_pad_bottom = 3
+        self.line_pad_top = 3
+
         self.load_theme(theme_file)
         for styleid, style in enumerate(self.style_infos):
             self.style2id[style] = styleid
@@ -53,6 +56,8 @@ class Theme:
         foreground = theme_d.get('foreground', "#ff657b83")
 
         self.highlight = theme_d.get('linehighlight', "#3F3D3812")
+        self.line_pad_bottom = theme_d.get('line_padding_bottom', self.line_pad_bottom)
+        self.line_pad_top = theme_d.get('line_padding_top', self.line_pad_bottom)
         self.selection = theme_d.get('selection', {})
         self.selection['background'] = self.selection.get('background', '#ffd33682')
         self.selection['foreground'] = self.selection.get('foreground', '#fffdf6e3')
