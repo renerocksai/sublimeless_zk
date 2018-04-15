@@ -1,11 +1,16 @@
 import re
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
 from split_regions import split_regions
 
 
 class ZkMdLexer(QsciLexerCustom):
+
+    note_id_clicked = pyqtSignal(str)
+    tag_clicked = pyqtSignal(str)
+
     def __init__(self, parent, theme):
         super(ZkMdLexer, self).__init__(parent)
         self.theme = theme
@@ -89,12 +94,17 @@ class ZkMdLexer(QsciLexerCustom):
             p = re.compile(r'([0-9.]{12,18})')
             match = p.match(self.parent().text()[noteid_pos:noteid_pos + 20])
             if match:
-                print('note_id', match.group(1), 'clicked')
+                note_id = match.group(1)
+                # emit note clicked signal
+                self.note_id_clicked.emit(note_id)
         if tag_pos:
             p = re.compile(r'(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
             match = p.match(self.parent().text()[tag_pos:tag_pos + 100])
             if match:
-                print('tag', match.group(1), 'clicked')
+                tag = match.group(1)
+                # emit tag clicked signal
+                self.tag_clicked.emit(tag)
+
 
     def language(self):
         return "MardownZettelkasten"

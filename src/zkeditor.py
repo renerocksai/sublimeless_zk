@@ -107,6 +107,10 @@ class CustomMainWindow(QMainWindow):
         self._editor.setExtraAscent(self.theme.line_pad_top)
         self._editor.setExtraDescent(self.theme.line_pad_bottom)
 
+        # connect zettelkasten signals
+        self._lexer.tag_clicked.connect(self.clicked_tag)
+        self._lexer.note_id_clicked.connect(self.clicked_noteid)
+
         # ! Add editor to layout !
         # -------------------------
         self._lyt.addWidget(self._editor)
@@ -118,6 +122,11 @@ class CustomMainWindow(QMainWindow):
         print("Hello World!")
     ''''''
 
+    def clicked_noteid(self, noteid):
+        print('noteid', noteid)
+
+    def clicked_tag(self, tag):
+        print('tag', tag)
 ''' End Class '''
 
 if __name__ == '__main__':
