@@ -62,19 +62,12 @@ class ZkMdLexer(QsciLexerCustom):
 
     def language(self):
         return "MardownZettelkasten"
-    ''''''
 
     def description(self, style):
         if style in self.id2stylename:
             return self.id2stylename[style]
         else:
             return ''
-    ''''''
-
-    def styleText3(self, start, end):
-        self.startStyling(start)
-        text = self.parent().text()[start:end]
-        self.setStyling(end-start, self.style2id['default'])
 
     def styleText(self, start, end):
         self.startStyling(0)
@@ -249,8 +242,7 @@ class ZkMdLexer(QsciLexerCustom):
             # consume
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
-
-        # todo: sort and split regions
+        # sort and split regions
         # layering
         #    --> most important ones last
         regions.sort(key=lambda items: items[0])
@@ -283,60 +275,4 @@ class ZkMdLexer(QsciLexerCustom):
 
         for num_chars, style in style_regions:
             self.setStyling(num_chars, self.style2id[style])
-
-    def styleText2(self, start, end):
-        # 1. Initialize the styling procedure
-        # ------------------------------------
-        self.startStyling(start)
-
-        # 2. Slice out a part from the text
-        # ----------------------------------
-        text = self.parent().text()[start:end]
-
-        # 3. Tokenize the text
-        # ---------------------
-        p = re.compile(r"-->|<!--|\s+|\w+|\W")
-
-        # 'token_list' is a list of tuples: (token_name, token_len)
-        token_list = [ (token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
-
-        # 4. Style the text
-        # ------------------
-        # 4.1 Check if multiline comment
-        multiline_comm_flag = False
-        editor = self.parent()
-        if start > 0:
-            previous_style_nr = editor.SendScintilla(editor.SCI_GETSTYLEAT, start - 1)
-            if previous_style_nr == 29:
-                multiline_comm_flag = True
-            ###
-        ###
-        # 4.2 Style the text in a loop
-        for i, token in enumerate(token_list):
-            if multiline_comm_flag:
-                self.setStyling(token[1], 29)
-                if token[0] == "-->":
-                    multiline_comm_flag = False
-                ###
-            ###
-            else:
-                if token[0] in ["for", "while", "return", "int", "include"]:
-                    # Red style
-                    self.setStyling(token[1], 1)
-
-                elif token[0] in ["(", ")", "{", "}", "[", "]", "#"]:
-                    # Blue style
-                    self.setStyling(token[1], 2)
-
-                elif token[0] == "<!--":
-                    multiline_comm_flag = True
-                    self.setStyling(token[1], 3)
-
-                else:
-                    # Default style
-                    self.setStyling(token[1], self.style2id['default'])
-                ###
-            ###
-        ###
-
     ''''''
