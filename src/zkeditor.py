@@ -122,11 +122,12 @@ class CustomMainWindow(QMainWindow):
         print("Hello World!")
     ''''''
 
-    def clicked_noteid(self, noteid):
-        print('noteid', noteid)
+    def clicked_noteid(self, noteid, ctrl, alt, shift):
+        print('noteid', noteid, ctrl, alt, shift)
 
-    def clicked_tag(self, tag):
+    def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
+
 ''' End Class '''
 
 if __name__ == '__main__':

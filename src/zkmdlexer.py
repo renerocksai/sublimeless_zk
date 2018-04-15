@@ -1,15 +1,17 @@
 import re
 
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
 from split_regions import split_regions
 
+KeyboardModifiers = int
 
 class ZkMdLexer(QsciLexerCustom):
 
-    note_id_clicked = pyqtSignal(str)
-    tag_clicked = pyqtSignal(str)
+    note_id_clicked = pyqtSignal(str, bool, bool, bool)
+    tag_clicked = pyqtSignal(str, bool, bool, bool)
 
     def __init__(self, parent, theme):
         super(ZkMdLexer, self).__init__(parent)
@@ -86,8 +88,12 @@ class ZkMdLexer(QsciLexerCustom):
         editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, startpos, length)
 
     def on_click_indicator(self, line, index, keys):
-        print('click', line, index)
+        print('click', line, index, type(keys))
         position = self.parent().positionFromLineIndex(line, index)
+        alt = bool(keys & Qt.AltModifier)
+        shift = bool(keys & Qt.ShiftModifier)
+        ctrl = bool(keys & Qt.ControlModifier)
+
         tag_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_tag, position)
         noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
         if noteid_pos:
@@ -96,14 +102,14 @@ class ZkMdLexer(QsciLexerCustom):
             if match:
                 note_id = match.group(1)
                 # emit note clicked signal
-                self.note_id_clicked.emit(note_id)
+                self.note_id_clicked.emit(note_id, ctrl, alt, shift)
         if tag_pos:
             p = re.compile(r'(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
             match = p.match(self.parent().text()[tag_pos:tag_pos + 100])
             if match:
                 tag = match.group(1)
                 # emit tag clicked signal
-                self.tag_clicked.emit(tag)
+                self.tag_clicked.emit(tag, ctrl, alt, shift)
 
 
     def language(self):
@@ -133,7 +139,6 @@ class ZkMdLexer(QsciLexerCustom):
             b = match.end(3)
             regions.append((a, b+1, match.group() + '\n', 'code.fenced'))
             # consume
-            print(match.groups() , match.group())
             text = text[:a] + 'x' * (len(match.group())) + text[b:]
 
         # tags
@@ -144,7 +149,6 @@ class ZkMdLexer(QsciLexerCustom):
             b = match.end(3)
             regions.append((a, b, match.group(2), 'tag'))
             # consume
-            print('TAG', match.groups() , match.group())
             text = text[:a] + 'x' * (len(match.group(2))) + text[b:]
             # make clickable
             self.make_clickable(a, len(match.group(2)), self.indicator_id_tag)
@@ -157,7 +161,7 @@ class ZkMdLexer(QsciLexerCustom):
             b = match.end(3)
             regions.append((a, b, match.group(), 'comment'))
             # consume
-            print(match.groups() , match.group())
+            # print(match.groups() , match.group())
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
 
@@ -265,7 +269,6 @@ class ZkMdLexer(QsciLexerCustom):
         # images
         p = re.compile(r'(!\[)(.*)(\]\()(.*)(\))(\s*\{)?([^\}]*)(\})?')
         for match in p.finditer(text):
-            print('img', match.groups())
             a = match.start()
             gstarts = []
             gstops = []
@@ -294,13 +297,11 @@ class ZkMdLexer(QsciLexerCustom):
                 b = gstops[7]
                 replace_str = ''.join(gtexts)
             # consume
-            print('image overwriting', replace_str)
             text = text[:a] + 'x' * len(replace_str) + text[b:]
 
         # links
         p = re.compile(r'(\[)(.*)(\]\()(.*)(\))(\s*\{)?([^\}]*)(\})?')
         for match in p.finditer(text):
-            print('link', match.groups())
             a = match.start()
             gstarts = []
             gstops = []
@@ -329,7 +330,6 @@ class ZkMdLexer(QsciLexerCustom):
                 b = gstops[7]
                 replace_str = ''.join(gtexts)
             # consume
-            print('link overwriting', replace_str)
             text = text[:a] + 'x' * len(replace_str) + text[b:]
 
         # bolditalic
