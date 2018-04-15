@@ -95,6 +95,16 @@ class ZkMdLexer(QsciLexerCustom):
             print(match.groups() , match.group())
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
+        # comments
+        p = re.compile(r'(```)(.|\n)*?(```)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, b+1, match.group() + '\n', 'code.fenced'))
+            # consume
+            print(match.groups() , match.group())
+            text = text[:a] + 'x' * (len(match.group())) + text[b:]
+
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
