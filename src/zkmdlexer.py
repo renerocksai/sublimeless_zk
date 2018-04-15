@@ -60,11 +60,35 @@ class ZkMdLexer(QsciLexerCustom):
             self.setFont(QFont(default_font, default_size, weight=weight, italic=italic), styleid)
             self.setEolFill(True, styleid)
 
-        # now make zettel links and tags clickable
+        # for clickable links
+        self.indicator_id_noteid = 0
+        self.indicator_id_tag = 1
         editor = self.parent()
-        editor.SendScintilla(editor.SCI_STYLESETHOTSPOT, self.style2id['zettel.link'], True)
-        editor.SendScintilla(editor.SCI_STYLESETHOTSPOT, self.style2id['tag'], True)
-        editor.setHotspotUnderline(True)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, 0)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, 1)
+        editor.indicatorClicked.connect(self.on_click_indicator)
+
+    def make_clickable(self, startpos, length, indicator_id):
+        # Tell the editor which indicator-style to use
+        # (pass it the indicator-style ID number)
+        editor = self.parent()
+        editor.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, indicator_id)
+        # Assign a value to the text
+        editor.SendScintilla(QsciScintilla.SCI_SETINDICATORVALUE, startpos)
+        # Now apply the indicator-style on the chosen text
+        editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, startpos, length)
+
+    def on_click_indicator(self, line, index, keys):
+        print('click', line, index)
+        position = self.parent().positionFromLineIndex(line, index)
+        tag_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_tag, position)
+        noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
+        if noteid_pos:
+            print('note_id', self.parent().text()[noteid_pos:noteid_pos + 12])
+        if tag_pos:
+            print('tag', tag_pos)
+            print(self.parent().text()[tag_pos:tag_pos + 10])
+        #print(self.parent().IndicatorAllOnFor(value))
 
     def language(self):
         return "MardownZettelkasten"
@@ -106,6 +130,8 @@ class ZkMdLexer(QsciLexerCustom):
             # consume
             print('TAG', match.groups() , match.group())
             text = text[:a] + 'x' * (len(match.group(2))) + text[b:]
+            # make clickable
+            self.make_clickable(a, len(match.group(2)), self.indicator_id_tag)
 
 
         # comments
@@ -180,6 +206,8 @@ class ZkMdLexer(QsciLexerCustom):
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
+            # make clickable
+            self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_noteid)
 
         # citekeys for pandoc
         # also hackish for mmd
