@@ -43,7 +43,7 @@ class ZkMdLexer(QsciLexerCustom):
             weight = default_weight
             italic = default_italic
             current_style = self.theme.style_infos[style]
-            if ['style'] == 'bold':
+            if current_style['style'] == 'bold':
                 weight = QFont.Bold
             elif current_style['style'] == 'italic':
                 italic = True
@@ -78,23 +78,42 @@ class ZkMdLexer(QsciLexerCustom):
     def styleText(self, start, end):
         self.startStyling(0)
         text = bytearray(self.parent().text(), "utf-8").decode("utf-8")
-        p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         regions = []
+
+        p = re.compile(r'(\*\*|__)([^\s].*?[^\s])(\1)')
         for match in p.finditer(text):
-            regions.append((match.start(), match.end(), match.group()))
-            print(match.group())
+            regions.append((match.start(), match.start() + 2, match.group(1), 'text.bold.symbol'))
+            regions.append((match.start() + 2, match.end() - 2, match.group(2), 'text.bold.text'))
+            regions.append((match.end() - 2, match.end(), match.group(3), 'text.bold.symbol'))
+
+        # zettel links
+        p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
+        for match in p.finditer(text):
+            regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
+
+        # todo: sort and flatten? regions
+        # maybe flattening is not necessary by cunning layering
+        #    --> most important ones last
+        regions.sort(key=lambda items: items[0])
+
+        # todo: handle multi line comments
 
         style_regions = []
         # now translate regions to byte arrays
+        # and fill gaps with default style
         current_pos = 0
         for region in regions:
-            gap = region[0] - current_pos
-            gap_b = len(bytearray(text[current_pos:region[0]], 'utf-8'))
+            region_start = region[0]
+            region_end = region[1]
+            region_text = region[2]
+            region_style = region[3]
+            gap = region_start - current_pos
+            gap_b = len(bytearray(text[current_pos:region_start], 'utf-8'))
             if gap_b > 0:
                 style_regions.append((gap_b, 'default'))
-            match_b = len(bytearray(region[2], 'utf-8'))
-            match = region[1] - region[0]
-            style_regions.append((match_b, 'zettel.link'))
+            match_b = len(bytearray(region_text, 'utf-8'))
+            match = region_end - region_start
+            style_regions.append((match_b, region_style))
             current_pos += gap + match
         gap = len(text) - current_pos
         if gap > 0:
