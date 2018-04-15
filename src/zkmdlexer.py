@@ -85,6 +85,20 @@ class ZkMdLexer(QsciLexerCustom):
 
         ### non-inline
 
+        # tags in comments (but not in code blocks)
+        # code blocks
+        p = re.compile(r'(```)(.|\n)*?(```)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, b+1, match.group() + '\n', 'code.fenced'))
+            # consume
+            print(match.groups() , match.group())
+            text = text[:a] + 'x' * (len(match.group())) + text[b:]
+
+        # tags
+        # todo: implement tags
+
         # comments
         p = re.compile(r'(<!--)(.|\n)*?(-->)')
         for match in p.finditer(text):
@@ -95,15 +109,6 @@ class ZkMdLexer(QsciLexerCustom):
             print(match.groups() , match.group())
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
-        # comments
-        p = re.compile(r'(```)(.|\n)*?(```)')
-        for match in p.finditer(text):
-            a = match.start(1)
-            b = match.end(3)
-            regions.append((a, b+1, match.group() + '\n', 'code.fenced'))
-            # consume
-            print(match.groups() , match.group())
-            text = text[:a] + 'x' * (len(match.group())) + text[b:]
 
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
@@ -167,6 +172,50 @@ class ZkMdLexer(QsciLexerCustom):
         for match in p.finditer(text):
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
 
+        # citekeys for pandoc
+        # also hackish for mmd
+        p = re.compile(r'(\[[a-zA-Z:\.\s]*)(@|#)([^]]*)(\])')
+        for match in p.finditer(text):
+            a = match.start()
+            a2 = a + len(match.group(1))
+            a3 = a2 + len(match.group(2))
+            a4 = a3 + len(match.group(3))
+            b = match.end()
+            b1 = a2
+            b2 = a2 + len(match.group(2))
+            b3 = b2 + len(match.group(3))
+            regions.append((a, b1, match.group(1), 'default'))
+            regions.append((a2, b2, match.group(2), 'citekey'))
+            regions.append((a3, b3, match.group(3), 'citekey'))
+            regions.append((a4, b, match.group(4), 'default'))
+            # consume
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
+
+        # footnotes
+        p = re.compile(r'(\[)(\^)([^]]+)(\])')
+        for match in p.finditer(text):
+            print('footnote', match.group())
+            a = match.start()
+            a2 = a + len(match.group(1))
+            a3 = a2 + len(match.group(2))
+            a4 = a3 + len(match.group(3))
+            b = match.end()
+            b1 = a2
+            b2 = a2 + len(match.group(2))
+            b3 = b2 + len(match.group(3))
+            regions.append((a, b1, match.group(1), 'default'))
+            regions.append((a2, b2, match.group(2), 'footnote'))
+            regions.append((a3, b3, match.group(3), 'footnote'))
+            regions.append((a4, b, match.group(4), 'default'))
+            # consume
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
+
+        # todo begin:
+        # * link normal
+        # * link image
+        # todo end
+
+
         # bolditalic
         p = re.compile(r'([\*_]{3})(?!\s)(.+?)(?<!\s)(\1)')
         for match in p.finditer(text):
@@ -205,11 +254,6 @@ class ZkMdLexer(QsciLexerCustom):
         # layering
         #    --> most important ones last
         regions.sort(key=lambda items: items[0])
-
-        # todo: handle multi line comments
-        # todo: finally: code blocks : use orig text for that?
-        # todo: remove all other regions from code block
-
         did_replace = True
         while did_replace:
             did_replace, regions = split_regions(regions)
