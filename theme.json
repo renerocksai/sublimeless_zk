@@ -1,4 +1,5 @@
 {
+  // We now support comments!
   "background" : "#fffdf6e3",
   "foreground" : "#ff657b83",
   "linehighlight": "#1F3D3812",

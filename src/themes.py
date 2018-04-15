@@ -1,5 +1,6 @@
 import os
-import json
+import jstyleson as json
+
 
 class Theme:
     def __init__(self, theme_file):
