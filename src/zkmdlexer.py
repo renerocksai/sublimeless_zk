@@ -3,6 +3,8 @@ import re
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
 from themes import Theme
+from split_regions import split_regions
+
 
 class ZkMdLexer(QsciLexerCustom):
     def __init__(self, parent, theme_file):
@@ -78,25 +80,99 @@ class ZkMdLexer(QsciLexerCustom):
     def styleText(self, start, end):
         self.startStyling(0)
         text = bytearray(self.parent().text(), "utf-8").decode("utf-8")
+        orig_text = text
+
         regions = []
 
-        p = re.compile(r'(\*\*|__)([^\s].*?[^\s])(\1)')
+        ### non-inline
+
+        # headings
+        p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
-            regions.append((match.start(), match.start() + 2, match.group(1), 'text.bold.symbol'))
-            regions.append((match.start() + 2, match.end() - 2, match.group(2), 'text.bold.text'))
-            regions.append((match.end() - 2, match.end(), match.group(3), 'text.bold.symbol'))
+            a = match.start()
+            b = match.end()
+            n = match.group(1).count('#')
+            regions.append((a, a + len(match.group(1)), match.group(1), 'h.symbol'))
+            regions.append((a + len(match.group(1)), b, match.group(2), f'h{n}.text'))
+
+        # quotes
+        p = re.compile('^(>)(.+)$', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            regions.append((a, a + len(match.group(1)), match.group(1), 'quote.symbol'))
+            regions.append((a + len(match.group(1)), b, match.group(2), 'quote.text'))
+
+        # list unordered
+        p = re.compile(r'^(( {4})*[\*-]\s)(.+)$', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
+            regions.append((a + len(match.group(1)), b, match.group(3), 'list.unordered'))
+
+        # list ordered
+        p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
+            regions.append((a + len(match.group(1)), b, match.group(3), 'list.ordered'))
+
+
+        ### inline markup
 
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
 
-        # todo: sort and flatten? regions
-        # maybe flattening is not necessary by cunning layering
+        # bolditalic
+        p = re.compile(r'([\*_]{3})(?!\s)(.+?)(?<!\s)(\1)')
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            regions.append((a, a + 3, match.group(1), 'text.bolditalic.symbol'))
+            regions.append((a + 3, b - 3, match.group(2), 'text.bolditalic.text'))
+            regions.append((b - 3, b, match.group(3), 'text.bolditalic.symbol'))
+            # consume
+            text = text[:a] + ' ' * len(match.group()) + text[b:]
+
+        # bold
+        p = re.compile(r'([\*_]{2})(?!\s)(.+?)(?<!\s)(\1)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, a + 2, match.group(1), 'text.bold.symbol'))
+            regions.append((a + 2, b - 2, match.group(2), 'text.bold.text'))
+            regions.append((b - 2, b, match.group(3), 'text.bold.symbol'))
+            # consume
+            text = text[:a] + ' ' * len(match.group()) + text[b:]
+
+        # italic
+        p = re.compile(r'([\*_]{1})(?!\s)(.+?)(?<!\s)(\1)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, a + 1, match.group(1), 'text.italic.symbol'))
+            regions.append((a + 1, b - 1, match.group(2), 'text.italic.text'))
+            regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
+            print('>' + ''.join(match.group(1, 2, 3)) + '<')
+            # consume
+            text = text[:a] + ' ' * len(match.group()) + text[b:]
+
+        # todo: sort and split regions
+        # layering
         #    --> most important ones last
         regions.sort(key=lambda items: items[0])
 
         # todo: handle multi line comments
+        # todo: finally: code blocks : use orig text for that?
+        # todo: remove all other regions from code block
+
+        did_replace = True
+        while did_replace:
+            did_replace, regions = split_regions(regions)
 
         style_regions = []
         # now translate regions to byte arrays
