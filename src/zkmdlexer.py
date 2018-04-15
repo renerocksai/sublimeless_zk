@@ -60,6 +60,12 @@ class ZkMdLexer(QsciLexerCustom):
             self.setFont(QFont(default_font, default_size, weight=weight, italic=italic), styleid)
             self.setEolFill(True, styleid)
 
+        # now make zettel links and tags clickable
+        editor = self.parent()
+        editor.SendScintilla(editor.SCI_STYLESETHOTSPOT, self.style2id['zettel.link'], True)
+        editor.SendScintilla(editor.SCI_STYLESETHOTSPOT, self.style2id['tag'], True)
+        editor.setHotspotUnderline(True)
+
     def language(self):
         return "MardownZettelkasten"
 
