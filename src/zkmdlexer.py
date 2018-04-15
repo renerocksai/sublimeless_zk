@@ -60,13 +60,15 @@ class ZkMdLexer(QsciLexerCustom):
             self.setFont(QFont(default_font, default_size, weight=weight, italic=italic), styleid)
             self.setEolFill(True, styleid)
 
-        # for clickable links
+        # indicators for clickable links
         self.indicator_id_noteid = 0
         self.indicator_id_tag = 1
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, 0)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, 1)
         editor.indicatorClicked.connect(self.on_click_indicator)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), 0)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), 1)
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -84,11 +86,15 @@ class ZkMdLexer(QsciLexerCustom):
         tag_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_tag, position)
         noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
         if noteid_pos:
-            print('note_id', self.parent().text()[noteid_pos:noteid_pos + 12])
+            p = re.compile(r'([0-9.]{12,18})')
+            match = p.match(self.parent().text()[noteid_pos:noteid_pos + 20])
+            if match:
+                print('note_id', match.group(1), 'clicked')
         if tag_pos:
-            print('tag', tag_pos)
-            print(self.parent().text()[tag_pos:tag_pos + 10])
-        #print(self.parent().IndicatorAllOnFor(value))
+            p = re.compile(r'(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
+            match = p.match(self.parent().text()[tag_pos:tag_pos + 100])
+            if match:
+                print('tag', match.group(1), 'clicked')
 
     def language(self):
         return "MardownZettelkasten"
