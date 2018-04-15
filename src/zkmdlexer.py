@@ -79,6 +79,7 @@ class ZkMdLexer(QsciLexerCustom):
         ### non-inline
 
         # tags in comments (but not in code blocks)
+        # hence, consume code blocks first
         # code blocks
         p = re.compile(r'(```)(.|\n)*?(```)')
         for match in p.finditer(text):
@@ -91,6 +92,15 @@ class ZkMdLexer(QsciLexerCustom):
 
         # tags
         # todo: implement tags
+        p = re.compile(r'(\s)(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
+        for match in p.finditer(text):
+            a = match.start(2)
+            b = match.end(3)
+            regions.append((a, b, match.group(2), 'tag'))
+            # consume
+            print('TAG', match.groups() , match.group())
+            text = text[:a] + 'x' * (len(match.group(2))) + text[b:]
+
 
         # comments
         p = re.compile(r'(<!--)(.|\n)*?(-->)')
