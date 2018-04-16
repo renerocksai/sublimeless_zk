@@ -12,13 +12,15 @@ class ZkMdLexer(QsciLexerCustom):
 
     note_id_clicked = pyqtSignal(str, bool, bool, bool)
     tag_clicked = pyqtSignal(str, bool, bool, bool)
+    search_spec_clicked = pyqtSignal(str, bool, bool, bool)
 
-    def __init__(self, parent, theme):
+    def __init__(self, parent, theme, highlight_saved_searches=False):
         super(ZkMdLexer, self).__init__(parent)
         self.theme = theme
         self.style_infos = {}
         self.style2id = {}
         self.id2stylename = {}
+        self.highlight_saved_searches = highlight_saved_searches
 
         # Default text settings
         # ----------------------
@@ -70,12 +72,15 @@ class ZkMdLexer(QsciLexerCustom):
         # indicators for clickable links
         self.indicator_id_noteid = 0
         self.indicator_id_tag = 1
+        self.indicator_id_search_spec = 2
         editor = self.parent()
-        editor.indicatorDefine(QsciScintilla.PlainIndicator, 0)
-        editor.indicatorDefine(QsciScintilla.PlainIndicator, 1)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_search_spec)
         editor.indicatorClicked.connect(self.on_click_indicator)
-        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), 0)
-        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), 1)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -96,14 +101,22 @@ class ZkMdLexer(QsciLexerCustom):
 
         tag_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_tag, position)
         noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
-        if noteid_pos:
+        search_spec_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_search_spec, position)
+
+        if search_spec_pos:
+            # get until end of line
+            search_spec = self.parent().text()[search_spec_pos:].split('\n', 1)[0]
+            # emit note clicked signal
+            self.search_spec_clicked.emit(search_spec, ctrl, alt, shift)
+            print('search spec clicked:', search_spec)
+        elif noteid_pos:
             p = re.compile(r'([0-9.]{12,18})')
             match = p.match(self.parent().text()[noteid_pos:noteid_pos + 20])
             if match:
                 note_id = match.group(1)
                 # emit note clicked signal
                 self.note_id_clicked.emit(note_id, ctrl, alt, shift)
-        if tag_pos:
+        elif tag_pos:
             p = re.compile(r'(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
             match = p.match(self.parent().text()[tag_pos:tag_pos + 100])
             if match:
@@ -129,6 +142,18 @@ class ZkMdLexer(QsciLexerCustom):
         regions = []
 
         ### non-inline
+
+        # only for search spec area: search specs:
+        if self.highlight_saved_searches:
+            p = re.compile(r'(^.+?:[ \t]*?)([^\n]+)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
+            for match in p.finditer(text):
+                a1 = match.start(1)
+                a2 = match.start(2)
+                b = match.end()
+                regions.append((a1, a2, match.group(1), 'search.name'))
+                regions.append((a2, b, match.group(2), 'search.spec'))
+                # make clickable
+                self.make_clickable(a2, len(match.group(2)), self.indicator_id_search_spec)
 
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first

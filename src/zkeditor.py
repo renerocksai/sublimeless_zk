@@ -92,7 +92,7 @@ class CustomMainWindow(QMainWindow):
         # -------------------------------- #
         #          Install lexer           #
         # -------------------------------- #
-        self._lexer = ZkMdLexer(self._editor, self.theme)
+        self._lexer = ZkMdLexer(self._editor, self.theme, highlight_saved_searches=False)
         self._editor.setLexer(self._lexer)
         self._editor.set_calculation_font(self._lexer.default_font)
 

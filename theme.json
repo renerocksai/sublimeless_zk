@@ -1,5 +1,9 @@
 {
   // We now support comments!
+  // styles can be:
+  // - italic
+  // - bold
+  // - bolditalic
   "background" : "#fffdf6e3",
   "foreground" : "#ff657b83",
   "linehighlight": "#1F3D3812",
@@ -48,5 +52,11 @@
 
   "zettel.link" : {"color": "#268bd2"},
   "comment" : {"color": "#93a1a1"},
-  "footnote": {"color": "#cb4b16"}
+  "footnote": {"color": "#cb4b16"},
+
+  // search specs --- not used in default markdown
+  // only used for saved searches area
+  "search.name": {"style": "bolditalic"},
+  "search.spec": {"color": "#e42e70",// "background": "#99ccff"
+  },
 }

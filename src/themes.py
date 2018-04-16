@@ -83,7 +83,7 @@ class Theme:
             self.get_theme_style(hname)
         for style in ('code.fenced', 'code', 'list.symbol', 'list.unordered',
                       'list.ordered', 'tag', 'citekey', 'zettel.link', 'comment',
-                      'footnote'):
+                      'footnote', 'search.name', 'search.spec'):
             self.get_theme_style(style)
 
         link_dict = theme_d.get('link', {})
