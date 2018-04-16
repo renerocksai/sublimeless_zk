@@ -3,6 +3,7 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
+from PyQt5.QtCore import Qt
 
 from imagescintilla import ImageScintilla
 from zkmdlexer import ZkMdLexer
@@ -114,11 +115,25 @@ class CustomMainWindow(QMainWindow):
         # ! Add editor to layout !
         # -------------------------
         tabba = QTabWidget()
+        # Set up the tabs
+        # tabba.tabCloseRequested.connect(self.tab.removeTab)
+        # tabba.tabCloseRequested.connect(self.lessTabs)
+
+        mainsplit = QSplitter()
+        mainsplit.setOrientation(Qt.Horizontal)
+        subsplit = QSplitter()
+        subsplit.addWidget(QLabel('hello'))
+        subsplit.addWidget(QLabel('world'))
+        subsplit.setOrientation(Qt.Vertical)
+        mainsplit.addWidget(tabba)
+        mainsplit.addWidget(subsplit)
+
         tabba.setMovable(True)
         tabba.setDocumentMode(True)
-        self._lyt.addWidget(tabba)
-
+        self._lyt.addWidget(mainsplit)
+        self.setUnifiedTitleAndToolBarOnMac(True)
         tabba.addTab(self._editor, '201804141018 testnote.md')
+        tabba.setTabsClosable(True)
         self.show()
 
     ''''''
