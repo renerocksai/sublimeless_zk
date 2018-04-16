@@ -23,7 +23,7 @@ class CustomMainWindow(QMainWindow):
 
         # 1. Define the geometry of the main window
         # ------------------------------------------
-        self.setGeometry(300, 300, 800, 400)
+        self.setGeometry(300, 200, 800, 600)
         self.setWindowTitle("QScintilla Test")
 
         # 2. Create frame and layout
@@ -43,7 +43,7 @@ class CustomMainWindow(QMainWindow):
         self._btn.setFixedHeight(50)
         self._btn.clicked.connect(self._btn_action)
         self._btn.setFont(self._myFont)
-        self._lyt.addWidget(self._btn)
+        #self._lyt.addWidget(self._btn)
 
         # -------------------------------- #
         #     QScintilla editor setup      #
@@ -113,7 +113,12 @@ class CustomMainWindow(QMainWindow):
 
         # ! Add editor to layout !
         # -------------------------
-        self._lyt.addWidget(self._editor)
+        tabba = QTabWidget()
+        tabba.setMovable(True)
+        tabba.setDocumentMode(True)
+        self._lyt.addWidget(tabba)
+
+        tabba.addTab(self._editor, '201804141018 testnote.md')
         self.show()
 
     ''''''
