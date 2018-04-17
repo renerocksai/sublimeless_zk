@@ -146,15 +146,16 @@ class ZkMdLexer(QsciLexerCustom):
 
         # only for search spec area: search specs:
         if self.highlight_saved_searches:
-            p = re.compile(r'(^.+?:[ \t]*?)([^\n]+)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
+            p = re.compile(r'(^.+?:)([ \t]*)([^\n]+)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
             for match in p.finditer(text):
+                print(match.groups())
                 a1 = match.start(1)
-                a2 = match.start(2)
+                a2 = match.start(3)
                 b = match.end()
-                regions.append((a1, a2, match.group(1), 'search.name'))
-                regions.append((a2, b, match.group(2), 'search.spec'))
+                regions.append((a1, a2, match.group(1)+match.group(2), 'search.name'))
+                regions.append((a2, b, match.group(3), 'search.spec'))
                 # make clickable
-                self.make_clickable(a2, len(match.group(2)), self.indicator_id_search_spec)
+                self.make_clickable(a2, len(match.group(3)), self.indicator_id_search_spec)
 
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first
