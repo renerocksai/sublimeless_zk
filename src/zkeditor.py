@@ -122,7 +122,7 @@ class CustomMainWindow(QMainWindow):
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
         subsplit = QSplitter()
-        subsplit.addWidget(QLabel('hello'))
+        subsplit.addWidget(self.make_search_results_editor())
         subsplit.addWidget(QLabel('world'))
         subsplit.setOrientation(Qt.Vertical)
         mainsplit.addWidget(tabba)
@@ -148,12 +148,62 @@ class CustomMainWindow(QMainWindow):
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
 
+    def make_search_results_editor(self):
+        editor = QsciScintilla()
+        editor.setUtf8(True)             # Set encoding to UTF-8
+        with open('../search_results_default.md',
+                  mode='r', encoding='utf-8', errors='ignore') as f:
+            txt = f.read()
+        editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
+        editor.setLexer(None)            # We install lexer later
+        editor.setWrapMode(QsciScintilla.WrapWord)
+        editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
+        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+
+        editor.setEolMode(QsciScintilla.EolUnix)
+        editor.setEolVisibility(False)
+
+        editor.setIndentationsUseTabs(False)
+        editor.setTabWidth(4)
+        editor.setIndentationGuides(True)
+        editor.setTabIndents(True)
+        editor.setAutoIndent(True)
+
+        editor.setMarginType(0, QsciScintilla.SymbolMargin)
+        editor.setMarginWidth(0, "00")
+        editor.setMarginWidth(1, "00")
+        editor.setMarginsForegroundColor(QColor("#ff888888"))
+
+        theme = Theme('../themes/search_results.json')
+
+        lexer = ZkMdLexer(editor, theme, highlight_saved_searches=False, show_block_quotes=False)
+        editor.setLexer(lexer)
+
+        editor.setCaretForegroundColor(QColor(lexer.theme.caret))
+        editor.setCaretLineVisible(True)
+        editor.setCaretLineBackgroundColor(QColor(lexer.theme.highlight))
+        editor.setCaretWidth(8)
+        #editor.setMarginsBackgroundColor(QColor("#ff404040"))
+        editor.setFont(lexer.default_font)
+        editor.setExtraAscent(theme.line_pad_top)
+        editor.setExtraDescent(theme.line_pad_bottom)
+
+        # connect zettelkasten signals
+        lexer.tag_clicked.connect(self.clicked_tag)
+        lexer.note_id_clicked.connect(self.clicked_noteid)
+        editor.setMinimumWidth(460)
+        editor.setMaximumWidth(800)
+        return editor
+
+    def on_search_results_changed(self):
+        pass
+
 ''' End Class '''
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     QApplication.setStyle(QStyleFactory.create('Fusion'))
-    theme = Theme('../theme.json')
+    theme = Theme('../themes/solarized_light.json')
     myGUI = CustomMainWindow(theme)
 
     sys.exit(app.exec_())

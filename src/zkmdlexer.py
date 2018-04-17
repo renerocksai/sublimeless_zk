@@ -14,13 +14,14 @@ class ZkMdLexer(QsciLexerCustom):
     tag_clicked = pyqtSignal(str, bool, bool, bool)
     search_spec_clicked = pyqtSignal(str, bool, bool, bool)
 
-    def __init__(self, parent, theme, highlight_saved_searches=False):
+    def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True):
         super(ZkMdLexer, self).__init__(parent)
         self.theme = theme
         self.style_infos = {}
         self.style2id = {}
         self.id2stylename = {}
         self.highlight_saved_searches = highlight_saved_searches
+        self.show_block_quotes = show_block_quotes
 
         # Default text settings
         # ----------------------
@@ -209,13 +210,14 @@ class ZkMdLexer(QsciLexerCustom):
 
         # block quotes
         ### NEED TO STYLE THE \n !!!
-        p = re.compile(r'^( {4})+(.+$)', flags=re.MULTILINE)
-        for match in p.finditer(text):
-            a = match.start()
-            b = match.end()
-            regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
-            regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
-            # +1 to also style the \n
+        if self.show_block_quotes:
+            p = re.compile(r'^( {4})+(.+$)', flags=re.MULTILINE)
+            for match in p.finditer(text):
+                a = match.start()
+                b = match.end()
+                regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
+                regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
+                # +1 to also style the \n
 
         # list unordered
         p = re.compile(r'^(( {4})*[\*-]\s)(.+)$', flags=re.MULTILINE)
