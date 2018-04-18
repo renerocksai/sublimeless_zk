@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
         max_width = 150
         for line in editor.text().split('\n'):
             max_width = max(max_width, font_metrics.width(line))
-        return max_width
+        return max_width + 2 * 10 + 10    # 2 * margin width (we have 2 margins)
 
     def make_search_results_editor(self):
         editor = QsciScintilla()
@@ -171,8 +171,8 @@ class MainWindow(QMainWindow):
         editor.setAutoIndent(True)
 
         editor.setMarginType(0, QsciScintilla.SymbolMargin)
-        editor.setMarginWidth(0, "00")
-        editor.setMarginWidth(1, "00")
+        editor.setMarginWidth(0, 10)
+        editor.setMarginWidth(1, 10)
         editor.setMarginsForegroundColor(QColor("#ff888888"))
 
         theme = Theme('../themes/search_results.json')
@@ -215,8 +215,8 @@ class MainWindow(QMainWindow):
         editor.setAutoIndent(True)
 
         editor.setMarginType(0, QsciScintilla.SymbolMargin)
-        editor.setMarginWidth(0, "00")
-        editor.setMarginWidth(1, "00")
+        editor.setMarginWidth(0, 10)
+        editor.setMarginWidth(1, 10)
         editor.setMarginsForegroundColor(QColor("#ff888888"))
 
         theme = Theme('../themes/saved_searches.json')
@@ -234,7 +234,7 @@ class MainWindow(QMainWindow):
         editor.setExtraDescent(theme.line_pad_bottom)
 
         editor.setMinimumWidth(self.recommended_editor_width(editor))
-        editor.setMaximumWidth(800)
+        editor.setMaximumWidth(1024)
         return editor
 
     def on_search_results_changed(self):
