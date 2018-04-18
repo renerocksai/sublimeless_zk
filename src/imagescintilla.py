@@ -1,8 +1,9 @@
-import sys
-from PyQt5.QtWidgets import *
+
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
+
+from textshortcuts import EditorTextShortCutHandler
 
 
 class ImageScintilla(QsciScintilla):
@@ -10,6 +11,7 @@ class ImageScintilla(QsciScintilla):
     Specialized QScintilla editor that allows insertion and deletion
     of images into the editor itself.
     """
+
 
     class Image:
         """
@@ -44,6 +46,8 @@ class ImageScintilla(QsciScintilla):
         # Connect the special SCN_MODIFIED signal, that gives details of
         # changes in the editor's text.
         self.SCN_MODIFIED.connect(self.text_changed)
+
+        self.text_shortcut_handler = EditorTextShortCutHandler(self)
     ''''''
 
     def set_calculation_font(self, font):
@@ -152,4 +156,9 @@ class ImageScintilla(QsciScintilla):
             painter.drawImage(QPoint(paint_offset_x, paint_offset_y), image)
         # Close the painter
         painter.end()
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        self.text_shortcut_handler.keyPressEvent(event)
+
     ''''''

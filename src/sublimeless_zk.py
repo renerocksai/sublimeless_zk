@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -38,9 +38,15 @@ class Sublimeless_Zk(QObject):
         { "caption": "ZK: Show all Notes", "command": "zk_show_all_notes" },
         { "caption": "ZK: Enter Zettelkasten Mode", "command": "zk_enter_zk_mode" },
         """
-        self.newAction = QAction("New Zettel Note",self)
+        self.newAction = QAction("New Zettel Note", self)
         self.newAction.setShortcuts(["Ctrl+N", "Shift+Return", "Shift+Enter"])
         self.newAction.triggered.connect(self.zk_new_zettel)
+
+        self.insertLinkAction = QAction('Insert Link to Note', self)
+        self.insertLinkAction.setShortcut('[,[')
+        self.insertLinkAction.triggered.connect(self.insert_link)
+        self.gui.editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
+
 
         ## Editor shortcut overrides
         ##
@@ -49,7 +55,16 @@ class Sublimeless_Zk(QObject):
             deletable_keys = (
                 Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
                 Qt.ShiftModifier | Qt.Key_Enter, Qt.ControlModifier | Qt.Key_Enter,
+                Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
+
             )
+            if sys.platform == 'darwin':
+                deletable_keys = (
+                    Qt.ShiftModifier | Qt.Key_Return, Qt.MetaModifier | Qt.Key_Return,
+                    Qt.ShiftModifier | Qt.Key_Enter, Qt.MetaModifier | Qt.Key_Enter,
+                    Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
+                )
+
             for key_combo in deletable_keys:
                 command = commands.boundTo(key_combo)
                 if command is not None:
@@ -61,7 +76,10 @@ class Sublimeless_Zk(QObject):
                     print(command.key(), command.alternateKey())
 
         # todo: pack this into an action, too
-        shortcut = QShortcut(Qt.ControlModifier| Qt.Key_Return, self.gui)
+        if sys.platform == 'darwin':
+            shortcut = QShortcut(Qt.MetaModifier| Qt.Key_Return, self.gui)
+        else:
+            shortcut = QShortcut(Qt.ControlModifier | Qt.Key_Return, self.gui)
         shortcut.activated.connect(self.zk_follow_link)
 
 
@@ -82,6 +100,7 @@ class Sublimeless_Zk(QObject):
         # file.addAction(self.fontAct)
         # file.addAction(self.dirAct)
 
+        edit.addAction(self.insertLinkAction)
         # edit.addAction(self.undoAction)
         # edit.addAction(self.redoAction)
         # edit.addSeparator()
@@ -109,6 +128,7 @@ class Sublimeless_Zk(QObject):
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         theme = Theme('../themes/solarized_light.json')
         self.gui = MainWindow(theme)
+        self.gui.setFocus()
         self.init_actions()
         self.initMenubar()
         self.connect_signals()
@@ -143,6 +163,9 @@ class Sublimeless_Zk(QObject):
             print('from search editor')
         else:
             print('irrelevant')
+
+    def insert_link(self):
+        print('Insert Link')
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
