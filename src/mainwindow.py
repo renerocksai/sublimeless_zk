@@ -9,12 +9,10 @@ from imagescintilla import ImageScintilla
 from zkmdlexer import ZkMdLexer
 from themes import Theme
 
-''' end Class '''
 
-
-class CustomMainWindow(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self, theme):
-        super(CustomMainWindow, self).__init__()
+        super(MainWindow, self).__init__()
 
         # load theme
         self.theme = theme
@@ -25,7 +23,7 @@ class CustomMainWindow(QMainWindow):
         # 1. Define the geometry of the main window
         # ------------------------------------------
         self.setGeometry(300, 200, 800, 600)
-        self.setWindowTitle("QScintilla Test")
+        self.setWindowTitle("Sublimeless Zettelkasten")
 
         # 2. Create frame and layout
         # ---------------------------
@@ -52,88 +50,89 @@ class CustomMainWindow(QMainWindow):
 
         # ! Make instance of QSciScintilla class!
         # ----------------------------------------
-        self._editor = ImageScintilla()
-        self._editor.setUtf8(True)             # Set encoding to UTF-8
+        self.editor = ImageScintilla()
+        self.editor.setUtf8(True)             # Set encoding to UTF-8
         with open('../zettelkasten/201804141018 testnote.md',
                   mode='r', encoding='utf-8', errors='ignore') as f:
             txt = f.read()
-        self._editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
-        self._editor.setLexer(None)            # We install lexer later
-        #self._editor.setFont(self._myFont)    # Gets overridden by lexer later on
+        self.editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
+        self.editor.setLexer(None)            # We install lexer later
+        #self.editor.setFont(self._myFont)    # Gets overridden by lexer later on
 
         # 1. Text wrapping
         # -----------------
-        self._editor.setWrapMode(QsciScintilla.WrapWord)
-        self._editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
-        self._editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+        self.editor.setWrapMode(QsciScintilla.WrapWord)
+        self.editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
+        self.editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
 
         # 2. End-of-line mode
         # --------------------
-        self._editor.setEolMode(QsciScintilla.EolUnix)
-        self._editor.setEolVisibility(False)
+        self.editor.setEolMode(QsciScintilla.EolUnix)
+        self.editor.setEolVisibility(False)
 
         # 3. Indentation
         # ---------------
-        self._editor.setIndentationsUseTabs(False)
-        self._editor.setTabWidth(4)
-        self._editor.setIndentationGuides(True)
-        self._editor.setTabIndents(True)
-        self._editor.setAutoIndent(True)
+        self.editor.setIndentationsUseTabs(False)
+        self.editor.setTabWidth(4)
+        self.editor.setIndentationGuides(True)
+        self.editor.setTabIndents(True)
+        self.editor.setAutoIndent(True)
 
 
         # 5. Margins
         # -----------
         # Margin 0 = Line nr margin
-        #self._editor.setMarginType(0, QsciScintilla.NumberMargin)
-        self._editor.setMarginType(0, QsciScintilla.SymbolMargin)
-        self._editor.setMarginWidth(0, "0000")
-        self._editor.setMarginWidth(1, "0000")
-        self._editor.setMarginsForegroundColor(QColor("#ff888888"))
+        #self.editor.setMarginType(0, QsciScintilla.NumberMargin)
+        self.editor.setMarginType(0, QsciScintilla.SymbolMargin)
+        self.editor.setMarginWidth(0, "0000")
+        self.editor.setMarginWidth(1, "0000")
+        self.editor.setMarginsForegroundColor(QColor("#ff888888"))
 
         # -------------------------------- #
         #          Install lexer           #
         # -------------------------------- #
-        self._lexer = ZkMdLexer(self._editor, self.theme, highlight_saved_searches=False)
-        self._editor.setLexer(self._lexer)
-        self._editor.set_calculation_font(self._lexer.default_font)
+        self.lexer = ZkMdLexer(self.editor, self.theme, highlight_saved_searches=False)
+        self.editor.setLexer(self.lexer)
+        self.editor.set_calculation_font(self.lexer.default_font)
 
         # 4. Caret
         # ---------
-        self._editor.setCaretForegroundColor(QColor(self._lexer.theme.caret))
-        self._editor.setCaretLineVisible(True)
-        self._editor.setCaretLineBackgroundColor(QColor(self._lexer.theme.highlight))
-        self._editor.setCaretWidth(8)
-        #self._editor.setMarginsBackgroundColor(QColor("#ff404040"))
-        self._editor.setFont(self._lexer.default_font)
-        self._editor.setExtraAscent(self.theme.line_pad_top)
-        self._editor.setExtraDescent(self.theme.line_pad_bottom)
+        self.editor.setCaretForegroundColor(QColor(self.lexer.theme.caret))
+        self.editor.setCaretLineVisible(True)
+        self.editor.setCaretLineBackgroundColor(QColor(self.lexer.theme.highlight))
+        self.editor.setCaretWidth(8)
+        #self.editor.setMarginsBackgroundColor(QColor("#ff404040"))
+        self.editor.setFont(self.lexer.default_font)
+        self.editor.setExtraAscent(self.theme.line_pad_top)
+        self.editor.setExtraDescent(self.theme.line_pad_bottom)
 
-        # connect zettelkasten signals
-        self._lexer.tag_clicked.connect(self.clicked_tag)
-        self._lexer.note_id_clicked.connect(self.clicked_noteid)
+        # give it a good size
+        self.editor.setMinimumWidth(QFontMetrics(self.editor.lexer().default_font).width('M' * 80))
 
         # ! Add editor to layout !
         # -------------------------
-        tabba = QTabWidget()
+        self.qtabs = QTabWidget()
         # Set up the tabs
-        # tabba.tabCloseRequested.connect(self.tab.removeTab)
-        # tabba.tabCloseRequested.connect(self.lessTabs)
+        # self.qtabs.tabCloseRequested.connect(self.tab.removeTab)
+        # self.qtabs.tabCloseRequested.connect(self.lessTabs)
 
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
         subsplit = QSplitter()
-        subsplit.addWidget(self.make_search_results_editor())
-        subsplit.addWidget(self.make_saved_searches_editor())
+        self.search_results_editor = self.make_search_results_editor()
+        self.saved_searches_editor = self.make_saved_searches_editor()
+        subsplit.addWidget(self.search_results_editor)
+        subsplit.addWidget(self.saved_searches_editor)
         subsplit.setOrientation(Qt.Vertical)
-        mainsplit.addWidget(tabba)
+        mainsplit.addWidget(self.qtabs)
         mainsplit.addWidget(subsplit)
 
-        tabba.setMovable(True)
-        tabba.setDocumentMode(True)
+        self.qtabs.setMovable(True)
+        self.qtabs.setDocumentMode(True)
         self._lyt.addWidget(mainsplit)
         self.setUnifiedTitleAndToolBarOnMac(True)
-        tabba.addTab(self._editor, '201804141018 testnote.md')
-        tabba.setTabsClosable(True)
+        self.qtabs.addTab(self.editor, '201804141018 testnote.md')
+        self.qtabs.setTabsClosable(True)
         self.show()
 
     ''''''
@@ -142,11 +141,12 @@ class CustomMainWindow(QMainWindow):
         print("Hello World!")
     ''''''
 
-    def clicked_noteid(self, noteid, ctrl, alt, shift):
-        print('noteid', noteid, ctrl, alt, shift)
-
-    def clicked_tag(self, tag, ctrl, alt, shift):
-        print('tag', tag)
+    def recommended_editor_width(self, editor):
+        font_metrics = QFontMetrics(editor.lexer().default_font)
+        max_width = 150
+        for line in editor.text().split('\n'):
+            max_width = max(max_width, font_metrics.width(line))
+        return max_width
 
     def make_search_results_editor(self):
         editor = QsciScintilla()
@@ -188,10 +188,7 @@ class CustomMainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        # connect zettelkasten signals
-        lexer.tag_clicked.connect(self.clicked_tag)
-        lexer.note_id_clicked.connect(self.clicked_noteid)
-        editor.setMinimumWidth(460)
+        editor.setMinimumWidth(self.recommended_editor_width(editor))
         editor.setMaximumWidth(800)
         return editor
 
@@ -211,7 +208,7 @@ class CustomMainWindow(QMainWindow):
         editor.setEolVisibility(False)
 
         editor.setIndentationsUseTabs(False)
-        editor.setTabWidth(4)
+        editor.setTabWidth(8)
         editor.setIndentationGuides(True)
         editor.setTabIndents(True)
         editor.setAutoIndent(True)
@@ -235,10 +232,7 @@ class CustomMainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        # connect zettelkasten signals
-        lexer.tag_clicked.connect(self.clicked_tag)
-        lexer.note_id_clicked.connect(self.clicked_noteid)
-        editor.setMinimumWidth(460)
+        editor.setMinimumWidth(self.recommended_editor_width(editor))
         editor.setMaximumWidth(800)
         return editor
 
@@ -248,12 +242,3 @@ class CustomMainWindow(QMainWindow):
 
 ''' End Class '''
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    QApplication.setStyle(QStyleFactory.create('Fusion'))
-    theme = Theme('../themes/solarized_light.json')
-    myGUI = CustomMainWindow(theme)
-
-    sys.exit(app.exec_())
-
-''''''
