@@ -133,6 +133,7 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.qtabs.addTab(self.editor, '201804141018 testnote.md')
         self.qtabs.setTabsClosable(True)
+
         self.show()
 
     ''''''
@@ -239,6 +240,7 @@ class MainWindow(QMainWindow):
     def on_search_results_changed(self):
         # todo
         pass
+
 
 ''' End Class '''
 
