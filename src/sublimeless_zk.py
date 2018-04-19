@@ -145,7 +145,6 @@ class Sublimeless_Zk(QObject):
     def connect_signals(self):
         # tab actions
         self.gui.qtabs.tabCloseRequested.connect(self.gui.qtabs.removeTab)
-        self.gui.qtabs.tabCloseRequested.connect(self.lessTabs)
 
         # normal actions
         self.newAction.triggered.connect(self.zk_new_zettel)
@@ -235,9 +234,6 @@ class Sublimeless_Zk(QObject):
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
 
-    def lessTabs(self):
-        pass
-
     def unsaved(self):
         editor = self.gui.qtabs.currentWidget()
         tab_index = self.gui.qtabs.currentIndex()
@@ -254,8 +250,9 @@ class Sublimeless_Zk(QObject):
         """
         Helper function to find out where the keyboard input focus is
         """
-        if self.app.focusWidget() == self.gui.editor:
-            return self.gui.editor
+        editors = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
+        if self.app.focusWidget() in editors:
+            return self.app.focusWidget()
         elif self.app.focusWidget() == self.gui.search_results_editor:
             return self.gui.search_results_editor
         elif self.app.focusWidget() == self.gui.saved_searches_editor:
@@ -314,7 +311,10 @@ class Sublimeless_Zk(QObject):
 
     def show_preferences(self):
         self.open_document('../settings_default.json', is_settings_file=True)
-        self.open_document('../zettelkasten/201804141018 testnote.md')
+
+        # todo : delete this test doc loading
+        if True:
+            self.open_document('../zettelkasten/201804141018 testnote.md')
 
 
     #
