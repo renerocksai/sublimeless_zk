@@ -10,6 +10,8 @@ from PyQt5.QtCore import QObject
 from themes import Theme
 from mainwindow import MainWindow
 from settingseditor import SettingsEditor
+from project import Project
+from appstate import AppState
 
 
 class Sublimeless_Zk(QObject):
@@ -17,6 +19,8 @@ class Sublimeless_Zk(QObject):
         QObject.__init__(self, parent=parent)
         self.app = None
         self.gui = None
+        self.app_state = AppState()
+        self.current_project = self.app_state.recent_projects[-1]
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -223,6 +227,8 @@ class Sublimeless_Zk(QObject):
         self.init_actions()
         self.initMenubar()
         self.connect_signals()
+        if self.app_state.homeless:
+            self.open_document('../zettelkasten/201804141018 testnote.md')
         sys.exit(self.app.exec_())
 
     #
@@ -246,6 +252,9 @@ class Sublimeless_Zk(QObject):
         # TODO: implement
         pass
 
+    #
+    # Comnands / Actions
+    #
     def get_active_editor(self):
         """
         Helper function to find out where the keyboard input focus is
@@ -266,6 +275,12 @@ class Sublimeless_Zk(QObject):
             if editor.file_name == filn:
                 return i, editor
         return -1, None
+
+    def open_folder(self):
+        """
+        todo: Call Save All first or sth like that
+        """
+        pass
 
     def open_document(self, document_filn, is_settings_file=False):
         """
@@ -312,16 +327,12 @@ class Sublimeless_Zk(QObject):
     def show_preferences(self):
         self.open_document('../settings_default.json', is_settings_file=True)
 
-        # todo : delete this test doc loading
-        if True:
-            self.open_document('../zettelkasten/201804141018 testnote.md')
-
-
     #
     # Zettelkasten Command Slots
     #
 
     def zk_new_zettel(self):
+        # todo : you are here
         print('New Zettel')
 
     def zk_follow_link(self):
@@ -386,11 +397,6 @@ class Sublimeless_Zk(QObject):
     def show_all_notes(self):
         pass
 
-    def open_folder(self):
-        """
-        todo: Call Save All first or sth like that
-        """
-        pass
 
 
 

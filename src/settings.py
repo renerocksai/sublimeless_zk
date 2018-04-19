@@ -9,3 +9,5 @@ def get_settings(filn='../settings_default.json', raw=False):
             return txt
         else:
             return json.loads(txt)
+
+# todo make QObject that emits settings changed / slot interface for eg Project class

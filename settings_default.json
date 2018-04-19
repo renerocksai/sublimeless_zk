@@ -1,7 +1,9 @@
 {
 
     // The preferred markdown extension
-    "wiki_extension": ".md",
+    "markdown_extension": ".md",
+
+    "new_note_template": "---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->",
 
     // when creating a new link, use [[double brackets]]
     // false to use [single brackets]
