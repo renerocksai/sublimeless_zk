@@ -71,17 +71,6 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction = QAction('Show all Notes', self)
         self.showAllNotesAction.setShortcut('[,!')
 
-        """
-        { "caption": "ZK: Auto-TOC", "command": "zk_toc" },
-        { "caption": "ZK: Number Headings", "command": "zk_renumber_headings" },
-        { "caption": "ZK: Remove Heading Numbers", "command": "zk_denumber_headings" },
-        { "caption": "ZK: Show all Notes", "command": "zk_show_all_notes" },
-        """
-
-
-
-
-
         ## Editor shortcut overrides
         ##
         for editor in self.gui.editor, self.gui.saved_searches_editor, self.gui.search_results_editor:
@@ -130,10 +119,8 @@ class Sublimeless_Zk(QObject):
         # file.addAction(self.newTabAction)
         # file.addAction(self.openAction)
         # file.addAction(self.saveAction)
-        # file.addAction(self.saveasAction)
+        # file.addAction(self.saveAllAction)
         # file.addSeparator()
-        # file.addAction(self.fontAct)
-        # file.addAction(self.dirAct)
 
         edit.addAction(self.insertLinkAction)
         edit.addAction(self.showReferencingNotesAction)
@@ -151,7 +138,6 @@ class Sublimeless_Zk(QObject):
         # edit.addAction(self.copyAction)
         # edit.addAction(self.cutAction)
         # edit.addAction(self.pasteAction)
-        # edit.addAction(self.FRAct)
 
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showTagsAction)
@@ -230,6 +216,16 @@ class Sublimeless_Zk(QObject):
     #
     # Zettelkasten Command Slots
     #
+
+    def get_active_editor(self):
+        if self.app.focusWidget() == self.gui.editor:
+            return self.gui.editor
+        elif self.app.focusWidget() == self.gui.search_results_editor:
+            return self.gui.search_results_editor
+        elif self.app.focusWidget() == self.gui.saved_searches_editor:
+            return self.gui.saved_searches_editor
+        else:
+            return None
 
     def zk_new_zettel(self):
         print('New Zettel')

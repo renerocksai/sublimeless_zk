@@ -5,9 +5,10 @@ from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
 
-from imagescintilla import ImageScintilla
+from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
 from themes import Theme
+from settings import get_settings, SettingsEditor
 
 
 class MainWindow(QMainWindow):
@@ -50,7 +51,7 @@ class MainWindow(QMainWindow):
 
         # ! Make instance of QSciScintilla class!
         # ----------------------------------------
-        self.editor = ImageScintilla()
+        self.editor = ZettelkastenScintilla()
         self.editor.setUtf8(True)             # Set encoding to UTF-8
         with open('../zettelkasten/201804141018 testnote.md',
                   mode='r', encoding='utf-8', errors='ignore') as f:
@@ -133,7 +134,7 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.qtabs.addTab(self.editor, '201804141018 testnote.md')
         self.qtabs.setTabsClosable(True)
-
+        self.qtabs.addTab(SettingsEditor(theme), 'Settings')
         self.show()
 
     ''''''

@@ -1,0 +1,61 @@
+{
+
+    // The preferred markdown extension
+    "wiki_extension": ".md",
+
+    // when creating a new link, use [[double brackets]]
+    // false to use [single brackets]
+    "double_brackets": true,
+
+    // links like "[[199901012359]] and note title" instead of "[[199901012359]]"
+    "insert_links_with_titles": false,
+
+    // when creating a new note, put id into title?
+     // false to disable
+    "id_in_title": false,
+
+    // prefix for #tags
+    "tag_prefix": "#",
+
+    // when highlighting: also show bookmark symbols in the gutter?
+    // false to disable
+    "show_bookmarks_in_gutter": true,
+
+    // fall-back: location of ag if it cannot be found in the PATH
+    "path_to_ag": "/usr/local/bin/ag",
+
+    // for auto-completion of citekeys and auto-bibs
+    // enter the full path to your .bib file here
+    "bibfile": "/path/to/zotero.bib",
+
+    // make sure images don't get too large
+    // scale them to max_width, proportionally
+    "img_maxwidth": 320,
+
+    // set to true if you want images to be displayed automatically when you open a note
+    "auto_show_images": false,
+
+    // separator to use when appending numbered suffix to duplicate headings
+    // in table of contents. If you use pandoc, change this to a "-".
+    "toc_suffix_separator": "_",
+
+    // use multimarkdown style for citations
+    // set to false to use pandoc style:
+    //    use [@citekey] to reference something in your .bib file
+    //    autobib style will be: [@citekey]: full-blown reference
+    // set to true to use multimarkdown style:
+    //    use [][#citekey] to reference something in your .bib file
+    //    autobib style will be: [#citekey]: full-blown reference
+    // note: for autobib to work you still need pandoc installed in either case
+    "citations-mmd-style": false,
+
+    // seconds in note IDs?
+    // if true : YYYYMMDDHHMMSS 20171224183045
+    // if false: YYYYMMDDHHMM   201712241830
+    "seconds_in_id": false,
+
+    // Sort note lists (search results) by
+    // - title
+    // - ID       <-- default
+    "sort_notelists_by": "id",
+}

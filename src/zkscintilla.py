@@ -6,7 +6,7 @@ from PyQt5.Qsci import *
 from textshortcuts import EditorTextShortCutHandler
 
 
-class ImageScintilla(QsciScintilla):
+class ZettelkastenScintilla(QsciScintilla):
     """
     Specialized QScintilla editor that allows insertion and deletion
     of images into the editor itself.

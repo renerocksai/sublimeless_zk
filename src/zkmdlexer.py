@@ -14,7 +14,8 @@ class ZkMdLexer(QsciLexerCustom):
     tag_clicked = pyqtSignal(str, bool, bool, bool)
     search_spec_clicked = pyqtSignal(str, bool, bool, bool)
 
-    def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True):
+    def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True,
+                 settings_mode=False):
         super(ZkMdLexer, self).__init__(parent)
         self.theme = theme
         self.style_infos = {}
@@ -22,6 +23,7 @@ class ZkMdLexer(QsciLexerCustom):
         self.id2stylename = {}
         self.highlight_saved_searches = highlight_saved_searches
         self.show_block_quotes = show_block_quotes
+        self.settings_mode = settings_mode
 
         # Default text settings
         # ----------------------
@@ -141,6 +143,35 @@ class ZkMdLexer(QsciLexerCustom):
         orig_text = text
 
         regions = []
+
+        if self.settings_mode:
+            # comments
+            p = re.compile(r'(//)(.*)$', flags=re.MULTILINE)
+            for match in p.finditer(text):
+                a = match.start(1)
+                b = match.end(2)
+                regions.append((a, b, match.group(1) + match.group(2), 'comment'))
+                # consume
+                # print(match.groups() , match.group())
+                text = text[:a] + 'x' * len(match.group(1) + match.group(2)) + text[b:]
+
+            p = re.compile(r':\s*(.*),$', flags=re.MULTILINE)
+            for match in p.finditer(text):
+                print(match.groups())
+                a = match.start(1)
+                b = match.end(1)
+                regions.append((a, b, match.group(1), 'tag'))
+
+            p = re.compile(r'(true|false|[0-9]+)')
+            for match in p.finditer(text):
+                a = match.start(1)
+                b = match.end(1)
+                regions.append((a, b, match.group(), 'footnote'))
+                # consume
+                # print(match.groups() , match.group())
+                text = text[:a] + 'x' * len(match.group()) + text[b:]
+            self.apply_regions(regions, text)
+            return
 
         ### non-inline
 
@@ -392,7 +423,9 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
             # consume
             text = text[:a] + 'x' * len(match.group()) + text[b:]
+        self.apply_regions(regions, text)
 
+    def apply_regions(self, regions, text):
         # sort and split regions
         # layering
         #    --> most important ones last
@@ -422,7 +455,6 @@ class ZkMdLexer(QsciLexerCustom):
         if gap > 0:
             gap_b = len(bytearray(text[current_pos:], 'utf-8'))
             style_regions.append((gap_b, 'default'))
-        print(start, end)
 
         for num_chars, style in style_regions:
             self.setStyling(num_chars, self.style2id[style])
