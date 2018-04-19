@@ -1,7 +1,7 @@
 {
 
     // The preferred markdown extension
-    "wiki_extension": ".md",
+    "wiki_extension": ".mad",
 
     // when creating a new link, use [[double brackets]]
     // false to use [single brackets]

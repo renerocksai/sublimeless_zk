@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
@@ -20,9 +20,13 @@ def get_settings(filn='../settings_default.json', raw=False):
 
 
 class SettingsEditor(QWidget):
-    def __init__(self, theme):
+    settings_saved = pyqtSignal()
+    settings_discarded = pyqtSignal()
+
+    def __init__(self, theme, settings_filn):
         super().__init__()
         self.theme = theme
+        self.settings_filn = settings_filn
         self.editor = None
         self.lexer = None
         self.initUI()
@@ -32,7 +36,7 @@ class SettingsEditor(QWidget):
 
         self.editor = ZettelkastenScintilla()
         self.editor.setUtf8(True)  # Set encoding to UTF-8
-        txt = get_settings(raw=True)
+        txt = get_settings(self.settings_filn, raw=True)
         self.editor.setText(txt)  # 'myCodeSample' is a string containing some C-code
         self.editor.setLexer(None)  # We install self.lexer later
         # self.editor.setFont(self._myFont)    # Gets overridden by self.lexer later on
@@ -59,13 +63,11 @@ class SettingsEditor(QWidget):
         self.editor.setLexer(self.lexer)
         self.editor.set_calculation_font(self.lexer.default_font)
 
-        # 4. Caret
-        # ---------
         self.editor.setCaretForegroundColor(QColor(self.lexer.theme.caret))
         self.editor.setCaretLineVisible(True)
         self.editor.setCaretLineBackgroundColor(QColor(self.lexer.theme.highlight))
         self.editor.setCaretWidth(8)
-        # self.editor.setMarginsBackgroundColor(QColor("#ff404040"))
+
         self.editor.setFont(self.lexer.default_font)
         self.editor.setExtraAscent(self.theme.line_pad_top)
         self.editor.setExtraDescent(self.theme.line_pad_bottom)
@@ -75,9 +77,20 @@ class SettingsEditor(QWidget):
 
         vlay.addWidget(self.editor)
         hlay = QHBoxLayout()
-        btsave = QPushButton('Save')
-        btcancel = QPushButton('Discard')
-        hlay.addWidget(btsave)
-        hlay.addWidget(btcancel)
+        self.btsave = QPushButton('Save')
+        self.btcancel = QPushButton('Discard')
+        hlay.addWidget(self.btsave)
+        hlay.addWidget(self.btcancel)
         vlay.addLayout(hlay)
         self.setLayout(vlay)
+
+        self.btsave.clicked.connect(self.save_clicked)
+        self.btcancel.clicked.connect(self.discard_clicked)
+
+    def save_clicked(self):
+        with open(self.settings_filn, mode='w', encoding='utf-8', errors='ignore') as f:
+            f.write(self.editor.text())
+            self.settings_saved.emit()
+
+    def discard_clicked(self):
+        self.settings_discarded.emit()

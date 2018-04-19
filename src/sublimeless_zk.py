@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -8,6 +9,7 @@ from PyQt5.QtCore import QObject
 
 from themes import Theme
 from mainwindow import MainWindow
+from settings import SettingsEditor
 
 
 class Sublimeless_Zk(QObject):
@@ -15,11 +17,27 @@ class Sublimeless_Zk(QObject):
         QObject.__init__(self, parent=parent)
         self.app = None
         self.gui = None
-
+        self.open_documents = []
+        self.tabindex2editor = {}
+        self.tabindex2filn = {}
+        self.doc2tabindex = {}
+        self.num_tabs = 0        # maybe redundant
+        self.editors = []
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
         self.newAction.setShortcuts(["Ctrl+N", "Shift+Return", "Shift+Enter"])
+
+        self.openFolderAction = QAction('Open Notes Folder', self)
+        self.openFolderAction.setShortcut('Ctrl+O')
+
+        self.saveAction = QAction("Save", self)
+        self.saveAction.setShortcut('Ctrl+S')
+
+        self.saveAllAction = QAction("Save All", self)
+        self.saveAllAction.setShortcut('Ctrl+Alt+S')
+
+        self.showPreferencesAction = QAction("Settings...", self)
 
         self.insertLinkAction = QAction('Insert Link to Note', self)
         self.insertLinkAction.setShortcut('[,[')
@@ -73,7 +91,9 @@ class Sublimeless_Zk(QObject):
 
         ## Editor shortcut overrides
         ##
-        for editor in self.gui.editor, self.gui.saved_searches_editor, self.gui.search_results_editor:
+        editor_list = self.editors[:]
+        editor_list.extend([self.gui.saved_searches_editor, self.gui.search_results_editor])
+        for editor in editor_list:
             commands = editor.standardCommands()
             deletable_keys = (
                 Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
@@ -117,10 +137,11 @@ class Sublimeless_Zk(QObject):
 
         file.addAction(self.newAction)
         # file.addAction(self.newTabAction)
-        # file.addAction(self.openAction)
-        # file.addAction(self.saveAction)
-        # file.addAction(self.saveAllAction)
-        # file.addSeparator()
+        file.addAction(self.openFolderAction)
+        file.addAction(self.saveAction)
+        file.addAction(self.saveAllAction)
+        file.addSeparator()
+        # here go the most recents
 
         edit.addAction(self.insertLinkAction)
         edit.addAction(self.showReferencingNotesAction)
@@ -131,6 +152,7 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.autoTocAction)
         edit.addAction(self.numberHeadingsAction)
         edit.addAction(self.denumberHeadingsAction)
+        edit.addAction(self.showPreferencesAction)
 
         # edit.addAction(self.undoAction)
         # edit.addAction(self.redoAction)
@@ -151,20 +173,16 @@ class Sublimeless_Zk(QObject):
         # about.addAction(self.aboutAction)
 
     def connect_signals(self):
-        # lexer actions
-        self.gui.lexer.tag_clicked.connect(self.clicked_tag)
-        self.gui.lexer.note_id_clicked.connect(self.clicked_noteid)
-        self.gui.search_results_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.search_results_editor.lexer().note_id_clicked.connect(self.clicked_tag)
-        self.gui.saved_searches_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_tag)
-
         # tab actions
         self.gui.qtabs.tabCloseRequested.connect(self.gui.qtabs.removeTab)
         self.gui.qtabs.tabCloseRequested.connect(self.lessTabs)
 
         # normal actions
         self.newAction.triggered.connect(self.zk_new_zettel)
+        self.openFolderAction.triggered.connect(self.open_folder)
+        self.saveAction.triggered.connect(self.save)
+        self.saveAllAction.triggered.connect(self.save_all)
+        self.showPreferencesAction.triggered.connect(self.show_preferences)
         self.insertLinkAction.triggered.connect(self.insert_link)
         self.showReferencingNotesAction.triggered.connect(self.show_referencing_notes)
         self.insertTagAction.triggered.connect(self.insert_tag)
@@ -182,12 +200,23 @@ class Sublimeless_Zk(QObject):
         self.denumberHeadingsAction.triggered.connect(self.denumber_headings)
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
 
+        # editor actions
+        self.gui.search_results_editor.lexer().tag_clicked.connect(self.clicked_tag)
+        self.gui.search_results_editor.lexer().note_id_clicked.connect(self.clicked_tag)
+        self.gui.saved_searches_editor.lexer().tag_clicked.connect(self.clicked_tag)
+        self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_tag)
+
+    def connect_editor_signals(self, editor):
         # text shortcut actions
-        self.gui.editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
-        self.gui.editor.text_shortcut_handler.shortcut_tag_selector.connect(self.insert_tag)
-        self.gui.editor.text_shortcut_handler.shortcut_tag_list.connect(self.show_all_tags)
-        self.gui.editor.text_shortcut_handler.shortcut_insert_citation.connect(self.insert_citation)
-        self.gui.editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
+        # lexer actions
+        editor.lexer().tag_clicked.connect(self.clicked_tag)
+        editor.lexer().note_id_clicked.connect(self.clicked_noteid)
+        editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
+        editor.text_shortcut_handler.shortcut_tag_selector.connect(self.insert_tag)
+        editor.text_shortcut_handler.shortcut_tag_list.connect(self.show_all_tags)
+        editor.text_shortcut_handler.shortcut_insert_citation.connect(self.insert_citation)
+        editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
+        editor.textChanged.connect(self.unsaved)
 
 
     def run(self):
@@ -213,11 +242,20 @@ class Sublimeless_Zk(QObject):
     def lessTabs(self):
         pass
 
+    def unsaved(self):
+        tab_index = self.gui.qtabs.currentIndex()
+        editor = self.tabindex2editor[tab_index]
+        if editor.isModified():
+            self.gui.qtabs.setTabText(tab_index, os.path.basename(self.tabindex2filn[tab_index]) + '*')
+
     #
     # Zettelkasten Command Slots
     #
 
     def get_active_editor(self):
+        """
+        Helper function to find out where the keyboard input focus is
+        """
         if self.app.focusWidget() == self.gui.editor:
             return self.gui.editor
         elif self.app.focusWidget() == self.gui.search_results_editor:
@@ -226,6 +264,43 @@ class Sublimeless_Zk(QObject):
             return self.gui.saved_searches_editor
         else:
             return None
+
+    def open_document(self, document_filn, is_settings_file=False):
+        """
+        Helper function to open a markdown or settings document in a new tab
+        """
+        if document_filn in self.doc2tabindex:
+            tab_index = self.doc2tabindex[document_filn]
+            self.gui.qtabs.setCurrentIndex(tab_index)
+            return
+        # make new editor from file
+
+        if is_settings_file:
+            settings = SettingsEditor(self.gui.theme, document_filn)
+            editor = settings.editor
+        else:
+            editor = self.gui.new_zk_editor(document_filn)
+        document_name = os.path.basename(document_filn)
+        self.gui.qtabs.addTab(editor, document_name)
+        self.doc2tabindex[document_filn] = self.num_tabs
+        self.tabindex2filn[self.num_tabs] = document_filn
+        self.editors.append(editor)
+        self.tabindex2editor[self.num_tabs] = editor
+        editor.setModified(False)
+        if is_settings_file:
+            editor.textChanged.connect(self.unsaved)
+        else:
+            self.connect_editor_signals(editor)
+        self.num_tabs += 1
+    ''''''
+
+    def show_preferences(self):
+        self.open_document('../settings_default.json', is_settings_file=True)
+
+
+
+
+
 
     def zk_new_zettel(self):
         print('New Zettel')
@@ -291,6 +366,19 @@ class Sublimeless_Zk(QObject):
 
     def show_all_notes(self):
         pass
+
+    def open_folder(self):
+        """
+        todo: Call Save All first or sth like that
+        """
+        pass
+
+    def save(self):
+        pass
+
+    def save_all(self):
+        pass
+
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

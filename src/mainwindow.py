@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
@@ -51,64 +51,6 @@ class MainWindow(QMainWindow):
 
         # ! Make instance of QSciScintilla class!
         # ----------------------------------------
-        self.editor = ZettelkastenScintilla()
-        self.editor.setUtf8(True)             # Set encoding to UTF-8
-        with open('../zettelkasten/201804141018 testnote.md',
-                  mode='r', encoding='utf-8', errors='ignore') as f:
-            txt = f.read()
-        self.editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
-        self.editor.setLexer(None)            # We install lexer later
-        #self.editor.setFont(self._myFont)    # Gets overridden by lexer later on
-
-        # 1. Text wrapping
-        # -----------------
-        self.editor.setWrapMode(QsciScintilla.WrapWord)
-        self.editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
-        self.editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
-
-        # 2. End-of-line mode
-        # --------------------
-        self.editor.setEolMode(QsciScintilla.EolUnix)
-        self.editor.setEolVisibility(False)
-
-        # 3. Indentation
-        # ---------------
-        self.editor.setIndentationsUseTabs(False)
-        self.editor.setTabWidth(4)
-        self.editor.setIndentationGuides(True)
-        self.editor.setTabIndents(True)
-        self.editor.setAutoIndent(True)
-
-
-        # 5. Margins
-        # -----------
-        # Margin 0 = Line nr margin
-        #self.editor.setMarginType(0, QsciScintilla.NumberMargin)
-        self.editor.setMarginType(0, QsciScintilla.SymbolMargin)
-        self.editor.setMarginWidth(0, "0000")
-        self.editor.setMarginWidth(1, "0000")
-        self.editor.setMarginsForegroundColor(QColor("#ff888888"))
-
-        # -------------------------------- #
-        #          Install lexer           #
-        # -------------------------------- #
-        self.lexer = ZkMdLexer(self.editor, self.theme, highlight_saved_searches=False)
-        self.editor.setLexer(self.lexer)
-        self.editor.set_calculation_font(self.lexer.default_font)
-
-        # 4. Caret
-        # ---------
-        self.editor.setCaretForegroundColor(QColor(self.lexer.theme.caret))
-        self.editor.setCaretLineVisible(True)
-        self.editor.setCaretLineBackgroundColor(QColor(self.lexer.theme.highlight))
-        self.editor.setCaretWidth(8)
-        #self.editor.setMarginsBackgroundColor(QColor("#ff404040"))
-        self.editor.setFont(self.lexer.default_font)
-        self.editor.setExtraAscent(self.theme.line_pad_top)
-        self.editor.setExtraDescent(self.theme.line_pad_bottom)
-
-        # give it a good size
-        self.editor.setMinimumWidth(QFontMetrics(self.editor.lexer().default_font).width('M' * 80))
 
         # ! Add editor to layout !
         # -------------------------
@@ -132,9 +74,7 @@ class MainWindow(QMainWindow):
         self.qtabs.setDocumentMode(True)
         self._lyt.addWidget(mainsplit)
         self.setUnifiedTitleAndToolBarOnMac(True)
-        self.qtabs.addTab(self.editor, '201804141018 testnote.md')
         self.qtabs.setTabsClosable(True)
-        self.qtabs.addTab(SettingsEditor(theme), 'Settings')
         self.show()
 
     ''''''
@@ -149,6 +89,52 @@ class MainWindow(QMainWindow):
         for line in editor.text().split('\n'):
             max_width = max(max_width, font_metrics.width(line))
         return max_width + 2 * 10 + 10    # 2 * margin width (we have 2 margins)
+
+    def new_zk_editor(self, filn=None):
+        editor = ZettelkastenScintilla()
+        editor.setUtf8(True)             # Set encoding to UTF-8
+        if filn:
+            with open(filn,
+                      mode='r', encoding='utf-8', errors='ignore') as f:
+                txt = f.read()
+            editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
+        editor.setLexer(None)            # We install lexer later
+
+        editor.setWrapMode(QsciScintilla.WrapWord)
+        editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
+        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+
+        editor.setEolMode(QsciScintilla.EolUnix)
+        editor.setEolVisibility(False)
+
+        editor.setIndentationsUseTabs(False)
+        editor.setTabWidth(4)
+        editor.setIndentationGuides(True)
+        editor.setTabIndents(True)
+        editor.setAutoIndent(True)
+
+        editor.setMarginType(0, QsciScintilla.SymbolMargin)
+        editor.setMarginWidth(0, "0000")
+        editor.setMarginWidth(1, "0000")
+        editor.setMarginsForegroundColor(QColor("#ff888888"))
+
+        show_block_quotes = True
+        lexer = ZkMdLexer(editor, self.theme, highlight_saved_searches=False, show_block_quotes=show_block_quotes)
+        editor.setLexer(lexer)
+        editor.set_calculation_font(lexer.default_font)
+
+        editor.setCaretForegroundColor(QColor(lexer.theme.caret))
+        editor.setCaretLineVisible(True)
+        editor.setCaretLineBackgroundColor(QColor(lexer.theme.highlight))
+        editor.setCaretWidth(8)
+        #editor.setMarginsBackgroundColor(QColor("#ff404040"))
+        editor.setFont(lexer.default_font)
+        editor.setExtraAscent(self.theme.line_pad_top)
+        editor.setExtraDescent(self.theme.line_pad_bottom)
+
+        # give it a good size
+        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
+        return editor
 
     def make_search_results_editor(self):
         editor = QsciScintilla()
