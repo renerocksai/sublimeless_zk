@@ -19,7 +19,7 @@ class Sublimeless_Zk(QObject):
         QObject.__init__(self, parent=parent)
         self.app = None
         self.gui = None
-        self.app_state = AppState()
+        self.app_state = AppState(scratch=True)
         self.current_project = self.app_state.recent_projects[-1]
 
     def init_actions(self):
@@ -280,7 +280,14 @@ class Sublimeless_Zk(QObject):
         """
         todo: Call Save All first or sth like that
         """
-        pass
+        file = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
+        if file:
+            self.save_all()
+            self.gui.qtabs.clear()
+            self.app_state.recent_projects.append(file)
+            self.current_project = Project(file)
+            self.app_state.save()
+
 
     def open_document(self, document_filn, is_settings_file=False):
         """

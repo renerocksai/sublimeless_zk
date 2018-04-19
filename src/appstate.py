@@ -4,12 +4,16 @@ import jstyleson as json
 
 
 class AppState:
-    def __init__(self):
+    def __init__(self, scratch=False):
         self.recent_projects = []
         self.home = str(Path.home())
         self.file_name = os.path.join(self.home, 'sublimeless_zk-state.json')
         self.homeless = True
-        self.load()
+        self.scratch = scratch
+        if scratch:
+            self.recent_projects = ['../zettelkasten']
+        else:
+            self.load()
 
     def load(self):
         if not os.path.exists(self.file_name):
@@ -22,6 +26,7 @@ class AppState:
                 self.recent_projects = json_dict.get('recent_folders')
                 if not self.recent_projects:
                     self.recent_projects = ['../zettelkasten']
+                self.homeless = False
 
 
     def save(self):

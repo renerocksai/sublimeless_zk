@@ -11,8 +11,9 @@ class Project:
         self.bibfile = None
         self.tags = set()
         self.notes = {}         # noteid : path
-        self.refresh_notes()
         self.settings = None
+        self.reload_settings()
+        self.refresh_notes()
 
     def get_saved_searches_filn(self):
         return os.path.join(self.folder, '.saved_searches.zks')
