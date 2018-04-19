@@ -39,16 +39,19 @@ class ZettelkastenScintilla(QsciScintilla):
     calculation_font = None
     line_list = None
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, document_filn=None):
         super().__init__(parent)
         self.image_list = {}
         self.line_list = []
+        self.file_name = document_filn
         # Connect the special SCN_MODIFIED signal, that gives details of
         # changes in the editor's text.
         self.SCN_MODIFIED.connect(self.text_changed)
 
         self.text_shortcut_handler = EditorTextShortCutHandler(self)
     ''''''
+    def set_file_name(self, filn):
+        self.file_name = filn
 
     def set_calculation_font(self, font):
         """

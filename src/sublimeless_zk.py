@@ -9,7 +9,7 @@ from PyQt5.QtCore import QObject
 
 from themes import Theme
 from mainwindow import MainWindow
-from settings import SettingsEditor
+from settingseditor import SettingsEditor
 
 
 class Sublimeless_Zk(QObject):
@@ -17,12 +17,6 @@ class Sublimeless_Zk(QObject):
         QObject.__init__(self, parent=parent)
         self.app = None
         self.gui = None
-        self.open_documents = []
-        self.tabindex2editor = {}
-        self.tabindex2filn = {}
-        self.doc2tabindex = {}
-        self.num_tabs = 0        # maybe redundant
-        self.editors = []
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -91,32 +85,9 @@ class Sublimeless_Zk(QObject):
 
         ## Editor shortcut overrides
         ##
-        editor_list = self.editors[:]
+        editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
         editor_list.extend([self.gui.saved_searches_editor, self.gui.search_results_editor])
-        for editor in editor_list:
-            commands = editor.standardCommands()
-            deletable_keys = (
-                Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
-                Qt.ShiftModifier | Qt.Key_Enter, Qt.ControlModifier | Qt.Key_Enter,
-                Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
-
-            )
-            if sys.platform == 'darwin':
-                deletable_keys = (
-                    Qt.ShiftModifier | Qt.Key_Return, Qt.MetaModifier | Qt.Key_Return,
-                    Qt.ShiftModifier | Qt.Key_Enter, Qt.MetaModifier | Qt.Key_Enter,
-                    Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
-                )
-
-            for key_combo in deletable_keys:
-                command = commands.boundTo(key_combo)
-                if command is not None:
-                    print('Clearing key combo', key_combo, 'for command', command.description())
-                    if command.key() == key_combo:
-                        command.setKey(0)
-                    elif command.alternateKey() == key_combo:
-                        command.setAlternateKey(0)
-                    print(command.key(), command.alternateKey())
+        [self.init_editor_text_shortcuts(editor) for editor in editor_list]
 
         # todo: pack this into an action, too
         if sys.platform == 'darwin':
@@ -124,7 +95,6 @@ class Sublimeless_Zk(QObject):
         else:
             shortcut = QShortcut(Qt.ControlModifier | Qt.Key_Return, self.gui)
         shortcut.activated.connect(self.zk_follow_link)
-
 
     def initMenubar(self):
         menubar = self.gui.menuBar()
@@ -206,8 +176,34 @@ class Sublimeless_Zk(QObject):
         self.gui.saved_searches_editor.lexer().tag_clicked.connect(self.clicked_tag)
         self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_tag)
 
+    def init_editor_text_shortcuts(self, editor):
+        commands = editor.standardCommands()
+        deletable_keys = (
+            Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
+            Qt.ShiftModifier | Qt.Key_Enter, Qt.ControlModifier | Qt.Key_Enter,
+            Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
+
+        )
+        if sys.platform == 'darwin':
+            deletable_keys = (
+                Qt.ShiftModifier | Qt.Key_Return, Qt.MetaModifier | Qt.Key_Return,
+                Qt.ShiftModifier | Qt.Key_Enter, Qt.MetaModifier | Qt.Key_Enter,
+                Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
+            )
+
+        for key_combo in deletable_keys:
+            command = commands.boundTo(key_combo)
+            if command is not None:
+                print('Clearing key combo', key_combo, 'for command', command.description())
+                if command.key() == key_combo:
+                    command.setKey(0)
+                elif command.alternateKey() == key_combo:
+                    command.setAlternateKey(0)
+                print(command.key(), command.alternateKey())
+
     def connect_editor_signals(self, editor):
         # text shortcut actions
+        self.init_editor_text_shortcuts(editor)
         # lexer actions
         editor.lexer().tag_clicked.connect(self.clicked_tag)
         editor.lexer().note_id_clicked.connect(self.clicked_noteid)
@@ -243,14 +239,16 @@ class Sublimeless_Zk(QObject):
         pass
 
     def unsaved(self):
+        editor = self.gui.qtabs.currentWidget()
         tab_index = self.gui.qtabs.currentIndex()
-        editor = self.tabindex2editor[tab_index]
+        if editor is None:
+            return
         if editor.isModified():
-            self.gui.qtabs.setTabText(tab_index, os.path.basename(self.tabindex2filn[tab_index]) + '*')
+            self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name) + '*')
 
-    #
-    # Zettelkasten Command Slots
-    #
+    def closeEvent(self, event):
+        # TODO: implement
+        pass
 
     def get_active_editor(self):
         """
@@ -265,42 +263,59 @@ class Sublimeless_Zk(QObject):
         else:
             return None
 
+    def document_to_index_editor(self, filn):
+        for i in range(self.gui.qtabs.count()):
+            editor = self.gui.qtabs.widget(i)
+            if editor.file_name == filn:
+                return i, editor
+        return -1, None
+
     def open_document(self, document_filn, is_settings_file=False):
         """
         Helper function to open a markdown or settings document in a new tab
         """
-        if document_filn in self.doc2tabindex:
-            tab_index = self.doc2tabindex[document_filn]
+        #check if exists
+        tab_index, editor = self.document_to_index_editor(document_filn)
+        if editor:
             self.gui.qtabs.setCurrentIndex(tab_index)
             return
-        # make new editor from file
 
+        # make new editor from file
         if is_settings_file:
-            settings = SettingsEditor(self.gui.theme, document_filn)
-            editor = settings.editor
+            editor = SettingsEditor(self.gui.theme, document_filn)
         else:
             editor = self.gui.new_zk_editor(document_filn)
         document_name = os.path.basename(document_filn)
         self.gui.qtabs.addTab(editor, document_name)
-        self.doc2tabindex[document_filn] = self.num_tabs
-        self.tabindex2filn[self.num_tabs] = document_filn
-        self.editors.append(editor)
-        self.tabindex2editor[self.num_tabs] = editor
         editor.setModified(False)
         if is_settings_file:
             editor.textChanged.connect(self.unsaved)
         else:
             self.connect_editor_signals(editor)
-        self.num_tabs += 1
     ''''''
+
+    def save(self):
+        tab_index = self.gui.qtabs.currentIndex()
+        editor = self.gui.qtabs.currentWidget()
+        if editor:
+            print('Want to save', tab_index, editor.file_name)
+        return
+        with open(filn, mode='w', encoding='utf-8', errors='ignore') as f:
+            f.write(editor.text())
+        editor.setModified(False)
+        self.gui.qtabs.setTabText(tab_index, os.path.basename(filn))
+
+    def save_all(self):
+        pass
 
     def show_preferences(self):
         self.open_document('../settings_default.json', is_settings_file=True)
+        self.open_document('../zettelkasten/201804141018 testnote.md')
 
 
-
-
-
+    #
+    # Zettelkasten Command Slots
+    #
 
     def zk_new_zettel(self):
         print('New Zettel')
@@ -373,11 +388,6 @@ class Sublimeless_Zk(QObject):
         """
         pass
 
-    def save(self):
-        pass
-
-    def save_all(self):
-        pass
 
 
 if __name__ == '__main__':

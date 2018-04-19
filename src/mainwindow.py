@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
@@ -8,8 +7,6 @@ from PyQt5.QtCore import Qt
 from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
 from themes import Theme
-from settings import get_settings, SettingsEditor
-
 
 class MainWindow(QMainWindow):
     def __init__(self, theme):
@@ -91,7 +88,7 @@ class MainWindow(QMainWindow):
         return max_width + 2 * 10 + 10    # 2 * margin width (we have 2 margins)
 
     def new_zk_editor(self, filn=None):
-        editor = ZettelkastenScintilla()
+        editor = ZettelkastenScintilla(document_filn=filn)
         editor.setUtf8(True)             # Set encoding to UTF-8
         if filn:
             with open(filn,
