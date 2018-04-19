@@ -12,6 +12,7 @@ from mainwindow import MainWindow
 from settingseditor import SettingsEditor
 from project import Project
 from appstate import AppState
+from zkscintilla import ZettelkastenScintilla
 
 
 class Sublimeless_Zk(QObject):
@@ -20,7 +21,7 @@ class Sublimeless_Zk(QObject):
         self.app = None
         self.gui = None
         self.app_state = AppState(scratch=True)
-        self.current_project = self.app_state.recent_projects[-1]
+        self.current_project = Project(self.app_state.recent_projects[-1])
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -341,6 +342,31 @@ class Sublimeless_Zk(QObject):
     def zk_new_zettel(self):
         # todo : you are here
         print('New Zettel')
+        origin = None
+        o_title = None
+        insert_link = False
+        note_body = None
+        suggested_title = ''
+
+        editor = self.get_active_editor()
+        if isinstance(editor, ZettelkastenScintilla):
+            filn = editor.file_name
+            self.origin, self.o_title = self.current_project.get_note_id_and_title_of(editor)
+            if editor.hasSelectedText():
+                sel = editor.getSelection()
+                sel_start = editor.positionFromLineIndex(sel[0], sel[1])
+                sel_end = editor.positionFromLineIndex(sel[2], sel[3])
+                suggested_title = editor.text()[sel_start:sel_end]
+                if '\n' in suggested_title:
+                    lines = suggested_title.split('\n')
+                    suggested_title = lines[0]
+                    if len(lines) > 1:
+                        note_body = '\n'.join(lines[1:])
+                insert_link = True
+        text, ok = QInputDialog.getText(self.gui, 'New Note', 'Title:', QLineEdit.Normal, suggested_title)
+
+
+
 
     def zk_follow_link(self):
         print('Follow Link', end=' ')

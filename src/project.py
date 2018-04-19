@@ -24,6 +24,33 @@ class Project:
     def reload_settings(self):
         self.settings = get_settings()
 
+    def get_note_id_of_file(self, filn):
+        """
+        Return the note id of the file named filn or None.
+        """
+        settings = self.settings
+        extension = settings.get('markdown_extension', '.md')
+        if filn.endswith(extension):
+            # we have a markdown file
+            note_id = self.cut_after_note_id(os.path.basename(filn))
+            if note_id:
+                if os.path.basename(filn).startswith(note_id):
+                    return note_id
+
+    def get_note_id_and_title_of(self, editor):
+        """
+        Return the note id  and title of the given view.
+        """
+        filn = editor.file_name
+        origin_id = None
+        origin_title = None
+        if filn:
+            origin_id = self.get_note_id_of_file(filn)
+            origin_title = ''
+            if origin_id:
+                # split off title and replace extension
+                origin_title = filn.rsplit(origin_id)[1].strip().rsplit('.')[0]
+        return origin_id, origin_title
 
     def timestamp(self):
         if self.settings.get('seconds_in_id', False):
