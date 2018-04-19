@@ -298,15 +298,19 @@ class Sublimeless_Zk(QObject):
         tab_index = self.gui.qtabs.currentIndex()
         editor = self.gui.qtabs.currentWidget()
         if editor:
-            print('Want to save', tab_index, editor.file_name)
-        return
-        with open(filn, mode='w', encoding='utf-8', errors='ignore') as f:
-            f.write(editor.text())
-        editor.setModified(False)
-        self.gui.qtabs.setTabText(tab_index, os.path.basename(filn))
+            with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+                f.write(editor.text())
+            editor.setModified(False)
+            self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
 
     def save_all(self):
-        pass
+        for tab_index in range(self.gui.qtabs.count()):
+            editor = self.gui.qtabs.widget(tab_index)
+            if editor:
+                with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+                    f.write(editor.text())
+                editor.setModified(False)
+                self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
 
     def show_preferences(self):
         self.open_document('../settings_default.json', is_settings_file=True)
