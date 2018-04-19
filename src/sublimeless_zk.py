@@ -198,7 +198,10 @@ class Sublimeless_Zk(QObject):
 
         # text shortcut actions
         self.gui.editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
-
+        self.gui.editor.text_shortcut_handler.shortcut_tag_selector.connect(self.insert_tag)
+        self.gui.editor.text_shortcut_handler.shortcut_tag_list.connect(self.show_all_tags)
+        self.gui.editor.text_shortcut_handler.shortcut_insert_citation.connect(self.insert_citation)
+        self.gui.editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
 
 
     def run(self):
