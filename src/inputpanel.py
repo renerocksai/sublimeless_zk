@@ -2,9 +2,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-class PopUpDLG(QDialog):
+
+class InputPanel(QDialog):
     def __init__(self, title, label, defaulttext):
-        super(PopUpDLG, self).__init__()
+        super(InputPanel, self).__init__()
+        self._text = ''
         self.setObjectName("self")
         self.setWindowTitle(title)
         hlay = QHBoxLayout(self)
@@ -13,12 +15,34 @@ class PopUpDLG(QDialog):
         self.line_edit.setText(defaulttext)
         hlay.addWidget(self.line_edit)
         self.setLayout(hlay)
+        self.setMinimumWidth(600)
+        self.bt_ok = QPushButton("OK")
+        hlay.addWidget(self.bt_ok)
+        self.bt_ok.clicked.connect(self._ok_clicked)
 
-#        self.resize(200, 71)
-#        self.setMinimumSize(QSize(200, 71))
-#        self.setMaximumSize(QSize(200, 71))
-#        self.setContextMenuPolicy(Qt.NoContextMenu)
-#        icon = QtGui.QIcon()
-#        icon.addPixmap(QtGui.QPixmap("Icons/Plus-32.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-#        self.setWindowIcon(icon)
+    def _ok_clicked(self):
+        self._text = self.line_edit.text()
+        self.done(1)
+
+    def text(self):
+        return self._text
+
+def show_input_panel(title, label, defaulttext):
+    ip = InputPanel(title, label, defaulttext)
+    ret = ip.exec_()
+    if ret:
+        return p.text()
+    else:
+        return None
+
+
+if __name__ == '__main__':
+    import sys
+    app = QApplication(sys.argv)
+    QApplication.setStyle(QStyleFactory.create('Fusion'))
+    gui = QMainWindow()
+    gui.setFocus()
+    gui.show()
+    show_input_panel('Title', 'Label', 'Default')
+    sys.exit(app.exec_())
 
