@@ -367,7 +367,7 @@ class Sublimeless_Zk(QObject):
                     if len(lines) > 1:
                         note_body = '\n'.join(lines[1:])
                 insert_link = True
-        input_text = show_input_panel('New Note', 'Title:', suggested_title)
+        input_text = show_input_panel(self.gui.qtabs, 'New Note', 'Title:', suggested_title)
         if not input_text:
             return
 

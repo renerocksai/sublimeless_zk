@@ -4,8 +4,10 @@ from PyQt5.QtWidgets import *
 
 
 class InputPanel(QDialog):
-    def __init__(self, title, label, defaulttext):
-        super(InputPanel, self).__init__()
+    def __init__(self, parent, title, label, defaulttext):
+        super(InputPanel, self).__init__(parent=parent)
+
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self._text = ''
         self.setObjectName("self")
         self.setWindowTitle(title)
@@ -19,6 +21,13 @@ class InputPanel(QDialog):
         self.bt_ok = QPushButton("OK")
         hlay.addWidget(self.bt_ok)
         self.bt_ok.clicked.connect(self._ok_clicked)
+        self.line_edit.setFocus()
+
+        self.setStyleSheet("""
+            QLineEdit{ background-color: #ffffff; }
+            InputPanel { background: #f0f0f0; }
+            QLabel{ background: #f0f0f0; }
+        """)
 
     def _ok_clicked(self):
         self._text = self.line_edit.text()
@@ -28,8 +37,10 @@ class InputPanel(QDialog):
         return self._text
 
 
-def show_input_panel(title, label, defaulttext):
-    ip = InputPanel(title, label, defaulttext)
+def show_input_panel(parent, title, label, defaulttext):
+    ip = InputPanel(parent, title, label, defaulttext)
+    if parent:
+        ip.move(parent.rect().center() - ip.rect().center())
     ret = ip.exec_()
     if ret:
         return ip.text()
