@@ -520,6 +520,22 @@ class Sublimeless_Zk(QObject):
 
     def insert_tag(self):
         print('insert tag')
+        editor = self.get_active_editor()
+        if not isinstance(editor, ZettelkastenScintilla):
+            return
+        tag_list_dict = {f: f for f in self.project.find_all_tags()}
+        selected_tag, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Link to Note', tag_list_dict)
+        if selected_tag:
+            # check if editor contains #? right before current cursor position
+            line, index = editor.getCursorPosition()
+            replace_index_start = index
+            replace_index_end = index
+            textpos = editor.positionFromLineIndex(line, index)
+            if textpos > 1 and index > 1:
+                if editor.text()[textpos-2:textpos] == '#?':
+                    replace_index_start -= 2
+            editor.setSelection(line, replace_index_start, line, replace_index_end)
+            editor.replaceSelectedText(selected_tag)
 
     def show_referencing_notes(self):
         print('Show referencing note')

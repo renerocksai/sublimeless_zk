@@ -203,11 +203,12 @@ class ZkMdLexer(QsciLexerCustom):
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
+            print('heading', match.groups())
             a = match.start()
             b = match.end()
             n = match.group(1).count('#')
             regions.append((a, a + len(match.group(1)), match.group(1), 'h.symbol'))
-            regions.append((a + len(match.group(1)), b+1, match.group(2)+'\n', f'h{n}.text'))
+            regions.append((a + len(match.group(1)), b, match.group(2), f'h{n}.text'))
 
         # quotes
         p = re.compile('^(>)(.+)$', flags=re.MULTILINE)
@@ -248,8 +249,9 @@ class ZkMdLexer(QsciLexerCustom):
         ### inline markup
 
         # tags
-        p = re.compile(r'(\s)(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
+        p = re.compile(r'([ \t])(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
         for match in p.finditer(text):
+            print('tag', match.groups())
             a = match.start(2)
             b = match.end(3)
             regions.append((a, b, match.group(2), 'tag'))
