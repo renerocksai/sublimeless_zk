@@ -27,11 +27,12 @@ class InputPanel(QDialog):
     def text(self):
         return self._text
 
+
 def show_input_panel(title, label, defaulttext):
     ip = InputPanel(title, label, defaulttext)
     ret = ip.exec_()
     if ret:
-        return p.text()
+        return ip.text()
     else:
         return None
 

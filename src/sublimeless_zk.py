@@ -13,6 +13,7 @@ from settingseditor import SettingsEditor
 from project import Project
 from appstate import AppState
 from zkscintilla import ZettelkastenScintilla
+from inputpanel import show_input_panel
 
 
 class Sublimeless_Zk(QObject):
@@ -21,7 +22,7 @@ class Sublimeless_Zk(QObject):
         self.app = None
         self.gui = None
         self.app_state = AppState(scratch=True)
-        self.current_project = Project(self.app_state.recent_projects[-1])
+        self.project = Project(self.app_state.recent_projects[-1])
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -286,7 +287,7 @@ class Sublimeless_Zk(QObject):
             self.save_all()
             self.gui.qtabs.clear()
             self.app_state.recent_projects.append(file)
-            self.current_project = Project(file)
+            self.project = Project(file)
             self.app_state.save()
 
 
@@ -312,6 +313,10 @@ class Sublimeless_Zk(QObject):
             editor.textChanged.connect(self.unsaved)
         else:
             self.connect_editor_signals(editor)
+        # show that tab
+        index, e = self.document_to_index_editor(document_filn)
+        if index >= 0:
+            self.gui.qtabs.setCurrentIndex(index)
     ''''''
 
     def save(self):
@@ -340,7 +345,6 @@ class Sublimeless_Zk(QObject):
     #
 
     def zk_new_zettel(self):
-        # todo : you are here
         print('New Zettel')
         origin = None
         o_title = None
@@ -351,7 +355,7 @@ class Sublimeless_Zk(QObject):
         editor = self.get_active_editor()
         if isinstance(editor, ZettelkastenScintilla):
             filn = editor.file_name
-            self.origin, self.o_title = self.current_project.get_note_id_and_title_of(editor)
+            origin, o_title = self.project.get_note_id_and_title_of(editor)
             if editor.hasSelectedText():
                 sel = editor.getSelection()
                 sel_start = editor.positionFromLineIndex(sel[0], sel[1])
@@ -363,7 +367,30 @@ class Sublimeless_Zk(QObject):
                     if len(lines) > 1:
                         note_body = '\n'.join(lines[1:])
                 insert_link = True
-        text, ok = QInputDialog.getText(self.gui, 'New Note', 'Title:', QLineEdit.Normal, suggested_title)
+        input_text = show_input_panel('New Note', 'Title:', suggested_title)
+        if not input_text:
+            return
+
+        settings = self.project.settings
+        extension = settings.get('markdown_extension')
+        id_in_title = settings.get('id_in_title')
+
+        new_id = self.project.timestamp()
+        the_file = os.path.join(self.project.folder, new_id + ' ' + input_text + extension)
+        new_title = input_text
+        if id_in_title:
+            new_title = new_id + ' ' + input_text
+
+        if insert_link:
+            prefix, postfix = self.project.get_link_pre_postfix()
+            link_txt = prefix + new_id + postfix
+            do_insert_title = settings.get('insert_links_with_titles', False)
+            if do_insert_title:
+                link_txt += ' ' + input_text
+            editor.replaceSelectedText(link_txt)
+        self.project.create_note(the_file, new_title, origin, o_title, note_body)
+        self.open_document(the_file)
+
 
 
 
