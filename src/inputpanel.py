@@ -23,9 +23,9 @@ class InputPanel(QDialog):
         self.setStyleSheet("""
             QLineEdit{ background-color: #ffffff; }
             InputPanel { background: #f0f0f0; }
-            QLabel{ background: #ffc0c0; }
+            QLabel{ background: #d08080; }
             QDialog {
-                    background: #ffc0c0;
+                    background: #d08080;
                     }
 
         """)

@@ -96,7 +96,7 @@ class ZkMdLexer(QsciLexerCustom):
         editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, startpos, length)
 
     def on_click_indicator(self, line, index, keys):
-        print('click', line, index, type(keys))
+        #print('click', line, index, type(keys))
         position = self.parent().positionFromLineIndex(line, index)
         alt = bool(keys & Qt.AltModifier)
         shift = bool(keys & Qt.ShiftModifier)
@@ -203,7 +203,7 @@ class ZkMdLexer(QsciLexerCustom):
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
-            print('heading', match.groups())
+            #print('heading', match.groups())
             a = match.start()
             b = match.end()
             n = match.group(1).count('#')
@@ -251,7 +251,7 @@ class ZkMdLexer(QsciLexerCustom):
         # tags
         p = re.compile(r'([ \t])(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
         for match in p.finditer(text):
-            print('tag', match.groups())
+            #print('tag', match.groups())
             a = match.start(2)
             b = match.end(3)
             regions.append((a, b, match.group(2), 'tag'))

@@ -4,6 +4,23 @@ from PyQt5.QtWidgets import *
 from fuzzywuzzy import process
 
 
+class PanelInputLine(QLineEdit):
+    down_pressed = pyqtSignal()
+    up_pressed = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet('background-color:#ffffff')
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        key = event.key()
+        if key == Qt.Key_Down:
+            self.down_pressed.emit()
+        elif key == Qt.Key_Up:
+            self.up_pressed.emit()
+
+
 class FuzzySearchPanel(QWidget):
     item_selected = pyqtSignal(str, str)    # key, value
     close_requested = pyqtSignal()
@@ -21,7 +38,7 @@ class FuzzySearchPanel(QWidget):
 
     def initUI(self):
         vlay = QVBoxLayout()
-        self.input_line = QLineEdit()
+        self.input_line = PanelInputLine()
         self.list_box = QListWidget()
         for i in range(self.max_items):
             self.list_box.insertItem(i, '')
@@ -30,7 +47,7 @@ class FuzzySearchPanel(QWidget):
         self.update_listbox()
         self.setLayout(vlay)
         self.setMinimumWidth(600)
-        self.list_box.setAlternatingRowColors(False)
+        self.list_box.setAlternatingRowColors(True)
 
         # style
         self.setStyleSheet(""" QListWidget:item:selected{
@@ -52,6 +69,9 @@ class FuzzySearchPanel(QWidget):
 
         # connections
         self.input_line.textChanged.connect(self.text_changed)
+        self.input_line.returnPressed.connect(self.return_pressed)
+        self.input_line.down_pressed.connect(self.down_pressed)
+        self.input_line.up_pressed.connect(self.up_pressed)
         self.list_box.itemDoubleClicked.connect(self.item_doubleclicked)
         self.input_line.setFocus()
 
@@ -75,26 +95,25 @@ class FuzzySearchPanel(QWidget):
             self.fuzzy_items = list(self.item_dict.keys())[:self.max_items]
         self.update_listbox()
 
-    def keyPressEvent(self, event):
-        key = event.key()
-        if key == Qt.Key_Enter or key == Qt.Key_Return:
-            if len(self.fuzzy_items) > 0:
-                # todo fire signal
-                row = self.list_box.currentRow()
-                key = self.fuzzy_items[row]
-                value = self.item_dict[key]
-                self.item_selected.emit(key, value)
-        elif key == Qt.Key_Down:
+    def up_pressed(self):
+        print('up')
+        row = self.list_box.currentRow()
+        if row > 0:
+            self.list_box.setCurrentRow(row - 1)
+
+    def down_pressed(self):
+        print('down')
+        row = self.list_box.currentRow()
+        if row < len(self.fuzzy_items):
+            self.list_box.setCurrentRow(row + 1)
+
+    def return_pressed(self):
+        if len(self.fuzzy_items) > 0:
             row = self.list_box.currentRow()
-            if row < len(self.fuzzy_items):
-                self.list_box.setCurrentRow(row + 1)
-        elif key == Qt.Key_Up:
-            row = self.list_box.currentRow()
-            if row > 0:
-                self.list_box.setCurrentRow(row - 1)
-        elif key == Qt.Key_Escape:
-            # emit abort signal
-            self.close_requested.emit()
+            key = self.fuzzy_items[row]
+            value = self.item_dict[key]
+            self.item_selected.emit(key, value)
+
 
     def item_doubleclicked(self):
         row = self.list_box.currentRow()
@@ -119,8 +138,7 @@ class FuzzySearchDialog(QDialog):
         self.panel.input_line.setFocus()
         # style
         self.setStyleSheet(""" QDialog {
-                                    background: #d0e0e0;
-                                    border: 1px solid #6a6ea9;
+                                    background: #ffffff;
                                 }
                                 """
                            )

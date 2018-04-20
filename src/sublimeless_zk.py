@@ -203,12 +203,12 @@ class Sublimeless_Zk(QObject):
         for key_combo in deletable_keys:
             command = commands.boundTo(key_combo)
             if command is not None:
-                print('Clearing key combo', key_combo, 'for command', command.description())
+                #print('Clearing key combo', key_combo, 'for command', command.description())
                 if command.key() == key_combo:
                     command.setKey(0)
                 elif command.alternateKey() == key_combo:
                     command.setAlternateKey(0)
-                print(command.key(), command.alternateKey())
+                #print(command.key(), command.alternateKey())
 
     def connect_editor_signals(self, editor):
         # text shortcut actions
@@ -236,10 +236,11 @@ class Sublimeless_Zk(QObject):
         if self.app_state.homeless:
             self.open_document('../zettelkasten/201804141018 testnote.md')
 
-        exit_code = self.app.exec_()
-        print(2002)
-        traceback.print_exc()
-
+        exit_code = 0
+        try:
+            exit_code = self.app.exec_()
+        except:
+            traceback.print_exc()
         sys.exit(exit_code)
 
     #
@@ -367,8 +368,8 @@ class Sublimeless_Zk(QObject):
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
-        print(editor.file_name)
-        with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+        with open(self.project.get_saved_searches_filn(),
+                  mode='w', encoding='utf-8', errors='ignore') as f:
             f.write(editor.text())
         editor.setModified(False)
 
@@ -383,8 +384,8 @@ class Sublimeless_Zk(QObject):
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
-        print(editor.file_name)
-        with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+        with open(self.project.get_saved_searches_filn(),
+                  mode='w', encoding='utf-8', errors='ignore') as f:
             f.write(editor.text())
         editor.setModified(False)
 
