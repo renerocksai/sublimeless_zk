@@ -91,9 +91,38 @@ class FuzzySearchPanel(QWidget):
             self.close_requested.emit()
 
 
-def show_fuzzy_panel(title, fuzzy_list):
+class FuzzySearchDialog(QDialog):
+    def __init__(self, parent, item_dict, max_items=20):
+        super(FuzzySearchDialog, self).__init__(parent=parent)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setObjectName("self")
+        hlay = QHBoxLayout()
+        self.panel = FuzzySearchPanel(item_dict=item_dict, max_items=max_items)
+        hlay.addWidget(self.panel)
+        self.setLayout(hlay)
 
-    pass
+        self.panel.close_requested.connect(self.cancel)
+        self.panel.item_selected.connect(self.item_selected)
+        self.value = None
+
+    def item_selected(self, key, value):
+        self.value = (key, value)
+        self.done(1)
+
+    def cancel(self):
+        self.done(0)
+
+
+def show_fuzzy_panel(parent, item_dict, max_items=20):
+    dlg = FuzzySearchDialog(parent, item_dict, max_items)
+    if parent:
+        dlg.move(parent.rect().center() - dlg.rect().center())
+    ret = dlg.exec_()
+    if ret:
+        return dlg.value
+    else:
+        return None
+
 
 
 if __name__ == '__main__':
@@ -111,12 +140,7 @@ if __name__ == '__main__':
 
         app = QApplication(sys.argv)
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        gui = QMainWindow()
-        fuz = FuzzySearchPanel(gui, item_dict)
-        gui.setCentralWidget(fuz)
-        gui.setFocus()
-        gui.show()
-        ret = show_fuzzy_panel('Title', fuzzy_list)
+        ret = show_fuzzy_panel(None, item_dict)
         print(ret)
         sys.exit(app.exec_())
 
