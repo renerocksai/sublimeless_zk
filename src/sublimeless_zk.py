@@ -178,9 +178,9 @@ class Sublimeless_Zk(QObject):
 
         # editor actions
         self.gui.search_results_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.search_results_editor.lexer().note_id_clicked.connect(self.clicked_tag)
+        self.gui.search_results_editor.lexer().note_id_clicked.connect(self.clicked_noteid)
         self.gui.saved_searches_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_tag)
+        self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_noteid)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -239,9 +239,13 @@ class Sublimeless_Zk(QObject):
     #
     def clicked_noteid(self, noteid, ctrl, alt, shift):
         print('noteid', noteid, ctrl, alt, shift)
+        filn = self.project.note_file_by_id(noteid)
+        if filn:
+            self.open_document(filn)
 
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
+        # todo
 
     def unsaved(self):
         editor = self.gui.qtabs.currentWidget()
@@ -300,6 +304,7 @@ class Sublimeless_Zk(QObject):
         tab_index, editor = self.document_to_index_editor(document_filn)
         if editor:
             self.gui.qtabs.setCurrentIndex(tab_index)
+            editor.setFocus()
             return
 
         # make new editor from file
@@ -314,6 +319,7 @@ class Sublimeless_Zk(QObject):
             editor.textChanged.connect(self.unsaved)
         else:
             self.connect_editor_signals(editor)
+        editor.setFocus()
         # show that tab
         index, e = self.document_to_index_editor(document_filn)
         if index >= 0:
@@ -353,6 +359,7 @@ class Sublimeless_Zk(QObject):
         note_body = None
         suggested_title = ''
 
+        # check if text is selected in one editor
         editor = self.get_active_editor()
         if isinstance(editor, ZettelkastenScintilla):
             filn = editor.file_name
@@ -368,7 +375,8 @@ class Sublimeless_Zk(QObject):
                     if len(lines) > 1:
                         note_body = '\n'.join(lines[1:])
                 insert_link = True
-        input_text = show_input_panel(self.gui.qtabs, 'New Title:', suggested_title)
+        parent = None  # or editor
+        input_text = show_input_panel(parent, 'New Title:', suggested_title)
         if not input_text:
             return
 

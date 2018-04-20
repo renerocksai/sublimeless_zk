@@ -58,6 +58,18 @@ class Project:
         else:
             return '{:%Y%m%d%H%M}'.format(datetime.datetime.now())
 
+    def note_file_by_id(self, note_id):
+        """
+        Find the file for note_id.
+        """
+        if not note_id:
+            return
+        candidates = []
+        for root, dirs, files in os.walk(self.folder):
+            candidates.extend([os.path.join(root, f) for f in files if f.startswith(note_id)])
+        if len(candidates) > 0:
+            return candidates[0]
+
     @staticmethod
     def cut_after_note_id(text):
         """
