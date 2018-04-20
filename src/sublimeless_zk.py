@@ -14,6 +14,7 @@ from project import Project
 from appstate import AppState
 from zkscintilla import ZettelkastenScintilla
 from inputpanel import show_input_panel
+from fuzzypanel import show_fuzzy_panel
 
 
 class Sublimeless_Zk(QObject):
@@ -382,14 +383,11 @@ class Sublimeless_Zk(QObject):
             new_title = new_id + ' ' + input_text
 
         if insert_link:
-            prefix, postfix = self.project.get_link_pre_postfix()
-            link_txt = prefix + new_id + postfix
-            do_insert_title = settings.get('insert_links_with_titles', False)
-            if do_insert_title:
-                link_txt += ' ' + input_text
+            link_txt = self.project.style_link(new_id, input_text)
             editor.replaceSelectedText(link_txt)
         self.project.create_note(the_file, new_title, origin, o_title, note_body)
         self.open_document(the_file)
+
 
     def zk_follow_link(self):
         print('Follow Link', end=' ')
@@ -404,6 +402,26 @@ class Sublimeless_Zk(QObject):
 
     def insert_link(self):
         print('Insert Link')
+        editor = self.get_active_editor()
+        if not isinstance(editor, ZettelkastenScintilla):
+            return
+        extension = self.project.settings.get('markdown_extension')
+        note_list_dict = {f: f for f in [os.path.basename(x).replace(extension, '') for x in self.project.get_all_notes()]}
+        selected_note, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Link to Note', note_list_dict)
+        if selected_note:
+            note_id, title = selected_note.split(' ', 1)
+            link_txt = self.project.style_link(note_id, title)
+            # todo: check if editor contains [[ right before current cursor position
+            line, index = editor.getCursorPosition()
+            replace_index_start = index
+            replace_index_end = index
+            textpos = editor.positionFromLineIndex(line, index)
+            if textpos > 1 and index > 1:
+                if editor.text()[textpos-2:textpos] == '[[':
+                    replace_index_start -= 2
+            editor.setSelection(line, replace_index_start, line, replace_index_end)
+            editor.replaceSelectedText(link_txt)
+    ''''''
 
     def show_referencing_notes(self):
         print('Show referencing note')

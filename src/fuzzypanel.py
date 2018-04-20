@@ -11,7 +11,7 @@ class FuzzySearchPanel(QWidget):
     def __init__(self, parent=None, item_dict=None, max_items=20):
         super().__init__(parent)
         self.max_items = max_items
-
+        self.setObjectName("FuzzySearchPanel")
         self.item_dict = item_dict    #    { show_as: associated_value }
         if self.item_dict is None:
             self.item_dict = {}
@@ -43,12 +43,17 @@ class FuzzySearchPanel(QWidget):
                                 }
                                 QListWidget::item:alternate {
                                     background: #E0E0E0;
-                                }                                        
+                                }    
+                                QLineEdit {
+                                background-color: #ffffff;
+                                }             
                                 """
                            )
 
         # connections
         self.input_line.textChanged.connect(self.text_changed)
+        self.list_box.itemDoubleClicked.connect(self.item_doubleclicked)
+        self.input_line.setFocus()
 
     def update_listbox(self):
         for i in range(self.max_items):
@@ -73,11 +78,12 @@ class FuzzySearchPanel(QWidget):
     def keyPressEvent(self, event):
         key = event.key()
         if key == Qt.Key_Enter or key == Qt.Key_Return:
-            # todo fire signal
-            row = self.list_box.currentRow()
-            key = self.fuzzy_items[row]
-            value = self.item_dict[key]
-            self.item_selected.emit(key, value)
+            if len(self.fuzzy_items) > 0:
+                # todo fire signal
+                row = self.list_box.currentRow()
+                key = self.fuzzy_items[row]
+                value = self.item_dict[key]
+                self.item_selected.emit(key, value)
         elif key == Qt.Key_Down:
             row = self.list_box.currentRow()
             if row < len(self.fuzzy_items):
@@ -90,12 +96,18 @@ class FuzzySearchPanel(QWidget):
             # emit abort signal
             self.close_requested.emit()
 
+    def item_doubleclicked(self):
+        row = self.list_box.currentRow()
+        key = self.fuzzy_items[row]
+        value = self.item_dict[key]
+        self.item_selected.emit(key, value)
+
 
 class FuzzySearchDialog(QDialog):
-    def __init__(self, parent, item_dict, max_items=20):
+    def __init__(self, parent, title, item_dict, max_items=20):
         super(FuzzySearchDialog, self).__init__(parent=parent)
-        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setObjectName("self")
+        self.setWindowTitle(title)
         hlay = QHBoxLayout()
         self.panel = FuzzySearchPanel(item_dict=item_dict, max_items=max_items)
         hlay.addWidget(self.panel)
@@ -104,6 +116,14 @@ class FuzzySearchDialog(QDialog):
         self.panel.close_requested.connect(self.cancel)
         self.panel.item_selected.connect(self.item_selected)
         self.value = None
+        self.panel.input_line.setFocus()
+        # style
+        self.setStyleSheet(""" QDialog {
+                                    background: #d0e0e0;
+                                    border: 1px solid #6a6ea9;
+                                }
+                                """
+                           )
 
     def item_selected(self, key, value):
         self.value = (key, value)
@@ -113,15 +133,16 @@ class FuzzySearchDialog(QDialog):
         self.done(0)
 
 
-def show_fuzzy_panel(parent, item_dict, max_items=20):
-    dlg = FuzzySearchDialog(parent, item_dict, max_items)
+def show_fuzzy_panel(parent, title, item_dict, max_items=20):
+    dlg = FuzzySearchDialog(parent, title, item_dict, max_items)
     if parent:
-        dlg.move(parent.rect().center() - dlg.rect().center())
+        pass
+        #dlg.move(parent.rect().center() - dlg.rect().center())
     ret = dlg.exec_()
     if ret:
         return dlg.value
     else:
-        return None
+        return None, None
 
 
 
@@ -140,7 +161,7 @@ if __name__ == '__main__':
 
         app = QApplication(sys.argv)
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        ret = show_fuzzy_panel(None, item_dict)
+        ret = show_fuzzy_panel(None, "title", item_dict)
         print(ret)
         sys.exit(app.exec_())
 

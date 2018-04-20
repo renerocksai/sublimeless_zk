@@ -122,3 +122,20 @@ class Project:
             if body is not None:
                 f.write('\n' + body)
         ''''''
+
+    def style_link(self, note_id, title):
+        prefix, postfix = self.get_link_pre_postfix()
+        link_txt = prefix + note_id + postfix
+        do_insert_title = self.settings.get('insert_links_with_titles', False)
+        if do_insert_title:
+            link_txt += ' ' + title
+        return link_txt
+
+    def get_all_notes(self):
+        """
+        Return all files with extension in folder.
+        """
+        candidates = []
+        for root, dirs, files in os.walk(self.folder):
+            candidates.extend([os.path.join(root, f) for f in files if f.endswith(self.settings['markdown_extension'])])
+        return candidates

@@ -17,15 +17,17 @@ class InputPanel(QDialog):
         hlay.addWidget(self.line_edit)
         self.setLayout(hlay)
         self.setMinimumWidth(600)
-        self.bt_ok = QPushButton("OK")
-        hlay.addWidget(self.bt_ok)
-        self.bt_ok.clicked.connect(self._ok_clicked)
+        self.line_edit.returnPressed.connect(self._ok_clicked)
         self.line_edit.setFocus()
 
         self.setStyleSheet("""
             QLineEdit{ background-color: #ffffff; }
             InputPanel { background: #f0f0f0; }
-            QLabel{ background: #f0f0f0; }
+            QLabel{ background: #ffc0c0; }
+            QDialog {
+                    background: #ffc0c0;
+                    }
+
         """)
 
     def _ok_clicked(self):

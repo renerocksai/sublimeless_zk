@@ -58,8 +58,8 @@ class EditorTextShortCutHandler(QObject):
                     editor = self.parent()
                     line, index = editor.getCursorPosition()
                     textpos = editor.positionFromLineIndex(line, index)
-                    signal.emit(textpos)
                     print(self.leader_received+current_char, '@', textpos)
+                    signal.emit(textpos)
             # clear leader in any case
             self.leader_received = None
 
