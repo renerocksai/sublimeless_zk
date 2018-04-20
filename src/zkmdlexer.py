@@ -199,28 +199,6 @@ class ZkMdLexer(QsciLexerCustom):
             # consume
             text = text[:a] + 'x' * (len(match.group())) + text[b:]
 
-        # tags
-        p = re.compile(r'(\s)(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
-        for match in p.finditer(text):
-            a = match.start(2)
-            b = match.end(3)
-            regions.append((a, b, match.group(2), 'tag'))
-            # consume
-            text = text[:a] + 'x' * (len(match.group(2))) + text[b:]
-            # make clickable
-            self.make_clickable(a, len(match.group(2)), self.indicator_id_tag)
-
-
-        # comments
-        p = re.compile(r'(<!--)(.|\n)*?(-->)')
-        for match in p.finditer(text):
-            a = match.start(1)
-            b = match.end(3)
-            regions.append((a, b, match.group(), 'comment'))
-            # consume
-            # print(match.groups() , match.group())
-            text = text[:a] + 'x' * len(match.group()) + text[b:]
-
 
         # headings
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
@@ -268,6 +246,17 @@ class ZkMdLexer(QsciLexerCustom):
 
 
         ### inline markup
+
+        # tags
+        p = re.compile(r'(\s)(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
+        for match in p.finditer(text):
+            a = match.start(2)
+            b = match.end(3)
+            regions.append((a, b, match.group(2), 'tag'))
+            # consume
+            text = text[:a] + 'x' * (len(match.group(2))) + text[b:]
+            # make clickable
+            self.make_clickable(a, len(match.group(2)), self.indicator_id_tag)
 
         p = re.compile(r'([`]{1})(?!\s)(.+?)(?<!\s)(\1)')
         for match in p.finditer(text):
@@ -426,6 +415,16 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a + 1, b - 1, match.group(2), 'text.italic.text'))
             regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
             # consume
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
+
+        # comments
+        p = re.compile(r'(<!--)(.|\n)*?(-->)')
+        for match in p.finditer(text):
+            a = match.start(1)
+            b = match.end(3)
+            regions.append((a, b, match.group(), 'comment'))
+            # consume
+            # print(match.groups() , match.group())
             text = text[:a] + 'x' * len(match.group()) + text[b:]
         self.apply_regions(regions, text)
 
