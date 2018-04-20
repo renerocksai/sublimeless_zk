@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import traceback
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QObject
+import shutil
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -232,7 +234,12 @@ class Sublimeless_Zk(QObject):
         self.connect_signals()
         if self.app_state.homeless:
             self.open_document('../zettelkasten/201804141018 testnote.md')
-        sys.exit(self.app.exec_())
+
+        exit_code = self.app.exec_()
+        print(2002)
+        traceback.print_exc()
+
+        sys.exit(exit_code)
 
     #
     # Qt SLOTS
@@ -294,6 +301,12 @@ class Sublimeless_Zk(QObject):
             self.app_state.recent_projects.append(file)
             self.project = Project(file)
             self.app_state.save()
+
+            # todo: now open saved searches
+            if not os.path.exists(self.project.get_saved_searches_filn()):
+                    shutil.copy2('../saved_searches_default.md', self.project.get_saved_searches_filn())
+            if not os.path.exists(self.project.get_search_results_filn()):
+                    shutil.copy2('../search_results_default.md', self.project.get_search_results_filn())
 
 
     def open_document(self, document_filn, is_settings_file=False):
@@ -414,7 +427,7 @@ class Sublimeless_Zk(QObject):
         if not isinstance(editor, ZettelkastenScintilla):
             return
         extension = self.project.settings.get('markdown_extension')
-        note_list_dict = {f: f for f in [os.path.basename(x).replace(extension, '') for x in self.project.get_all_notes()]}
+        note_list_dict = {f: f for f in [os.path.basename(x).replace(extension, '') for x in self.project.get_all_note_files()]}
         selected_note, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Link to Note', note_list_dict)
         if selected_note:
             note_id, title = selected_note.split(' ', 1)
@@ -431,23 +444,24 @@ class Sublimeless_Zk(QObject):
             editor.replaceSelectedText(link_txt)
     ''''''
 
-    def show_referencing_notes(self):
-        print('Show referencing note')
+    def show_all_notes(self):
+        pass
+
+    def show_all_tags(self):
+        print('show all tags')
 
     def insert_tag(self):
         print('insert tag')
 
-    def show_all_tags(self):
-        print('show all tags')
+    def show_referencing_notes(self):
+        print('Show referencing note')
+
 
     def expand_link(self):
         print('expand link')
 
     def insert_citation(self):
         print('insert citation')
-
-    def show_all_notes(self):
-        print('show all notes')
 
     def expand_overview_note(self):
         print('expand overview note')
@@ -476,8 +490,6 @@ class Sublimeless_Zk(QObject):
     def denumber_headings(self):
         pass
 
-    def show_all_notes(self):
-        pass
 
 
 
