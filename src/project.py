@@ -3,6 +3,7 @@ import re
 import datetime
 
 from settings import get_settings
+from operator import itemgetter
 
 
 class Project:
@@ -143,11 +144,34 @@ class Project:
             link_txt += ' ' + title
         return link_txt
 
-    def get_all_notes(self):
+    def get_all_note_files(self):
         """
         Return all files with extension in folder.
         """
-        candidates = []
-        for root, dirs, files in os.walk(self.folder):
-            candidates.extend([os.path.join(root, f) for f in files if f.endswith(self.settings['markdown_extension'])])
-        return candidates
+        self.refresh_notes()
+        return list(self.notes.values())
+
+    def externalize_note_links(self, note_files, prefix=None):
+        link_prefix, link_postfix = self.get_link_pre_postfix()
+        with open(self.get_search_results_filn(), mode='w', encoding='utf-8', errors='ignore') as f:
+            if prefix:
+                f.write(f'{prefix}\n\n')
+            results = []
+            extension = self.settings['markdown_extension']
+            for line in note_files:
+                line = os.path.basename(line)
+                line = line.replace(extension, '')
+                if ' ' not in line:
+                    line += ' '
+                note_id, title = line.split(' ', 1)
+                note_id = os.path.basename(note_id)
+                results.append((note_id, title))
+            sort_order = self.settings.get('sort_notelists_by', 'id').lower()
+            column = 0
+            if sort_order == 'title':
+                column = 1
+            results.sort(key=itemgetter(column))
+            for note_id, title in results:
+                f.write('* {}{}{} {}\n'.format(link_prefix, note_id,
+                                               link_postfix, title))
+

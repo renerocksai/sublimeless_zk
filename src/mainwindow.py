@@ -223,10 +223,5 @@ class MainWindow(QMainWindow):
         editor.setMaximumWidth(1024)
         return editor
 
-    def on_search_results_changed(self):
-        # todo
-        pass
-
-
 ''' End Class '''
 

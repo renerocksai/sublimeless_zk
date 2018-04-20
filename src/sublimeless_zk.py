@@ -307,7 +307,23 @@ class Sublimeless_Zk(QObject):
                     shutil.copy2('../saved_searches_default.md', self.project.get_saved_searches_filn())
             if not os.path.exists(self.project.get_search_results_filn()):
                     shutil.copy2('../search_results_default.md', self.project.get_search_results_filn())
+            self.gui.saved_searches_editor.file_name = self.project.get_saved_searches_filn()
+            self.gui.search_results_editor.file_name = self.project.get_search_results_filn()
+            self.reload(self.gui.saved_searches_editor)
+            self.reload(self.gui.search_results_editor)
 
+    def reload(self, editor):
+        if editor == self.gui.saved_searches_editor:
+            file_name = self.project.get_saved_searches_filn()
+        elif editor == self.gui.search_results_editor:
+            file_name = self.project.get_search_results_filn()
+        else:
+            file_name = editor.file_name
+        if not os.path.exists(file_name):
+            return
+        with open(file_name, mode='r', encoding='utf-8', errors='ignore') as f:
+            editor.setText(f.read())
+    ''''''
 
     def open_document(self, document_filn, is_settings_file=False):
         """
@@ -348,6 +364,13 @@ class Sublimeless_Zk(QObject):
             editor.setModified(False)
             self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
 
+        # always save saved searches
+        editor = self.gui.saved_searches_editor
+        print(editor.file_name)
+        with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+            f.write(editor.text())
+        editor.setModified(False)
+
     def save_all(self):
         for tab_index in range(self.gui.qtabs.count()):
             editor = self.gui.qtabs.widget(tab_index)
@@ -356,6 +379,13 @@ class Sublimeless_Zk(QObject):
                     f.write(editor.text())
                 editor.setModified(False)
                 self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
+
+        # always save saved searches
+        editor = self.gui.saved_searches_editor
+        print(editor.file_name)
+        with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+            f.write(editor.text())
+        editor.setModified(False)
 
     def show_preferences(self):
         self.open_document('../settings_default.json', is_settings_file=True)
@@ -445,7 +475,9 @@ class Sublimeless_Zk(QObject):
     ''''''
 
     def show_all_notes(self):
-        pass
+        note_files = self.project.get_all_note_files()
+        self.project.externalize_note_links(note_files, '# All Notes:')
+        self.reload(self.gui.search_results_editor)
 
     def show_all_tags(self):
         print('show all tags')
