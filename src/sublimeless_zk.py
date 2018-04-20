@@ -8,6 +8,7 @@ from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QObject
 import shutil
+import re
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -476,11 +477,46 @@ class Sublimeless_Zk(QObject):
 
     def show_all_notes(self):
         note_files = self.project.get_all_note_files()
-        self.project.externalize_note_links(note_files, '# All Notes:')
+        self.project.externalize_note_links(note_files, '# All Notes')
         self.reload(self.gui.search_results_editor)
+
+        # now replace the potential [!
+        editor = self.get_active_editor()
+        if isinstance(editor, ZettelkastenScintilla):
+            line, index = editor.getCursorPosition()
+            replace_index_start = index
+            replace_index_end = index
+            textpos = editor.positionFromLineIndex(line, index)
+            if textpos > 1 and index > 1:
+                if editor.text()[textpos-2:textpos] == '[!':
+                    replace_index_start -= 2
+            editor.setSelection(line, replace_index_start, line, replace_index_end)
+            editor.replaceSelectedText('')
 
     def show_all_tags(self):
         print('show all tags')
+        tags = self.project.find_all_tags()
+        tags.sort()
+        lines = '# All Tags\n\n'
+        lines += '\n'.join(['* ' + tag for tag in tags])
+
+        with open(self.project.get_search_results_filn(),
+                  mode='w', encoding='utf-8', errors='ignore') as f:
+            f.write(lines)
+        self.reload(self.gui.search_results_editor)
+
+        # now replace the potential #!
+        editor = self.get_active_editor()
+        if isinstance(editor, ZettelkastenScintilla):
+            line, index = editor.getCursorPosition()
+            replace_index_start = index
+            replace_index_end = index
+            textpos = editor.positionFromLineIndex(line, index)
+            if textpos > 1 and index > 1:
+                if editor.text()[textpos-2:textpos] == '#!':
+                    replace_index_start -= 2
+            editor.setSelection(line, replace_index_start, line, replace_index_end)
+            editor.replaceSelectedText('')
 
     def insert_tag(self):
         print('insert tag')
@@ -521,7 +557,6 @@ class Sublimeless_Zk(QObject):
 
     def denumber_headings(self):
         pass
-
 
 
 

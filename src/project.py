@@ -175,3 +175,29 @@ class Project:
                 f.write('* {}{}{} {}\n'.format(link_prefix, note_id,
                                                link_postfix, title))
 
+    def extract_tags(self, file):
+        """
+        Extract #tags from file.
+        Returns all words starting with `#`.
+        To be precise, it returns everything that matches RE_TAGS_PY.
+        """
+        tags = set()
+        prefix = self.settings.get('tag_prefix', '#')
+        RE_TAGS_PY = re.compile(r"(?<=\s)(?<!`)(" + prefix + r"+([^" + prefix
+                                + r"\s.,\/!$%\^&\*;{}\[\]'\"=`~()<>”\\]|:[a-zA-Z0-9])+)")
+        with open(file, mode='r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                for tag in RE_TAGS_PY.findall(line):
+                    tags.add(tag[0])
+        return tags
+
+    def find_all_tags(self):
+        """
+        Return a list of all #tags from all notes in folder using external search
+        if possible.
+        """
+        tags = set()
+        for file in self.get_all_note_files():
+            tags |= self.extract_tags(file)
+        return list(tags)
