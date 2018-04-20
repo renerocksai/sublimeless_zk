@@ -284,14 +284,16 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
+            print('zettel', match.group())
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
             # make clickable
             self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_noteid)
 
         # citekeys for pandoc
         # also hackish for mmd
-        p = re.compile(r'(\[[a-zA-Z:\.\s]*)(@|#)([^]]*)(\])')
+        p = re.compile(r'(\[[a-zA-Z:\.\s]*)(@|#)([^]\n]*)(\])')
         for match in p.finditer(text):
+            print('citekey', match.group())
             a = match.start()
             a2 = a + len(match.group(1))
             a3 = a2 + len(match.group(2))
@@ -308,8 +310,9 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # footnotes
-        p = re.compile(r'(\[)(\^)([^]]+)(\])')
+        p = re.compile(r'(\[)(\^)([^]\n]+)(\])')
         for match in p.finditer(text):
+            print('footnote', match.group())
             a = match.start()
             a2 = a + len(match.group(1))
             a3 = a2 + len(match.group(2))
@@ -326,8 +329,9 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # images
-        p = re.compile(r'(!\[)(.*)(\]\()(.*)(\))(\s*\{)?([^\}]*)(\})?')
+        p = re.compile(r'(!\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
+            print('image', match.group())
             a = match.start()
             gstarts = []
             gstops = []
@@ -359,9 +363,10 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(replace_str) + text[b:]
 
         # links
-        p = re.compile(r'(\[)(.*)(\]\()(.*)(\))(\s*\{)?([^\}]*)(\})?')
+        p = re.compile(r'(\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
             a = match.start()
+            print('link', match.group(), match.groups())
             gstarts = []
             gstops = []
             gtexts = []
@@ -392,7 +397,7 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(replace_str) + text[b:]
 
         # bolditalic
-        p = re.compile(r'([\*_]{3})(?!\s)(.+?)(?<!\s)(\1)')
+        p = re.compile(r'([\*_]{3})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
             a = match.start()
             b = match.end()
@@ -403,7 +408,7 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # bold
-        p = re.compile(r'([\*_]{2})(?!\s)(.+?)(?<!\s)(\1)')
+        p = re.compile(r'([\*_]{2})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
             a = match.start(1)
             b = match.end(3)
@@ -414,7 +419,7 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # italic
-        p = re.compile(r'([\*_]{1})(?!\s)(.+?)(?<!\s)(\1)')
+        p = re.compile(r'([\*_]{1})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
             a = match.start(1)
             b = match.end(3)
@@ -456,6 +461,11 @@ class ZkMdLexer(QsciLexerCustom):
             gap_b = len(bytearray(text[current_pos:], 'utf-8'))
             style_regions.append((gap_b, 'default'))
 
+        print('before styling')
         for num_chars, style in style_regions:
-            self.setStyling(num_chars, self.style2id[style])
+            if num_chars <= 0:
+                print('fuck')
+            else:
+                self.setStyling(num_chars, self.style2id[style])
+        print('after styling')
     ''''''

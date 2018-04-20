@@ -45,8 +45,8 @@
   "citekey": {"color": "#6c71c4"},
 
   "link": {
-    "caption": {"color": "#2aa198"},
-    "url"  : {"color": "#2aa198"},
+    "title": {"color": "#2aa198", "style": "normal"},
+    "url"  : {"color": "#2aa198", "style": "italic"},
     "attr": {"color": "#AAAAAA", "style": "italic"}
   },
 
