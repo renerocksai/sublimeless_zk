@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         # ------------------------------------------
         self.setGeometry(300, 200, 800, 600)
         self.setWindowTitle("Sublimeless Zettelkasten")
-
+        self.setStyleSheet("QTabBar{font: 8px;}")
         # 2. Create frame and layout
         # ---------------------------
         self._frm = QFrame(self)
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         max_width = 150
         for line in editor.text().split('\n'):
             max_width = max(max_width, font_metrics.width(line))
-        return max_width + 2 * 10 + 10    # 2 * margin width (we have 2 margins)
+        return max_width + 2 * 10 + 20    # 2 * margin width (we have 2 margins)
 
     def new_zk_editor(self, filn=None):
         editor = ZettelkastenScintilla(document_filn=filn)
@@ -174,6 +174,7 @@ class MainWindow(QMainWindow):
         editor.setExtraDescent(theme.line_pad_bottom)
 
         editor.setMinimumWidth(self.recommended_editor_width(editor))
+        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
         editor.setMaximumWidth(800)
         return editor
 
@@ -218,6 +219,7 @@ class MainWindow(QMainWindow):
         editor.setExtraDescent(theme.line_pad_bottom)
 
         editor.setMinimumWidth(self.recommended_editor_width(editor))
+        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80) + 20 + 12)
         editor.setMaximumWidth(1024)
         return editor
 
