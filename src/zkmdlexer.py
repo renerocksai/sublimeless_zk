@@ -157,7 +157,7 @@ class ZkMdLexer(QsciLexerCustom):
 
             p = re.compile(r':\s*(.*),$', flags=re.MULTILINE)
             for match in p.finditer(text):
-                print(match.groups())
+                # print(match.groups())
                 a = match.start(1)
                 b = match.end(1)
                 regions.append((a, b, match.group(1), 'tag'))
@@ -179,7 +179,7 @@ class ZkMdLexer(QsciLexerCustom):
         if self.highlight_saved_searches:
             p = re.compile(r'(^.+?:)([ \t]*)([^\n]+)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
             for match in p.finditer(text):
-                print(match.groups())
+                # print(match.groups())
                 a1 = match.start(1)
                 a2 = match.start(3)
                 b = match.end()
@@ -284,7 +284,7 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
-            print('zettel', match.group())
+            # print('zettel', match.group())
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
             # make clickable
             self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_noteid)
@@ -293,7 +293,7 @@ class ZkMdLexer(QsciLexerCustom):
         # also hackish for mmd
         p = re.compile(r'(\[[a-zA-Z:\.\s]*)(@|#)([^]\n]*)(\])')
         for match in p.finditer(text):
-            print('citekey', match.group())
+            # print('citekey', match.group())
             a = match.start()
             a2 = a + len(match.group(1))
             a3 = a2 + len(match.group(2))
@@ -312,7 +312,7 @@ class ZkMdLexer(QsciLexerCustom):
         # footnotes
         p = re.compile(r'(\[)(\^)([^]\n]+)(\])')
         for match in p.finditer(text):
-            print('footnote', match.group())
+            # print('footnote', match.group())
             a = match.start()
             a2 = a + len(match.group(1))
             a3 = a2 + len(match.group(2))
@@ -331,7 +331,7 @@ class ZkMdLexer(QsciLexerCustom):
         # images
         p = re.compile(r'(!\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
-            print('image', match.group())
+            # print('image', match.group())
             a = match.start()
             gstarts = []
             gstops = []
@@ -366,7 +366,7 @@ class ZkMdLexer(QsciLexerCustom):
         p = re.compile(r'(\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
             a = match.start()
-            print('link', match.group(), match.groups())
+            # print('link', match.group(), match.groups())
             gstarts = []
             gstops = []
             gtexts = []
@@ -461,11 +461,7 @@ class ZkMdLexer(QsciLexerCustom):
             gap_b = len(bytearray(text[current_pos:], 'utf-8'))
             style_regions.append((gap_b, 'default'))
 
-        print('before styling')
         for num_chars, style in style_regions:
-            if num_chars <= 0:
-                print('fuck')
-            else:
+            if num_chars > 0:
                 self.setStyling(num_chars, self.style2id[style])
-        print('after styling')
     ''''''
