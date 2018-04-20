@@ -391,10 +391,6 @@ class Sublimeless_Zk(QObject):
         self.project.create_note(the_file, new_title, origin, o_title, note_body)
         self.open_document(the_file)
 
-
-
-
-
     def zk_follow_link(self):
         print('Follow Link', end=' ')
         if self.app.focusWidget() == self.gui.editor:
