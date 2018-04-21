@@ -151,11 +151,15 @@ class FuzzySearchDialog(QDialog):
         self.done(0)
 
 
-def show_fuzzy_panel(parent, title, item_dict, max_items=20):
+def show_fuzzy_panel(parent, title, item_dict, max_items=50, longlines=False, manylines=False):
     dlg = FuzzySearchDialog(parent, title, item_dict, max_items)
     if parent:
         pass
         #dlg.move(parent.rect().center() - dlg.rect().center())
+    if longlines:
+        dlg.setMinimumWidth(1024)
+    if manylines:
+        dlg.setMinimumHeight(400)
     ret = dlg.exec_()
     if ret:
         return dlg.value

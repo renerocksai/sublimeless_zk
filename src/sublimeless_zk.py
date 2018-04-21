@@ -499,9 +499,6 @@ class Sublimeless_Zk(QObject):
         editor.lexer().on_click_indicator(line, index, 0)
         return
 
-
-
-
     def insert_link(self):
         print('Insert Link')
         editor = self.get_active_editor()
@@ -642,11 +639,45 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(ref_note_files, f'Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
 
-    def expand_link(self):
-        print('expand link')
-
     def insert_citation(self):
         print('insert citation')
+        editor = self.get_active_editor()
+        if not isinstance(editor, ZettelkastenScintilla):
+            return
+        self.citekey_list = []
+        bibfile = Autobib.look_for_bibfile(self.project)
+        if not bibfile:
+            return
+        entries = Autobib.extract_all_entries(bibfile)
+        ck_choices = {}
+        for citekey, d in entries.items():
+            self.citekey_list.append(citekey)
+            item = '{} {} - {} ({})'.format(d['authors'], d['year'], d['title'], citekey)
+            ck_choices[item] = citekey
+        item, citekey = show_fuzzy_panel(self.gui.qtabs, 'Insert Citation', ck_choices, longlines=True, manylines=True)
+
+        if not citekey:
+            return
+        line, index = editor.getCursorPosition()
+        replace_index_start = index
+        replace_index_end = index
+        textpos = editor.positionFromLineIndex(line, index)
+        if textpos > 1 and index > 1:
+            before = editor.text()[textpos - 2:textpos]
+            if before == '[@' or before == '[#':
+                replace_index_start -= 2
+        editor.setSelection(line, replace_index_start, line, replace_index_end)
+
+        mmd_style = self.project.settings.get('citations-mmd-style', None)
+        if mmd_style:
+            fmt_completion = '[][#{}]'
+        else:
+            fmt_completion = '[@{}]'
+        text = fmt_completion.format(citekey)
+        editor.replaceSelectedText(text)
+
+    def expand_link(self):
+        print('expand link')
 
     def expand_overview_note(self):
         print('expand overview note')
