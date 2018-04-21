@@ -241,6 +241,7 @@ class Project:
         else:
             search_text = text[:pos + 1]
         # find first `#`
+
         inner = search_text.rfind(ZkConstants.TAG_PREFIX)
         if inner >=0:
             # find next consecutive `#`
