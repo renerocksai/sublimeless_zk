@@ -9,6 +9,10 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QObject
 import shutil
 import re
+import struct
+import imghdr
+import unicodedata
+from collections import Counter
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -679,18 +683,6 @@ class Sublimeless_Zk(QObject):
         text = fmt_completion.format(citekey)
         editor.replaceSelectedText(text)
 
-    def expand_link(self):
-        print('expand link')
-
-    def expand_overview_note(self):
-        print('expand overview note')
-
-    def refresh_expanded_note(self):
-        pass
-
-    def advanced_tag_search(self):
-        pass
-
     def auto_bib(self):
         editor = self.get_active_editor()
         if not editor:
@@ -724,14 +716,69 @@ class Sublimeless_Zk(QObject):
             editor.setText(result_text)
             editor.setCursorPosition(editor.lines(), 0)
 
-    def show_images(self):
-        pass
-
-    def hide_images(self):
-        pass
-
     def auto_toc(self):
-        pass
+        # TOC markers
+        TOC_HDR = '<!-- table of contents (auto) -->'
+        TOC_END = '<!-- (end of auto-toc) -->'
+
+        def heading2ref(heading):
+            """
+            Turn heading into a reference as in `[heading](#reference)`.
+            """
+            ref = unicodedata.normalize('NFKD', heading).encode('ascii', 'ignore')
+            ref = re.sub('[^\w\s-]', '', ref.decode('ascii', errors='ignore')).strip().lower()
+            return re.sub('[-\s]+', '-', ref)
+
+        def find_toc_region(text):
+            """
+            Find the entire toc region including start and end markers.
+            """
+            toc_hdr = re.compile(re.escape(TOC_HDR))
+            toc_end = re.compile(re.escape(TOC_END))
+            match = toc_hdr.search(text)
+            if match:
+                start_pos = match.start()
+                end_of_start_pos = match.end()
+                match = toc_end.search(text, end_of_start_pos)
+                if match:
+                    end_pos = match.end()
+                    return (start_pos, end_pos)
+            return None, None
+
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        settings = self.project.settings
+        suffix_sep = settings.get('toc_suffix_separator', None)
+        if not suffix_sep:
+            suffix_sep = '_'
+        toc_start, toc_end = find_toc_region(editor.text())
+        if toc_start:
+            line_num_start, index_start = editor.lineIndexFromPosition(toc_start)
+            line_num_end, index_end = editor.lineIndexFromPosition(toc_end)
+        else:
+            line_num_start, index_start = editor.getCursorPosition()
+            line_num_end, index_end = editor.getCursorPosition()
+
+        editor.setSelection(line_num_start, index_start, line_num_end, index_end)
+
+        lines = [TOC_HDR]
+        ref_counter = Counter({'': 1})   # '' for unprintable char only headings
+
+        for heading, level, h_start, h_end in editor.lexer().get_headings():
+            ref = heading2ref(heading)
+            ref_counter[ref] += 1
+            if ref_counter[ref] > 1:
+                ref = ref + '{}{}'.format(suffix_sep, ref_counter[ref] - 1)
+
+            match = re.match('\s*(#+)(.*)', heading)
+            hashes, title = match.groups()
+            title = title.strip()
+            line = '    ' * (level - 1) + f'* [{title}](#{ref})'
+            lines.append(line)
+        lines.append(TOC_END)
+        print('\n'.join(lines))
+        editor.replaceSelectedText('\n'.join(lines))
 
     def number_headings(self):
         pass
@@ -739,6 +786,23 @@ class Sublimeless_Zk(QObject):
     def denumber_headings(self):
         pass
 
+    def expand_link(self):
+        print('expand link')
+
+    def expand_overview_note(self):
+        print('expand overview note')
+
+    def refresh_expanded_note(self):
+        pass
+
+    def advanced_tag_search(self):
+        pass
+
+    def show_images(self):
+        pass
+
+    def hide_images(self):
+        pass
 
 
 

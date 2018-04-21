@@ -26,6 +26,7 @@ class ZkMdLexer(QsciLexerCustom):
         self.highlight_saved_searches = highlight_saved_searches
         self.show_block_quotes = show_block_quotes
         self.settings_mode = settings_mode
+        self.headings = []
 
         # Default text settings
         # ----------------------
@@ -93,6 +94,13 @@ class ZkMdLexer(QsciLexerCustom):
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
+
+    def get_headings(self):
+        """
+        Return ordered list of headings in document as
+        tuple (line_string, heading_level, start_pos, end_pos)
+        """
+        return self.headings
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -214,7 +222,7 @@ class ZkMdLexer(QsciLexerCustom):
 
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first
-        # code blocks
+        # fenced code blocks
         p = re.compile(r'(```)(.|\n)*?(```)')
         for match in p.finditer(text):
             a = match.start(1)
@@ -225,6 +233,7 @@ class ZkMdLexer(QsciLexerCustom):
 
 
         # headings
+        self.headings = []
         p = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
             #print('heading', match.groups())
@@ -233,6 +242,7 @@ class ZkMdLexer(QsciLexerCustom):
             n = match.group(1).count('#')
             regions.append((a, a + len(match.group(1)), match.group(1), 'h.symbol'))
             regions.append((a + len(match.group(1)), b, match.group(2), f'h{n}.text'))
+            self.headings.append((match.group(), n, a, b))
 
         # quotes
         p = re.compile('^(>)(.+)$', flags=re.MULTILINE)
@@ -242,33 +252,45 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a, a + len(match.group(1)), match.group(1), 'quote.symbol'))
             regions.append((a + len(match.group(1)), b+1, match.group(2)+'\n', 'quote.text'))
 
-        # block quotes
+        no_blocks_in = []
+        # list unordered
+        p = re.compile(r'^(( {4})*[\*-]\s+)(.+?)$', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            a = match.start()
+            b = match.end()
+            no_blocks_in.append((a, b))
+            len_symbol = match.end(1) - match.start(1)
+            nosymbol = match.group()[len_symbol:]
+            regions.append((a, a + len_symbol, match.group(1), 'list.symbol'))
+            regions.append((a + len_symbol, b, nosymbol, 'list.unordered'))
+
+        # list ordered
+        p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
+        for match in p.finditer(text):
+            print('ordered', match.groups())
+            a = match.start()
+            b = match.end()
+            no_blocks_in.append((a, b))
+            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
+            regions.append((a + len(match.group(1)), b, match.group(3), 'list.ordered'))
+
+        # indented code blocks
         ### NEED TO STYLE THE \n !!!
         if self.show_block_quotes:
             p = re.compile(r'^( {4})+(.+$)', flags=re.MULTILINE)
             for match in p.finditer(text):
                 a = match.start()
                 b = match.end()
+                # don't block-quote list-sub-items
+                skip_this = False
+                for no_a, no_b in no_blocks_in:
+                    if a >= no_a and b <= no_b + 1:
+                        skip_this = True
+                if skip_this:
+                    continue
                 regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
                 regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
                 # +1 to also style the \n
-
-        # list unordered
-        p = re.compile(r'^(( {4})*[\*-]\s)(.+)$', flags=re.MULTILINE)
-        for match in p.finditer(text):
-            a = match.start()
-            b = match.end()
-            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
-            regions.append((a + len(match.group(1)), b, match.group(3), 'list.unordered'))
-
-        # list ordered
-        p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
-        for match in p.finditer(text):
-            a = match.start()
-            b = match.end()
-            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
-            regions.append((a + len(match.group(1)), b, match.group(3), 'list.ordered'))
-
 
         ### inline markup
 
@@ -453,6 +475,7 @@ class ZkMdLexer(QsciLexerCustom):
         # comments
         p = re.compile(r'(<!--)(.|\n)*?(-->)')
         for match in p.finditer(text):
+            # print('comment', match.groups(), match.group())
             a = match.start(1)
             b = match.end(3)
             regions.append((a, b, match.group(), 'comment'))
