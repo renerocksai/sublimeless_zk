@@ -98,12 +98,23 @@ class TextProduction:
         """
 
         link_type, link = project.get_link_under_cursor(editor)
-
+        result_lines = []
         if link_type == 'note_id':
             # we're in a link, so expand it
             pre, post = project.get_link_pre_postfix()
             result_lines = TextProduction.embed_note(link, project, pre, post)
             result_lines.append('')   # append a newline for empty line after exp.
+        elif link_type == 'tag':
+            id2tags, tags2ids = project.find_all_notes_all_tags()
+            note_ids = tags2ids[link]
+            result_lines = project.format_note_links(note_ids)
+            result_lines.append('')
+        elif link_type == 'citekey':
+            notes = project.find_all_citations(link)
+            result_lines = project.format_note_links(notes)
+            result_lines.append('')
+
+        if result_lines:
             line_number, index = editor.getCursorPosition()
             # advance to next line
             line_number += 1

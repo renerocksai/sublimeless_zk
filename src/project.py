@@ -179,6 +179,28 @@ class Project:
                                                link_postfix, title))
         return
 
+    def format_note_links(self, note_files):
+        link_prefix, link_postfix = self.get_link_pre_postfix()
+        extension = self.settings.get('markdown_extension')
+        results = []
+        for line in note_files:
+            line = os.path.basename(line)
+            line = line.replace(extension, '')
+            if ' ' not in line:
+                line += ' '
+            note_id, title = line.split(' ', 1)
+            note_id = os.path.basename(note_id)
+            results.append((note_id, title))
+        sort_order = self.settings.get('sort_notelists_by', 'id').lower()
+        column = 0
+        if sort_order == 'title':
+            column = 1
+        results.sort(key=itemgetter(column))
+        result_lines = []
+        for note_id, title in results:
+            result_lines.append(f'* {link_prefix}{note_id}{link_postfix} {title}')
+        return result_lines
+
     def extract_tags(self, file):
         """
         Extract #tags from file.
