@@ -209,6 +209,7 @@ class Sublimeless_Zk(QObject):
         self.init_editor_text_shortcuts(editor)
         # lexer actions
         editor.lexer().tag_clicked.connect(self.clicked_tag)
+        editor.lexer().cite_key_clicked.connect(self.clicked_citekey)
         editor.lexer().note_id_clicked.connect(self.clicked_noteid)
         editor.lexer().search_spec_clicked.connect(self.search_spec_clicked)
         editor.lexer().create_link_from_title_clicked.connect(self.create_link_from_title_clicked)
@@ -259,8 +260,14 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(note_ids, title)
         self.reload(self.gui.search_results_editor)
 
+    def clicked_citekey(self, citekey, ctrl, alt, shift):
+        print('citekey', citekey)
+        # todo
+
+
     def search_spec_clicked(self, search_spec, ctrl, alt, shift):
         print('search spec', search_spec)
+        # todo
 
     def create_link_from_title_clicked(self, title, ctrl, alt, shift, pos, length):
         print('create link from title', title)

@@ -14,6 +14,7 @@ class ZkMdLexer(QsciLexerCustom):
     tag_clicked = pyqtSignal(str, bool, bool, bool)
     search_spec_clicked = pyqtSignal(str, bool, bool, bool)
     create_link_from_title_clicked = pyqtSignal(str, bool, bool, bool, int, int)
+    cite_key_clicked = pyqtSignal(str, bool, bool, bool)
 
     def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True,
                  settings_mode=False):
@@ -78,16 +79,20 @@ class ZkMdLexer(QsciLexerCustom):
         self.indicator_id_tag = 1
         self.indicator_id_search_spec = 2
         self.indicator_id_only_notetitle = 3
+        self.indicator_id_citekey = 4
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_search_spec)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_citekey)
+
         editor.indicatorClicked.connect(self.on_click_indicator)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -109,8 +114,8 @@ class ZkMdLexer(QsciLexerCustom):
         tag_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_tag, position)
         noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
         search_spec_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_search_spec, position)
-
         only_notetitle_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_only_notetitle, position)
+        citekey_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_citekey, position)
 
         if search_spec_pos:
             # get until end of line
@@ -138,6 +143,14 @@ class ZkMdLexer(QsciLexerCustom):
             if match:
                 link_title = match.group(1)
                 self.create_link_from_title_clicked.emit(link_title, ctrl, alt, shift, only_notetitle_pos, len(link_title))
+        elif citekey_pos:
+            p = re.compile(r'([a-zA-Z:\.\s]*)(@|#)([^]\n]*)(\])')
+            match = p.match(self.parent().text()[citekey_pos:citekey_pos + 100])
+            if match:
+                citekey = match.group()[:-1]
+                # emit tag clicked signal
+                self.cite_key_clicked.emit(citekey, ctrl, alt, shift)
+
 
     def language(self):
         return "MardownZettelkasten"
@@ -271,6 +284,7 @@ class ZkMdLexer(QsciLexerCustom):
             # make clickable
             self.make_clickable(a, len(match.group(2)), self.indicator_id_tag)
 
+        # inline code
         p = re.compile(r'([`]{1})(?!\s)(.+?)(?<!\s)(\1)')
         for match in p.finditer(text):
             a = match.start()
@@ -313,6 +327,8 @@ class ZkMdLexer(QsciLexerCustom):
             regions.append((a4, b, match.group(4), 'default'))
             # consume
             text = text[:a] + 'x' * len(match.group()) + text[b:]
+            # make clickable
+            self.make_clickable(a+1, len(match.group(1)) - 1 + len(match.group(2)) + len(match.group(3)), self.indicator_id_citekey)
 
         # footnotes
         p = re.compile(r'(\[)(\^)([^]\n]+)(\])')
