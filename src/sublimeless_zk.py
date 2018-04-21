@@ -808,6 +808,29 @@ class Sublimeless_Zk(QObject):
 
     def expand_overview_note(self):
         print('expand overview note')
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        input_text = show_input_panel(None, 'Overview Title:', 'Overview - ')
+        if not input_text:
+            return
+
+        settings = self.project.settings
+        extension = settings.get('markdown_extension')
+        id_in_title = settings.get('id_in_title')
+
+        new_id = self.project.timestamp()
+        the_file = os.path.join(self.project.folder, new_id + ' ' + input_text + extension)
+        new_title = input_text
+        if id_in_title:
+            new_title = new_id + ' ' + input_text
+        origin, o_title = self.project.get_note_id_and_title_of(editor)
+
+        complete_text = editor.text()
+        note_body = TextProduction.expand_links(complete_text, self.project, replace_lines=True)
+        self.project.create_note(the_file, new_title, origin, o_title, note_body)
+        self.open_document(the_file)
+
 
     def refresh_expanded_note(self):
         pass
