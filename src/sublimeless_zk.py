@@ -455,8 +455,30 @@ class Sublimeless_Zk(QObject):
                 self.open_document(filn)
         elif link.startswith('@') or link.startswith('#'):
             pass
-        # todo: finish this
-
+            # todo: on #tags and @citekeys: show referencing notes
+        else:
+            # create new note with title of link
+            settings = self.project.settings
+            extension = settings.get('markdown_extension')
+            id_in_title = settings.get('id_in_title')
+            new_id = self.project.timestamp()
+            the_file = os.path.join(self.project.folder, new_id + ' ' + link + extension)
+            new_title = link
+            if id_in_title:
+                new_title = new_id + ' ' + link
+            link_txt = self.project.style_link(new_id, link)
+            editor = self.get_active_editor()
+            if not editor:
+                print('should never happen')
+                return
+            # get origin
+            origin_id, origin_title = self.project.get_note_id_and_title_of(editor)
+            line_from, line_to = editor_region[0], editor_region[0]
+            index_from, index_to = editor_region[1], editor_region[2]
+            editor.setSelection(line_from, index_from, line_to, index_to)
+            editor.replaceSelectedText(new_id)
+            self.project.create_note(the_file, new_title, origin_id, origin_title)
+            self.open_document(the_file)
 
     def insert_link(self):
         print('Insert Link')

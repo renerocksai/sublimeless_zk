@@ -217,6 +217,8 @@ class Project:
         Search for a ####tag inside of text.
         If pos is given, searches for the tag at pos
         """
+
+        #todo
         if pos is None:
             search_text = text
         else:
@@ -255,6 +257,7 @@ class Project:
         return '', (None, None)
 
     def pandoc_citekey_at(self, text, pos=None):
+        # todo
         """
         Search for a ####tag inside of text.
         If pos is given, searches for the tag at pos
