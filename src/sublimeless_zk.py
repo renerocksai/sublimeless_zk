@@ -440,15 +440,17 @@ class Sublimeless_Zk(QObject):
 
 
     def zk_follow_link(self):
-        print('Follow Link', end=' ')
-        if self.app.focusWidget() == self.gui.editor:
-            print('from main editor')
-        elif self.app.focusWidget() == self.gui.search_results_editor:
-            print('from results editor')
-        elif self.app.focusWidget() == self.gui.saved_searches_editor:
-            print('from search editor')
-        else:
-            print('irrelevant')
+        print('Follow Link')
+        link, editor_region = self.select_link_in_editor()
+        if not editor_region:
+            return
+        note_id = self.project.cut_after_note_id(link)
+        if not note_id:
+            return
+        print(note_id, editor_region)
+        filn = self.project.note_file_by_id(note_id)
+        if filn:
+            self.open_document(filn)
 
     def insert_link(self):
         print('Insert Link')
@@ -577,7 +579,7 @@ class Sublimeless_Zk(QObject):
 
     def show_referencing_notes(self, note_id=None):
         print('Show referencing note')
-        if note_id is None:
+        if not isinstance(note_id, str):
             link, editor_region = self.select_link_in_editor()
             if not editor_region:
                 return
