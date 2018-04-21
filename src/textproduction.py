@@ -76,8 +76,8 @@ class TextProduction:
                 if not line.startswith('<!-- (End of note'):
                     continue
                 # insert note
-                result_lines.extend(TextProduction.embed_note(note_id, folder,
-                    extension, pre, post))
+                result_lines.extend(TextProduction.embed_note(note_id, project,
+                    pre, post))
                 state = 'default'
                 continue
 

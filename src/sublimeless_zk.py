@@ -811,7 +811,8 @@ class Sublimeless_Zk(QObject):
         editor = self.get_active_editor()
         if not editor:
             return
-        input_text = show_input_panel(None, 'Overview Title:', 'Overview - ')
+        origin, o_title = self.project.get_note_id_and_title_of(editor)
+        input_text = show_input_panel(None, 'Expansion Note Title:', 'Expanded - ' + origin)
         if not input_text:
             return
 
@@ -824,16 +825,20 @@ class Sublimeless_Zk(QObject):
         new_title = input_text
         if id_in_title:
             new_title = new_id + ' ' + input_text
-        origin, o_title = self.project.get_note_id_and_title_of(editor)
 
         complete_text = editor.text()
         note_body = TextProduction.expand_links(complete_text, self.project, replace_lines=True)
+        note_body = f'\n# Expansion of {origin} {o_title}\n' + note_body
         self.project.create_note(the_file, new_title, origin, o_title, note_body)
         self.open_document(the_file)
 
-
     def refresh_expanded_note(self):
-        pass
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        complete_text = editor.text()
+        result_text = TextProduction.refresh_result(complete_text, self.project)
+        editor.setText(result_text)
 
     def advanced_tag_search(self):
         pass
