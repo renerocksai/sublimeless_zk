@@ -39,8 +39,9 @@ class ZettelkastenScintilla(QsciScintilla):
     calculation_font = None
     line_list = None
 
-    def __init__(self, parent=None, document_filn=None):
+    def __init__(self, parent=None, document_filn=None, editor_type='normal'):
         super().__init__(parent)
+        self.editor_type = editor_type
         self.image_list = {}
         self.line_list = []
         self.file_name = document_filn

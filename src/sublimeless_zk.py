@@ -350,7 +350,7 @@ class Sublimeless_Zk(QObject):
             self.project = Project(file)
             self.app_state.save()
 
-            # todo: now open saved searches
+            # now open saved searches
             if not os.path.exists(self.project.get_saved_searches_filn()):
                     shutil.copy2('../saved_searches_default.md', self.project.get_saved_searches_filn())
             if not os.path.exists(self.project.get_search_results_filn()):
@@ -411,6 +411,9 @@ class Sublimeless_Zk(QObject):
                 f.write(editor.text())
             editor.setModified(False)
             self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
+            # Settings changed
+            if editor.editor_type == 'settings':
+                self.project.reload_settings()
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
@@ -510,7 +513,7 @@ class Sublimeless_Zk(QObject):
         if selected_note:
             note_id, title = selected_note.split(' ', 1)
             link_txt = self.project.style_link(note_id, title)
-            # todo: check if editor contains [[ right before current cursor position
+            # check if editor contains [[ right before current cursor position
             line, index = editor.getCursorPosition()
             replace_index_start = index
             replace_index_end = index
@@ -689,7 +692,37 @@ class Sublimeless_Zk(QObject):
         pass
 
     def auto_bib(self):
-        pass
+        editor = self.get_active_editor()
+        if not editor:
+            return
+
+        settings = self.project.settings
+        mmd_style = settings.get('citations-mmd-style', None)
+
+        bibfile = Autobib.look_for_bibfile(self.project)
+        if bibfile:
+            text = editor.text()
+            ck2bib = Autobib.create_bibliography(text, bibfile, pandoc='pandoc')
+            marker = '<!-- references (auto)'
+            marker_line = marker
+            if mmd_style:
+                marker_line += ' -->'
+            bib_lines = [marker_line + '\n']
+            for citekey in sorted(ck2bib):
+                bib = ck2bib[citekey]
+                line = '[{}]: {}\n'.format(citekey, bib)
+                bib_lines.append(line)
+            if not mmd_style:
+                bib_lines.append('-->')
+            new_lines = []
+            for line in text.split('\n'):
+                if line.strip().startswith(marker):
+                    break
+                new_lines.append(line)
+            result_text = '\n'.join(new_lines)
+            result_text += '\n' + '\n'.join(bib_lines) + '\n'
+            editor.setText(result_text)
+            editor.setCursorPosition(editor.lines(), 0)
 
     def show_images(self):
         pass

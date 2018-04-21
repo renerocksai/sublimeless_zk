@@ -14,17 +14,11 @@ class MainWindow(QMainWindow):
 
         # load theme
         self.theme = theme
-        # -------------------------------- #
-        #           Window setup           #
-        # -------------------------------- #
 
-        # 1. Define the geometry of the main window
-        # ------------------------------------------
         self.setGeometry(300, 200, 800, 600)
         self.setWindowTitle("Sublimeless Zettelkasten")
         self.setStyleSheet("QTabBar{font: 8px;}")
-        # 2. Create frame and layout
-        # ---------------------------
+
         self._frm = QFrame(self)
         self._frm.setStyleSheet("QWidget { background-color: #ffeaeaea }")
         self._lyt = QVBoxLayout()
@@ -33,8 +27,6 @@ class MainWindow(QMainWindow):
         self._myFont = QFont()
         self._myFont.setPointSize(14)
 
-        # 3. Place a button
-        # ------------------
         self._btn = QPushButton("Qsci")
         self._btn.setFixedWidth(50)
         self._btn.setFixedHeight(50)
@@ -42,19 +34,8 @@ class MainWindow(QMainWindow):
         self._btn.setFont(self._myFont)
         #self._lyt.addWidget(self._btn)
 
-        # -------------------------------- #
-        #     QScintilla editor setup      #
-        # -------------------------------- #
 
-        # ! Make instance of QSciScintilla class!
-        # ----------------------------------------
-
-        # ! Add editor to layout !
-        # -------------------------
         self.qtabs = QTabWidget()
-        # Set up the tabs
-        # self.qtabs.tabCloseRequested.connect(self.tab.removeTab)
-        # self.qtabs.tabCloseRequested.connect(self.lessTabs)
 
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
@@ -74,11 +55,8 @@ class MainWindow(QMainWindow):
         self.qtabs.setTabsClosable(True)
         self.show()
 
-    ''''''
-
     def _btn_action(self):
         print("Hello World!")
-    ''''''
 
     def recommended_editor_width(self, editor):
         font_metrics = QFontMetrics(editor.lexer().default_font)
@@ -94,7 +72,7 @@ class MainWindow(QMainWindow):
             with open(filn,
                       mode='r', encoding='utf-8', errors='ignore') as f:
                 txt = f.read()
-            editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
+            editor.setText(txt)
         editor.setLexer(None)            # We install lexer later
 
         editor.setWrapMode(QsciScintilla.WrapWord)
@@ -134,13 +112,10 @@ class MainWindow(QMainWindow):
         return editor
 
     def make_search_results_editor(self):
-        editor = ZettelkastenScintilla()
+        editor = ZettelkastenScintilla(editor_type='searchresults')
         editor.setUtf8(True)             # Set encoding to UTF-8
-        with open('../search_results_default.md',
-                  mode='r', encoding='utf-8', errors='ignore') as f:
-            txt = f.read()
-        editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
-        editor.setLexer(None)            # We install lexer later
+
+        editor.setLexer(None)
         editor.setWrapMode(QsciScintilla.WrapWord)
         editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
         editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
@@ -180,12 +155,9 @@ class MainWindow(QMainWindow):
         return editor
 
     def make_saved_searches_editor(self):
-        editor = ZettelkastenScintilla()
+        editor = ZettelkastenScintilla(editor_type='savedsearches')
         editor.setUtf8(True)             # Set encoding to UTF-8
-        with open('../saved_searches_default.md',
-                  mode='r', encoding='utf-8', errors='ignore') as f:
-            txt = f.read()
-        editor.setText(txt)     # 'myCodeSample' is a string containing some C-code
+
         editor.setLexer(None)            # We install lexer later
         editor.setWrapMode(QsciScintilla.WrapWord)
         editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)

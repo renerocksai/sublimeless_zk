@@ -297,7 +297,7 @@ class ZkMdLexer(QsciLexerCustom):
 
 
         # zettel links
-        p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
+        p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]\n]*)(\][\]]?)')
         for match in p.finditer(text):
             # print('zettel', match.group())
             a = match.start()

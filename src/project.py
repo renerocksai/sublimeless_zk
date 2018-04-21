@@ -136,7 +136,7 @@ class Project:
             f.write(format_str.format(**params))
             if body is not None:
                 f.write('\n' + body)
-        ''''''
+        return
 
     def style_link(self, note_id, title):
         prefix, postfix = self.get_link_pre_postfix()
@@ -176,6 +176,7 @@ class Project:
             for note_id, title in results:
                 f.write('* {}{}{} {}\n'.format(link_prefix, note_id,
                                                link_postfix, title))
+        return
 
     def extract_tags(self, file):
         """
@@ -228,94 +229,6 @@ class Project:
                 if note_id in f.read():
                     ret.append(filn)
         return ret
-
-    def tag_at(self, text, pos=None):
-        """
-        Search for a ####tag inside of text.
-        If pos is given, searches for the tag at pos
-        """
-
-        #todo
-        if pos is None:
-            search_text = text
-        else:
-            search_text = text[:pos + 1]
-        # find first `#`
-
-        inner = search_text.rfind(ZkConstants.TAG_PREFIX)
-        if inner >=0:
-            # find next consecutive `#`
-            for c in reversed(search_text[:inner]):
-                if c not in ZkConstants.TAG_PREFIX:
-                    break
-                inner -=1
-            # search end of tag
-            end = inner
-            mode = ''
-            for c in text[inner:]:
-                if mode == ':':
-                    if (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') \
-                        or (c >= '0' and c <= '9'):
-                        pass
-                    else:
-                        end -= 1
-                        break
-                if c.isspace() or c in ZkConstants.Tag_Stops:
-                    break
-                mode = c
-                end += 1
-            tag = text[inner:end]
-            if tag.endswith(':'):
-                tag = tag[:-1]
-                end -= 1
-
-            # test if it's just a `# heading` (resulting in `#`) or a real tag
-            if tag.replace('#', ''):
-                return text[inner:end], (inner, end)
-        return '', (None, None)
-
-    def pandoc_citekey_at(self, text, pos=None):
-        # todo
-        """
-        Search for a ####tag inside of text.
-        If pos is given, searches for the tag at pos
-        """
-        if pos is None:
-            search_text = text
-        else:
-            search_text = text[:pos + 1]
-        # find first `#`
-        inner = search_text.rfind('@')
-        if inner >=0:
-            # find next consecutive `#`
-            for c in reversed(search_text[:inner]):
-                if c != '@':
-                    break
-                inner -=1
-            # search end of tag
-            end = inner
-            mode = ''
-            for c in text[inner:]:
-                if mode == ':':
-                    if (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') \
-                        or (c >= '0' and c <= '9'):
-                        pass
-                    else:
-                        end -= 1
-                        break
-                if c.isspace() or c in ZkConstants.Tag_Stops:
-                    break
-                mode = c
-                end += 1
-            tag = text[inner:end]
-            if tag.endswith(':'):
-                tag = tag[:-1]
-                end -= 1
-
-            # test if it's just a `# heading` (resulting in `#`) or a real tag
-            if tag.replace('@', ''):
-                return text[inner:end], (inner, end)
-        return '', (None, None)
 
     def find_all_notes_all_tags(self):
         """

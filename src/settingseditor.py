@@ -7,7 +7,7 @@ from settings import get_settings
 
 
 def SettingsEditor(theme, settings_filn):
-    editor = ZettelkastenScintilla(document_filn=settings_filn)
+    editor = ZettelkastenScintilla(document_filn=settings_filn, editor_type='settings')
 
     editor.setUtf8(True)  # Set encoding to UTF-8
     txt = get_settings(settings_filn, raw=True)
