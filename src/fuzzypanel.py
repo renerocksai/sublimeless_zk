@@ -1,8 +1,12 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from fuzzywuzzy import process
+#from fuzzywuzzy import process
+from fuzzyfinder import fuzzyfinder
 
+
+def fuzzymatch(string, stringlist):
+    pass
 
 class PanelInputLine(QLineEdit):
     down_pressed = pyqtSignal()
@@ -88,9 +92,10 @@ class FuzzySearchPanel(QWidget):
     def text_changed(self):
         search_string = self.input_line.text()
         if search_string:
-            fuzzy_results = process.extract(search_string, self.item_dict.keys(), limit=self.max_items)
-            fuzzy_results = [f for f in fuzzy_results if f[1] > 40]
-            self.fuzzy_items = [f[0] for f in fuzzy_results]
+            # fuzzy_results = process.extract(search_string, self.item_dict.keys(), limit=self.max_items)
+            # fuzzy_results = [f for f in fuzzy_results if f[1] > 40]
+            # self.fuzzy_items = [f[0] for f in fuzzy_results]
+            self.fuzzy_items = list(fuzzyfinder(search_string, self.item_dict.keys()))[:self.max_items]
         else:
             self.fuzzy_items = list(self.item_dict.keys())[:self.max_items]
         self.update_listbox()
