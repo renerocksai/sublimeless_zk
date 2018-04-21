@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
         return editor
 
     def make_search_results_editor(self):
-        editor = QsciScintilla()
+        editor = ZettelkastenScintilla()
         editor.setUtf8(True)             # Set encoding to UTF-8
         with open('../search_results_default.md',
                   mode='r', encoding='utf-8', errors='ignore') as f:
@@ -163,6 +163,7 @@ class MainWindow(QMainWindow):
 
         lexer = ZkMdLexer(editor, theme, highlight_saved_searches=False, show_block_quotes=False)
         editor.setLexer(lexer)
+        editor.set_calculation_font(lexer.default_font)
 
         editor.setCaretForegroundColor(QColor(lexer.theme.caret))
         editor.setCaretLineVisible(True)
@@ -179,7 +180,7 @@ class MainWindow(QMainWindow):
         return editor
 
     def make_saved_searches_editor(self):
-        editor = QsciScintilla()
+        editor = ZettelkastenScintilla()
         editor.setUtf8(True)             # Set encoding to UTF-8
         with open('../saved_searches_default.md',
                   mode='r', encoding='utf-8', errors='ignore') as f:
@@ -208,6 +209,7 @@ class MainWindow(QMainWindow):
 
         lexer = ZkMdLexer(editor, theme, highlight_saved_searches=True, show_block_quotes=False)
         editor.setLexer(lexer)
+        editor.set_calculation_font(lexer.default_font)
 
         editor.setCaretForegroundColor(QColor(lexer.theme.caret))
         editor.setCaretLineVisible(True)

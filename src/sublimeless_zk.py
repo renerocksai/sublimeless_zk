@@ -47,7 +47,7 @@ class Sublimeless_Zk(QObject):
         self.insertLinkAction.setShortcut('[,[')
 
         self.showReferencingNotesAction = QAction('Show referencing notes', self)
-        self.showReferencingNotesAction.setShortcut('Alt+Enter')
+        self.showReferencingNotesAction.setShortcuts(['Alt+Return', 'Alt+Enter'])
 
         self.insertTagAction = QAction('Insert Tag', self)
         self.insertTagAction.setShortcut('#, ?')
@@ -97,7 +97,7 @@ class Sublimeless_Zk(QObject):
         ##
         editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
         editor_list.extend([self.gui.saved_searches_editor, self.gui.search_results_editor])
-        [self.init_editor_text_shortcuts(editor) for editor in editor_list]
+        [self.connect_editor_signals(editor) for editor in editor_list]
 
         # todo: pack this into an action, too
         if sys.platform == 'darwin':
@@ -124,7 +124,6 @@ class Sublimeless_Zk(QObject):
         # here go the most recents
 
         edit.addAction(self.insertLinkAction)
-        edit.addAction(self.showReferencingNotesAction)
         edit.addAction(self.insertTagAction)
         edit.addAction(self.expandLinkAction)
         edit.addAction(self.insertCitationAction)
@@ -142,6 +141,7 @@ class Sublimeless_Zk(QObject):
         # edit.addAction(self.pasteAction)
 
         view.addAction(self.showAllNotesAction)
+        view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
         view.addAction(self.showImagesAction)
         view.addAction(self.hideImagesAction)
@@ -178,12 +178,6 @@ class Sublimeless_Zk(QObject):
         self.numberHeadingsAction.triggered.connect(self.number_headings)
         self.denumberHeadingsAction.triggered.connect(self.denumber_headings)
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
-
-        # editor actions
-        self.gui.search_results_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.search_results_editor.lexer().note_id_clicked.connect(self.clicked_noteid)
-        self.gui.saved_searches_editor.lexer().tag_clicked.connect(self.clicked_tag)
-        self.gui.saved_searches_editor.lexer().note_id_clicked.connect(self.clicked_noteid)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -249,8 +243,11 @@ class Sublimeless_Zk(QObject):
     def clicked_noteid(self, noteid, ctrl, alt, shift):
         print('noteid', noteid, ctrl, alt, shift)
         filn = self.project.note_file_by_id(noteid)
-        if filn:
-            self.open_document(filn)
+        if alt:
+            self.show_referencing_notes(noteid)
+        else:
+            if filn:
+                self.open_document(filn)
 
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
@@ -538,9 +535,60 @@ class Sublimeless_Zk(QObject):
             editor.setSelection(line, replace_index_start, line, replace_index_end)
             editor.replaceSelectedText(selected_tag)
 
-    def show_referencing_notes(self):
-        print('Show referencing note')
+    def select_link_in_editor(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
 
+        line_number, index = editor.getCursorPosition()
+        full_line = editor.text(line_number)
+        linestart_till_cursor_str = full_line[:index]
+
+        # hack for § links
+        p_symbol_pos = linestart_till_cursor_str.rfind('§')
+        if p_symbol_pos >= 0:
+            p_link_start = p_symbol_pos + 1
+            note_id = self.project.cut_after_note_id(full_line[p_symbol_pos:])
+            if note_id:
+                p_link_end = p_link_start + len(note_id)
+                return note_id, (line_number, p_link_start, p_link_end)
+
+        # search backwards from the cursor until we find [[
+        brackets_start = linestart_till_cursor_str.rfind('[')
+
+        # search backwards from the cursor until we find ]]
+        # finding ]] would mean that we are outside of the link, behind the ]]
+        brackets_end_in_the_way = linestart_till_cursor_str.rfind(']')
+
+        if brackets_end_in_the_way > brackets_start:
+            # behind closing brackets, finding the link would be unexpected
+            return None, None
+
+        if brackets_start >= 0:
+            brackets_end = full_line[brackets_start:].find(']')
+
+            if brackets_end >= 0:
+                link_title = full_line[brackets_start + 1 : brackets_start + brackets_end]
+                link_region = (line_number,
+                               brackets_start + 1,
+                               brackets_start + brackets_end)
+                return link_title, link_region
+        return full_line, None
+
+    def show_referencing_notes(self, note_id=None):
+        print('Show referencing note')
+        if note_id is None:
+            link, editor_region = self.select_link_in_editor()
+            if not editor_region:
+                return
+            note_id = self.project.cut_after_note_id(link)
+            if not note_id:
+                return
+            print(note_id, editor_region)
+        ref_note_files = self.project.find_referencing_notes(note_id)
+        styled_link = self.project.style_link(note_id, '')
+        self.project.externalize_note_links(ref_note_files, f'Notes referencing {styled_link}')
+        self.reload(self.gui.search_results_editor)
 
     def expand_link(self):
         print('expand link')

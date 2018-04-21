@@ -201,3 +201,11 @@ class Project:
         for file in self.get_all_note_files():
             tags |= self.extract_tags(file)
         return list(tags)
+
+    def find_referencing_notes(self, note_id):
+        ret = []
+        for filn in self.get_all_note_files():
+            with open(filn, mode='r', encoding='utf-8', errors='ignore') as f:
+                if note_id in f.read():
+                    ret.append(filn)
+        return ret
