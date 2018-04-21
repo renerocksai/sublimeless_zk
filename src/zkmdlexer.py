@@ -13,6 +13,7 @@ class ZkMdLexer(QsciLexerCustom):
     note_id_clicked = pyqtSignal(str, bool, bool, bool)
     tag_clicked = pyqtSignal(str, bool, bool, bool)
     search_spec_clicked = pyqtSignal(str, bool, bool, bool)
+    create_link_from_title_clicked = pyqtSignal(str, bool, bool, bool, int, int)
 
     def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True,
                  settings_mode=False):
@@ -76,14 +77,17 @@ class ZkMdLexer(QsciLexerCustom):
         self.indicator_id_noteid = 0
         self.indicator_id_tag = 1
         self.indicator_id_search_spec = 2
+        self.indicator_id_only_notetitle = 3
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_search_spec)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
         editor.indicatorClicked.connect(self.on_click_indicator)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -106,6 +110,8 @@ class ZkMdLexer(QsciLexerCustom):
         noteid_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_noteid, position)
         search_spec_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_search_spec, position)
 
+        only_notetitle_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_only_notetitle, position)
+
         if search_spec_pos:
             # get until end of line
             search_spec = self.parent().text()[search_spec_pos:].split('\n', 1)[0]
@@ -126,7 +132,12 @@ class ZkMdLexer(QsciLexerCustom):
                 tag = match.group(1)
                 # emit tag clicked signal
                 self.tag_clicked.emit(tag, ctrl, alt, shift)
-
+        elif only_notetitle_pos:
+            p = re.compile(r'([^]\n]*)(\][\]]?)')
+            match = p.match(self.parent().text()[only_notetitle_pos:only_notetitle_pos + 100])
+            if match:
+                link_title = match.group(1)
+                self.create_link_from_title_clicked.emit(link_title, ctrl, alt, shift, only_notetitle_pos, len(link_title))
 
     def language(self):
         return "MardownZettelkasten"
@@ -274,10 +285,14 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
-            #print('zettel', match.group())
+            print('zettel', match.group())
+            a = match.start()
+            b = match.end()
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
             # make clickable
             self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_noteid)
+            # consume
+            text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # citekeys for pandoc
         # also hackish for mmd
@@ -428,6 +443,15 @@ class ZkMdLexer(QsciLexerCustom):
             # consume
             # print(match.groups() , match.group())
             text = text[:a] + 'x' * len(match.group()) + text[b:]
+
+        # zettel links without noteid -> create note
+        p = re.compile(r'([\[]?\[)([^]\n]*)(\][\]]?)')
+        for match in p.finditer(text):
+            print('create zettel', match.group())
+            regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
+            # make clickable
+            self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_only_notetitle)
+
         self.apply_regions(regions, text)
 
     def apply_regions(self, regions, text):

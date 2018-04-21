@@ -210,6 +210,8 @@ class Sublimeless_Zk(QObject):
         # lexer actions
         editor.lexer().tag_clicked.connect(self.clicked_tag)
         editor.lexer().note_id_clicked.connect(self.clicked_noteid)
+        editor.lexer().search_spec_clicked.connect(self.search_spec_clicked)
+        editor.lexer().create_link_from_title_clicked.connect(self.create_link_from_title_clicked)
         editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
         editor.text_shortcut_handler.shortcut_tag_selector.connect(self.insert_tag)
         editor.text_shortcut_handler.shortcut_tag_list.connect(self.show_all_tags)
@@ -256,6 +258,40 @@ class Sublimeless_Zk(QObject):
         note_ids = tags2ids[tag]
         self.project.externalize_note_links(note_ids, title)
         self.reload(self.gui.search_results_editor)
+
+    def search_spec_clicked(self, search_spec, ctrl, alt, shift):
+        print('search spec', search_spec)
+
+    def create_link_from_title_clicked(self, title, ctrl, alt, shift, pos, length):
+        print('create link from title', title)
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        link = editor.text()[pos:pos+length]
+        line_number, index = editor.lineIndexFromPosition(pos)
+        line_from, line_to = line_number, line_number
+        index_from = index
+        index_to = index + length
+
+        # create new note with title of link
+        settings = self.project.settings
+        extension = settings.get('markdown_extension')
+        id_in_title = settings.get('id_in_title')
+        new_id = self.project.timestamp()
+        the_file = os.path.join(self.project.folder, new_id + ' ' + title + extension)
+        new_title = title
+        if id_in_title:
+            new_title = new_id + ' ' + title
+        editor = self.get_active_editor()
+        if not editor:
+            print('should never happen')
+            return
+        # get origin
+        origin_id, origin_title = self.project.get_note_id_and_title_of(editor)
+        editor.setSelection(line_from, index_from, line_to, index_to)
+        editor.replaceSelectedText(new_id)
+        self.project.create_note(the_file, new_title, origin_id, origin_title)
+        self.open_document(the_file)
 
     def unsaved(self):
         editor = self.gui.qtabs.currentWidget()
