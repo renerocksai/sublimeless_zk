@@ -5,6 +5,7 @@ import datetime
 from settings import get_settings
 from operator import itemgetter
 from collections import defaultdict
+from autobib import Autobib
 
 
 class Project:
@@ -203,6 +204,23 @@ class Project:
             tags |= self.extract_tags(file)
         return list(tags)
 
+    def find_all_citations(self, citekey):
+        """
+        Return a list of all notes in folder citing a specific citekey
+        if possible.
+        """
+        filns = set()
+        #citekey_re = [re.escape('@' + citekey)]
+        #citekey_re.extend([re.escape('[#' + citekey)])
+        citekey_re = [re.escape(citekey)]
+        citekey_re = [ckre + Autobib.citekey_stops for ckre in citekey_re]
+        matcher = re.compile('|'.join(citekey_re))
+        for filn in self.get_all_note_files():
+            with open(filn, mode='r', encoding='utf-8', errors='ignore') as f:
+                if matcher.findall(f.read()):
+                    filns.add(filn)
+        return list(filns)
+
     def find_referencing_notes(self, note_id):
         ret = []
         for filn in self.get_all_note_files():
@@ -210,7 +228,6 @@ class Project:
                 if note_id in f.read():
                     ret.append(filn)
         return ret
-
 
     def tag_at(self, text, pos=None):
         """

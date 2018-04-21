@@ -299,7 +299,7 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links
         p = re.compile(r'([\[]?\[)([0-9.]{12,18})([^]]*)(\][\]]?)')
         for match in p.finditer(text):
-            print('zettel', match.group())
+            # print('zettel', match.group())
             a = match.start()
             b = match.end()
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
@@ -463,7 +463,7 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links without noteid -> create note
         p = re.compile(r'([\[]?\[)([^]\n]*)(\][\]]?)')
         for match in p.finditer(text):
-            print('create zettel', match.group())
+            #print('create zettel', match.group())
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
             # make clickable
             self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_only_notetitle)

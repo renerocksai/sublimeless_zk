@@ -18,6 +18,7 @@ from appstate import AppState
 from zkscintilla import ZettelkastenScintilla
 from inputpanel import show_input_panel
 from fuzzypanel import show_fuzzy_panel
+from autobib import Autobib
 
 
 class Sublimeless_Zk(QObject):
@@ -262,8 +263,9 @@ class Sublimeless_Zk(QObject):
 
     def clicked_citekey(self, citekey, ctrl, alt, shift):
         print('citekey', citekey)
-        # todo
-
+        notes = self.project.find_all_citations(citekey)
+        self.project.externalize_note_links(notes, prefix=f'# Notes citing {citekey}')
+        self.reload(self.gui.search_results_editor)
 
     def search_spec_clicked(self, search_spec, ctrl, alt, shift):
         print('search spec', search_spec)
