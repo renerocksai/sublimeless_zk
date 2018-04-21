@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 
+from PyQt5.Qsci import QsciScintilla
 from settings import get_settings
 from operator import itemgetter
 from collections import defaultdict
@@ -248,3 +249,86 @@ class Project:
                 for tag in tags:
                     rev[tag].append(note_id)
         return ret, rev
+
+    def select_link_in_editor(self, editor):
+        if not editor:
+            return
+
+        line_number, index = editor.getCursorPosition()
+        full_line = editor.text(line_number)
+        linestart_till_cursor_str = full_line[:index]
+
+        # hack for § links
+        p_symbol_pos = linestart_till_cursor_str.rfind('§')
+        if p_symbol_pos >= 0:
+            p_link_start = p_symbol_pos + 1
+            note_id = self.cut_after_note_id(full_line[p_symbol_pos:])
+            if note_id:
+                p_link_end = p_link_start + len(note_id)
+                return note_id, (line_number, p_link_start, p_link_end)
+
+        # search backwards from the cursor until we find [[
+        brackets_start = linestart_till_cursor_str.rfind('[')
+
+        # search backwards from the cursor until we find ]]
+        # finding ]] would mean that we are outside of the link, behind the ]]
+        brackets_end_in_the_way = linestart_till_cursor_str.rfind(']')
+
+        if brackets_end_in_the_way > brackets_start:
+            # behind closing brackets, finding the link would be unexpected
+            return None, None
+
+        if brackets_start >= 0:
+            brackets_end = full_line[brackets_start:].find(']')
+
+            if brackets_end >= 0:
+                link_title = full_line[brackets_start + 1 : brackets_start + brackets_end]
+                link_region = (line_number,
+                               brackets_start + 1,
+                               brackets_start + brackets_end)
+                return link_title, link_region
+        return full_line, None
+
+    def get_link_under_cursor(self, editor):
+        line, index = editor.getCursorPosition()
+        position = editor.positionFromLineIndex(line, index)
+        lexer = editor.lexer()
+        tag_pos = editor.SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT,
+                                       lexer.indicator_id_tag, position)
+        noteid_pos = editor.SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT,
+                                          lexer.indicator_id_noteid, position)
+        search_spec_pos = editor.SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT,
+                                               lexer.indicator_id_search_spec, position)
+        only_notetitle_pos = editor.SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT,
+                                                  lexer.indicator_id_only_notetitle, position)
+        citekey_pos = editor.SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT,
+                                           lexer.indicator_id_citekey, position)
+        if search_spec_pos:
+            # get until end of line
+            search_spec = editor.text()[search_spec_pos:].split('\n', 1)[0]
+            return 'search_spec', search_spec
+        elif noteid_pos:
+            p = re.compile(r'([0-9.]{12,18})')
+            match = p.match(editor.text()[noteid_pos:noteid_pos + 20])
+            if match:
+                note_id = match.group(1)
+                return 'note_id', note_id
+        elif tag_pos:
+            p = re.compile(r'(#+([^#\W]|[-§]|:[a-zA-Z0-9])+)')
+            match = p.match(editor.text()[tag_pos:tag_pos + 100])
+            if match:
+                tag = match.group(1)
+                return 'tag', tag
+        elif only_notetitle_pos:
+            p = re.compile(r'([^]\n]*)(\][\]]?)')
+            match = p.match(editor.text()[only_notetitle_pos:only_notetitle_pos + 100])
+            if match:
+                link_title = match.group(1)
+                return 'link_title', link_title
+        elif citekey_pos:
+            p = re.compile(r'([a-zA-Z:\.\s]*)(@|#)([^]\n]*)(\])')
+            match = p.match(editor.text()[citekey_pos:citekey_pos + 100])
+            if match:
+                citekey = match.group()[:-1]
+                return 'citekey', citekey
+        return None, None

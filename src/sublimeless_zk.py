@@ -23,7 +23,7 @@ from zkscintilla import ZettelkastenScintilla
 from inputpanel import show_input_panel
 from fuzzypanel import show_fuzzy_panel
 from autobib import Autobib
-
+from textproduction import TextProduction
 
 class Sublimeless_Zk(QObject):
     def __init__(self, parent=None):
@@ -591,50 +591,11 @@ class Sublimeless_Zk(QObject):
             editor.setSelection(line, replace_index_start, line, replace_index_end)
             editor.replaceSelectedText(selected_tag)
 
-    def select_link_in_editor(self):
-        editor = self.get_active_editor()
-        if not editor:
-            return
-
-        line_number, index = editor.getCursorPosition()
-        full_line = editor.text(line_number)
-        linestart_till_cursor_str = full_line[:index]
-
-        # hack for § links
-        p_symbol_pos = linestart_till_cursor_str.rfind('§')
-        if p_symbol_pos >= 0:
-            p_link_start = p_symbol_pos + 1
-            note_id = self.project.cut_after_note_id(full_line[p_symbol_pos:])
-            if note_id:
-                p_link_end = p_link_start + len(note_id)
-                return note_id, (line_number, p_link_start, p_link_end)
-
-        # search backwards from the cursor until we find [[
-        brackets_start = linestart_till_cursor_str.rfind('[')
-
-        # search backwards from the cursor until we find ]]
-        # finding ]] would mean that we are outside of the link, behind the ]]
-        brackets_end_in_the_way = linestart_till_cursor_str.rfind(']')
-
-        if brackets_end_in_the_way > brackets_start:
-            # behind closing brackets, finding the link would be unexpected
-            return None, None
-
-        if brackets_start >= 0:
-            brackets_end = full_line[brackets_start:].find(']')
-
-            if brackets_end >= 0:
-                link_title = full_line[brackets_start + 1 : brackets_start + brackets_end]
-                link_region = (line_number,
-                               brackets_start + 1,
-                               brackets_start + brackets_end)
-                return link_title, link_region
-        return full_line, None
-
     def show_referencing_notes(self, note_id=None):
         print('Show referencing note')
+        editor = self.get_active_editor()
         if not isinstance(note_id, str):
-            link, editor_region = self.select_link_in_editor()
+            link, editor_region = self.project.select_link_in_editor(editor)
             if not editor_region:
                 return
             note_id = self.project.cut_after_note_id(link)
@@ -840,6 +801,10 @@ class Sublimeless_Zk(QObject):
 
     def expand_link(self):
         print('expand link')
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        TextProduction.expand_link_in(editor, self.project)
 
     def expand_overview_note(self):
         print('expand overview note')
