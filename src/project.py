@@ -4,6 +4,7 @@ import datetime
 
 from settings import get_settings
 from operator import itemgetter
+from collections import defaultdict
 
 
 class Project:
@@ -209,3 +210,107 @@ class Project:
                 if note_id in f.read():
                     ret.append(filn)
         return ret
+
+
+    def tag_at(self, text, pos=None):
+        """
+        Search for a ####tag inside of text.
+        If pos is given, searches for the tag at pos
+        """
+        if pos is None:
+            search_text = text
+        else:
+            search_text = text[:pos + 1]
+        # find first `#`
+        inner = search_text.rfind(ZkConstants.TAG_PREFIX)
+        if inner >=0:
+            # find next consecutive `#`
+            for c in reversed(search_text[:inner]):
+                if c not in ZkConstants.TAG_PREFIX:
+                    break
+                inner -=1
+            # search end of tag
+            end = inner
+            mode = ''
+            for c in text[inner:]:
+                if mode == ':':
+                    if (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') \
+                        or (c >= '0' and c <= '9'):
+                        pass
+                    else:
+                        end -= 1
+                        break
+                if c.isspace() or c in ZkConstants.Tag_Stops:
+                    break
+                mode = c
+                end += 1
+            tag = text[inner:end]
+            if tag.endswith(':'):
+                tag = tag[:-1]
+                end -= 1
+
+            # test if it's just a `# heading` (resulting in `#`) or a real tag
+            if tag.replace('#', ''):
+                return text[inner:end], (inner, end)
+        return '', (None, None)
+
+    def pandoc_citekey_at(self, text, pos=None):
+        """
+        Search for a ####tag inside of text.
+        If pos is given, searches for the tag at pos
+        """
+        if pos is None:
+            search_text = text
+        else:
+            search_text = text[:pos + 1]
+        # find first `#`
+        inner = search_text.rfind('@')
+        if inner >=0:
+            # find next consecutive `#`
+            for c in reversed(search_text[:inner]):
+                if c != '@':
+                    break
+                inner -=1
+            # search end of tag
+            end = inner
+            mode = ''
+            for c in text[inner:]:
+                if mode == ':':
+                    if (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') \
+                        or (c >= '0' and c <= '9'):
+                        pass
+                    else:
+                        end -= 1
+                        break
+                if c.isspace() or c in ZkConstants.Tag_Stops:
+                    break
+                mode = c
+                end += 1
+            tag = text[inner:end]
+            if tag.endswith(':'):
+                tag = tag[:-1]
+                end -= 1
+
+            # test if it's just a `# heading` (resulting in `#`) or a real tag
+            if tag.replace('@', ''):
+                return text[inner:end], (inner, end)
+        return '', (None, None)
+
+    def find_all_notes_all_tags(self):
+        """
+        Manual implementation to get a dict mapping note_ids to tags
+        and tags to note_ids
+        """
+        # manual implementation
+        ret = {}
+        rev = defaultdict(list)
+        for filn in self.get_all_note_files():
+            note_id = self.get_note_id_of_file(filn)
+            if not note_id:
+                continue
+            tags = list(self.extract_tags(filn))
+            if tags:
+                ret[note_id] = tags
+                for tag in tags:
+                    rev[tag].append(note_id)
+        return ret, rev

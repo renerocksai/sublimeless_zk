@@ -251,7 +251,11 @@ class Sublimeless_Zk(QObject):
 
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
-        # todo
+        id2tags, tags2ids = self.project.find_all_notes_all_tags()
+        title = f'# Notes referencing {tag}'
+        note_ids = tags2ids[tag]
+        self.project.externalize_note_links(note_ids, title)
+        self.reload(self.gui.search_results_editor)
 
     def unsaved(self):
         editor = self.gui.qtabs.currentWidget()
@@ -445,12 +449,14 @@ class Sublimeless_Zk(QObject):
         if not editor_region:
             return
         note_id = self.project.cut_after_note_id(link)
-        if not note_id:
-            return
-        print(note_id, editor_region)
-        filn = self.project.note_file_by_id(note_id)
-        if filn:
-            self.open_document(filn)
+        if note_id:
+            filn = self.project.note_file_by_id(note_id)
+            if filn:
+                self.open_document(filn)
+        elif link.startswith('@') or link.startswith('#'):
+            pass
+        # todo: finish this
+
 
     def insert_link(self):
         print('Insert Link')
