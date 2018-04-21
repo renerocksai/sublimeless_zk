@@ -781,7 +781,37 @@ class Sublimeless_Zk(QObject):
         editor.replaceSelectedText('\n'.join(lines))
 
     def number_headings(self):
-        pass
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        current_level = 0
+        levels = [0] * 6
+        headings_to_skip = 0
+        text = editor.text()
+        heading_matcher = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
+        while True:
+            for heading_index, heading_match in enumerate(heading_matcher.finditer(text)):
+                if heading_index < headings_to_skip:
+                    continue
+                headings_to_skip += 1
+                heading = heading_match.group()
+                match = re.match('(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
+                spaces, hashes, old_numbering, title = match.groups()
+                level = len(hashes) - 1
+                if level < current_level:
+                    levels[level + 1:] = [0] * (6 - level - 1)
+                levels[level] += 1
+                current_level = level
+                numbering = ' ' + '.'.join([str(l) for l in levels[:level+1]]) + ' '
+                new_heading = f'{hashes} {numbering}{title}'
+                text = text[:heading_match.start()] \
+                       + new_heading + \
+                       text[heading_match.end():]
+                break
+            else:
+                break
+        editor.setText(text)
+        return
 
     def denumber_headings(self):
         pass
