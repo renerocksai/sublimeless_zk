@@ -842,6 +842,8 @@ class Sublimeless_Zk(QObject):
         if not editor:
             return
         origin, o_title = self.project.get_note_id_and_title_of(editor)
+        if not origin:
+            return
         input_text = show_input_panel(None, 'Expansion Note Title:', 'Expanded - ' + origin)
         if not input_text:
             return

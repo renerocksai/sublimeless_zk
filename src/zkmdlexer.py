@@ -177,7 +177,6 @@ class ZkMdLexer(QsciLexerCustom):
     def styleText(self, start, end):
         self.startStyling(0)
         text = bytearray(self.parent().text(), "utf-8").decode("utf-8")
-        print(text)
         orig_text = text
 
         regions = []
