@@ -10,6 +10,7 @@ includefiles = [
     ('themes/saved_searches.json', 'themes/saved_searches.json'),
     ('themes/search_results.json', 'themes/search_results.json'),
     ('themes/solarized_light.json', 'themes/solarized_light.json'),
+    ('themes/monokai.json', 'themes/monokai.json'),
     ('saved_searches_default.md', 'saved_searches_default.md'),
     ('search_results_default.md', 'search_results_default.md'),
     ('sublimeless_zk-settings.json', 'sublimeless_zk-settings.json'),
