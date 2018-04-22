@@ -1,6 +1,7 @@
 import os
 import re
 import datetime
+import shutil
 
 from PyQt5.Qsci import QsciScintilla
 from settings import get_settings
@@ -18,6 +19,31 @@ class Project:
         self.settings = None
         self.reload_settings()
         self.refresh_notes()
+        self.show_welcome = False
+        self.welcome_note = ''
+
+    def prepare(self):
+        all_notes = self.get_all_note_files()
+        samples_dir = os.path.join(os.path.dirname(__file__), '..')
+        os.makedirs(self.folder, exist_ok=True)
+        if not all_notes:
+            # prepare welcome note
+            self.welcome_note = os.path.join(self.folder, '201804141018 Welcome.md')
+            shutil.copy2(os.path.join(samples_dir, 'zettelkasten', '201804141018 Welcome.md'),
+                         os.path.join(self.folder))
+            self.show_welcome = True
+        elif len(all_notes) == 1:
+            self.welcome_note = all_notes[0]
+            self.show_welcome = True
+
+        if not os.path.exists(self.get_saved_searches_filn()):
+            # prepare sample search
+            shutil.copy2(os.path.join(samples_dir, 'saved_searches_default.md'),
+                         self.get_saved_searches_filn())
+        if not os.path.exists(self.get_search_results_filn()):
+            # prepare welcome message
+            shutil.copy2(os.path.join(samples_dir, 'search_results_default.md'),
+                         self.get_search_results_filn())
 
     def get_saved_searches_filn(self):
         return os.path.join(self.folder, '.saved_searches.zks')

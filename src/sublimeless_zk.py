@@ -7,7 +7,6 @@ from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QObject
-import shutil
 import re
 import unicodedata
 from collections import Counter
@@ -31,7 +30,7 @@ class Sublimeless_Zk(QObject):
         QObject.__init__(self, parent=parent)
         self.app = None
         self.gui = None
-        self.app_state = AppState(scratch=True)
+        self.app_state = AppState()
         self.project = Project(self.app_state.recent_projects[-1])
 
     def init_actions(self):
@@ -186,9 +185,6 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
 
     def init_editor_text_shortcuts(self, editor):
-        # TODO: iterate over __ALL__ shortcuts
-        # to make sure editors don't consume them
-
         commands = editor.standardCommands()
         deletable_keys = [
             Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
@@ -248,7 +244,6 @@ class Sublimeless_Zk(QObject):
         editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
         editor.textChanged.connect(self.unsaved)
 
-
     def run(self):
         self.app = QApplication(sys.argv)
         QApplication.setStyle(QStyleFactory.create('Fusion'))
@@ -258,8 +253,8 @@ class Sublimeless_Zk(QObject):
         self.init_actions()
         self.initMenubar()
         self.connect_signals()
-        if self.app_state.homeless:
-            self.open_document('../zettelkasten/201804141018 testnote.md')
+        self.project = None
+        self.open_folder(self.app_state.recent_projects[-1])
 
         exit_code = 0
         try:
@@ -365,27 +360,27 @@ class Sublimeless_Zk(QObject):
                 return i, editor
         return -1, None
 
-    def open_folder(self):
+    def open_folder(self, folder=None):
         """
         todo: Call Save All first or sth like that
         """
-        file = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
-        if file:
-            self.save_all()
+        if folder is None:
+            folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
+        if folder:
+            if self.project:
+                self.save_all()
             self.gui.qtabs.clear()
-            self.app_state.recent_projects.append(file)
-            self.project = Project(file)
+            self.app_state.recent_projects.append(folder)
+            self.project = Project(folder)
+            self.project.prepare()
             self.app_state.save()
-
-            # now open saved searches
-            if not os.path.exists(self.project.get_saved_searches_filn()):
-                    shutil.copy2('../saved_searches_default.md', self.project.get_saved_searches_filn())
-            if not os.path.exists(self.project.get_search_results_filn()):
-                    shutil.copy2('../search_results_default.md', self.project.get_search_results_filn())
             self.gui.saved_searches_editor.file_name = self.project.get_saved_searches_filn()
             self.gui.search_results_editor.file_name = self.project.get_search_results_filn()
             self.reload(self.gui.saved_searches_editor)
             self.reload(self.gui.search_results_editor)
+            if self.project.show_welcome:
+                self.open_document(self.project.welcome_note)
+            self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
