@@ -106,11 +106,16 @@ class ZkMdLexer(QsciLexerCustom):
         # Tell the editor which indicator-style to use
         # (pass it the indicator-style ID number)
         editor = self.parent()
+        text = editor.text()
+
         editor.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, indicator_id)
         # Assign a value to the text
+        b_start = len(bytearray(text[:startpos], 'utf-8').decode('ascii', errors='replace'))
+        b_length = len(bytearray(text[startpos:startpos + length], 'utf-8').decode('ascii', errors='replace'))
+
         editor.SendScintilla(QsciScintilla.SCI_SETINDICATORVALUE, startpos)
         # Now apply the indicator-style on the chosen text
-        editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, startpos, length)
+        editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, b_start, b_length)
 
     def on_click_indicator(self, line, index, keys):
         #print('click', line, index, type(keys))
@@ -172,6 +177,7 @@ class ZkMdLexer(QsciLexerCustom):
     def styleText(self, start, end):
         self.startStyling(0)
         text = bytearray(self.parent().text(), "utf-8").decode("utf-8")
+        print(text)
         orig_text = text
 
         regions = []
