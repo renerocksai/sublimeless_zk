@@ -18,14 +18,14 @@ class TagSearch:
         """
         Return ids of all notes matching the search_spec.
         """
-        id2tags, tags2ids = project.find_all_notes_all_tags()
+        note_tag_map, tags2ids = project.find_all_notes_all_tags()
         print('Note Tag Map for ', project.folder)
-        for k, v in id2tags.items():
+        for k, v in note_tag_map.items():
             print('{} : {}'.format(k, v))
         for sterm in [s.strip() for s in search_spec.split(',')]:
             # iterate through all notes and apply the search-term
             sterm_results = {}
-            for note_id, tags in id2tags.items():
+            for note_id, tags in note_tag_map.items():
                 if not note_id:
                     continue
                 # apply each tag-spec match to all tags
