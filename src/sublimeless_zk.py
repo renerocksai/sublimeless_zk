@@ -98,6 +98,18 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction = QAction('Show all Notes', self)
         self.showAllNotesAction.setShortcut('[,!')
 
+        self.copyAction = QAction('Copy', self)
+        self.copyAction.setShortcut('Ctrl+C')
+        self.pasteAction = QAction('Paste', self)
+        self.pasteAction.setShortcut('Ctrl+V')
+        self.cutAction = QAction('Cut', self)
+        self.cutAction.setShortcut('Ctrl+X')
+        self.undoAction = QAction('Undo', self)
+        self.undoAction.setShortcut('Ctrl+Z')
+        self.redoAction = QAction('Redo', self)
+        self.redoAction.setShortcut('Shift+Ctrl+Z')
+
+
         ## Editor shortcut overrides
         ##
         editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
@@ -128,6 +140,14 @@ class Sublimeless_Zk(QObject):
         file.addSeparator()
         # here go the most recents
 
+
+        edit.addAction(self.undoAction)
+        edit.addAction(self.redoAction)
+        edit.addSeparator()
+        edit.addAction(self.copyAction)
+        edit.addAction(self.cutAction)
+        edit.addAction(self.pasteAction)
+        edit.addSeparator()
         edit.addAction(self.insertLinkAction)
         edit.addAction(self.insertTagAction)
         edit.addAction(self.expandLinkAction)
@@ -137,13 +157,6 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.numberHeadingsAction)
         edit.addAction(self.denumberHeadingsAction)
         edit.addAction(self.showPreferencesAction)
-
-        # edit.addAction(self.undoAction)
-        # edit.addAction(self.redoAction)
-        # edit.addSeparator()
-        # edit.addAction(self.copyAction)
-        # edit.addAction(self.cutAction)
-        # edit.addAction(self.pasteAction)
 
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
@@ -246,6 +259,10 @@ class Sublimeless_Zk(QObject):
 
     def run(self):
         self.app = QApplication(sys.argv)
+        if sys.platform == 'darwin':
+            # TODO: this sort-of fixes the menu formatting for [,[ style shortcuts
+            self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
+
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         theme = Theme('../themes/solarized_light.json')
         self.gui = MainWindow(theme)
@@ -291,7 +308,7 @@ class Sublimeless_Zk(QObject):
 
     def search_spec_clicked(self, search_spec, ctrl, alt, shift):
         print('search spec', search_spec)
-        # todo
+        self.advanced_tag_search(search_spec)
 
     def create_link_from_title_clicked(self, title, ctrl, alt, shift, pos, length):
         print('create link from title', title)
@@ -362,7 +379,6 @@ class Sublimeless_Zk(QObject):
 
     def open_folder(self, folder=None):
         """
-        todo: Call Save All first or sth like that
         """
         if folder is None:
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
@@ -864,8 +880,9 @@ class Sublimeless_Zk(QObject):
         result_text = TextProduction.refresh_result(complete_text, self.project)
         editor.setText(result_text)
 
-    def advanced_tag_search(self):
-        search_spec = show_input_panel(None, '#tags and not !#tags::', '')
+    def advanced_tag_search(self, search_spec=None):
+        if search_spec is None:
+            search_spec = show_input_panel(None, '#tags and not !#tags::', '')
         if not search_spec:
             return
         if search_spec.startswith('[!'):
