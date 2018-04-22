@@ -100,6 +100,10 @@ class ZettelkastenScintilla(QsciScintilla):
         self.image_list.pop(index, None)
     ''''''
 
+    def delete_all_images(self):
+        for index in range(len(self.image_list)):
+            self.delete_image(index)
+
     def get_font_metrics(self, font):
         font_metrics = QFontMetrics(font)
         single_character_width = font_metrics.width("A")  # Works for monospaced fonts!

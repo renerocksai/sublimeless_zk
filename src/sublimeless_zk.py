@@ -9,8 +9,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QObject
 import shutil
 import re
-import struct
-import imghdr
 import unicodedata
 from collections import Counter
 
@@ -25,6 +23,7 @@ from fuzzypanel import show_fuzzy_panel
 from autobib import Autobib
 from textproduction import TextProduction
 from tagsearch import TagSearch
+from imagehandler import ImageHandler
 
 
 class Sublimeless_Zk(QObject):
@@ -864,11 +863,20 @@ class Sublimeless_Zk(QObject):
         self.reload(self.gui.search_results_editor)
 
     def show_images(self):
-        pass
+        # image links with attributes
+        RE_IMG_LINKS = '(!\[)(.*)(\])(\()(.*)(\))(\{)(.*)(\})'
+
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        ImageHandler.show_images(editor, self.project)
+
 
     def hide_images(self):
-        pass
-
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        editor.delete_all_images()
 
 
 if __name__ == '__main__':
