@@ -24,6 +24,8 @@ from inputpanel import show_input_panel
 from fuzzypanel import show_fuzzy_panel
 from autobib import Autobib
 from textproduction import TextProduction
+from tagsearch import TagSearch
+
 
 class Sublimeless_Zk(QObject):
     def __init__(self, parent=None):
@@ -529,10 +531,13 @@ class Sublimeless_Zk(QObject):
             editor.replaceSelectedText(link_txt)
     ''''''
 
-    def show_all_notes(self):
+    def show_all_notes(self, check_editor=True):
         note_files = self.project.get_all_note_files()
         self.project.externalize_note_links(note_files, '# All Notes')
         self.reload(self.gui.search_results_editor)
+
+        if not check_editor:
+            return
 
         # now replace the potential [!
         editor = self.get_active_editor()
@@ -547,7 +552,7 @@ class Sublimeless_Zk(QObject):
             editor.setSelection(line, replace_index_start, line, replace_index_end)
             editor.replaceSelectedText('')
 
-    def show_all_tags(self):
+    def show_all_tags(self, check_editor=True):
         print('show all tags')
         tags = self.project.find_all_tags()
         tags.sort()
@@ -558,6 +563,9 @@ class Sublimeless_Zk(QObject):
                   mode='w', encoding='utf-8', errors='ignore') as f:
             f.write(lines)
         self.reload(self.gui.search_results_editor)
+
+        if not check_editor:
+            return
 
         # now replace the potential #!
         editor = self.get_active_editor()
@@ -841,7 +849,19 @@ class Sublimeless_Zk(QObject):
         editor.setText(result_text)
 
     def advanced_tag_search(self):
-        pass
+        search_spec = show_input_panel(None, '#tags and not !#tags::', '')
+        if not search_spec:
+            return
+        if search_spec.startswith('[!'):
+            self.show_all_notes(check_editor=False)
+            return
+        elif search_spec.startswith('#!'):
+            self.show_all_tags(check_editor=False)
+            return
+        notes = TagSearch.advanced_tag_search(search_spec, self.project)
+        notes = [self.project.note_file_by_id(note_id) for note_id in notes]
+        self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec)
+        self.reload(self.gui.search_results_editor)
 
     def show_images(self):
         pass
