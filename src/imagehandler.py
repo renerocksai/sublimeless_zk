@@ -37,7 +37,11 @@ class ImageHandler:
             size = (h,w)
             textposition = match.start()
             line, _ = editor.lineIndexFromPosition(textposition)
-            editor.add_image(img, (10, line+1), (int(w/2), int(h/2)))
+            editor.setSelection(line+1, 0, line+1, 0)
+            line_height = editor.get_font_metrics(editor.calculation_font)[1]
+            num_lines = int(h / line_height + 0.5) + 1
+            editor.replaceSelectedText('!\n' * num_lines)
+            editor.add_image(img, (10, line+2), size)
 
     @staticmethod
     def get_image_size(img):

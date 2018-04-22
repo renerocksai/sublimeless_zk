@@ -7,6 +7,8 @@ from PyQt5.QtCore import Qt
 from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
 from themes import Theme
+from settings import base_dir
+
 
 class MainWindow(QMainWindow):
     def __init__(self, theme):
@@ -87,7 +89,7 @@ class MainWindow(QMainWindow):
         editor.setIndentationGuides(True)
         editor.setTabIndents(True)
         editor.setAutoIndent(True)
-
+        editor.setScrollWidthTracking(True)
         editor.setMarginType(0, QsciScintilla.SymbolMargin)
         editor.setMarginWidth(0, "0000")
         editor.setMarginWidth(1, "0000")
@@ -134,7 +136,7 @@ class MainWindow(QMainWindow):
         editor.setMarginWidth(1, 10)
         editor.setMarginsForegroundColor(QColor("#ff888888"))
 
-        theme = Theme('../themes/search_results.json')
+        theme = Theme(f'{base_dir()}/themes/search_results.json')
 
         lexer = ZkMdLexer(editor, theme, highlight_saved_searches=False, show_block_quotes=False)
         editor.setLexer(lexer)
@@ -177,7 +179,7 @@ class MainWindow(QMainWindow):
         editor.setMarginWidth(1, 10)
         editor.setMarginsForegroundColor(QColor("#ff888888"))
 
-        theme = Theme('../themes/saved_searches.json')
+        theme = Theme(f'{base_dir()}/themes/saved_searches.json')
 
         lexer = ZkMdLexer(editor, theme, highlight_saved_searches=True, show_block_quotes=False)
         editor.setLexer(lexer)

@@ -109,7 +109,7 @@ class ZettelkastenScintilla(QsciScintilla):
         single_character_width = font_metrics.width("A")  # Works for monospaced fonts!
         # For other fonts it is a good enough estimate.
         single_character_height = font_metrics.height()
-        return single_character_width, single_character_height
+        return single_character_width, single_character_height + self.extraAscent() + self.extraDescent()
     ''''''
 
     def text_changed(self,
@@ -149,6 +149,7 @@ class ZettelkastenScintilla(QsciScintilla):
         single_character_width, single_character_height = self.get_font_metrics(
             self.calculation_font
         )
+
         # Initialize the painter
         painter = QPainter()
         painter.begin(self.viewport())
@@ -158,10 +159,14 @@ class ZettelkastenScintilla(QsciScintilla):
             image = self.image_list[i].image
             paint_offset_x = (self.image_list[i].position[0] * single_character_width)\
                              - column_offset_in_pixels
-            paint_offset_y = (self.image_list[i].position[1] - first_visible_line)\
-                             * single_character_height
-            # Paint the image
-            painter.drawImage(QPoint(paint_offset_x, paint_offset_y), image)
+
+            logical_line = self.image_list[i].position[1]
+            if logical_line >= first_visible_line - 10:
+                physical_line = sum([self.SendScintilla(self.SCI_WRAPCOUNT, i) for i in range(first_visible_line, logical_line)]) + 1
+                paint_offset_y = (physical_line) \
+                                 * single_character_height + 2* self.extraAscent() + self.extraDescent()
+                # Paint the image
+                painter.drawImage(QPoint(paint_offset_x, paint_offset_y), image)
         # Close the painter
         painter.end()
 

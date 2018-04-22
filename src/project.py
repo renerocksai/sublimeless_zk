@@ -4,7 +4,7 @@ import datetime
 import shutil
 
 from PyQt5.Qsci import QsciScintilla
-from settings import get_settings
+from settings import get_settings, base_dir
 from operator import itemgetter
 from collections import defaultdict
 from autobib import Autobib
@@ -24,7 +24,7 @@ class Project:
 
     def prepare(self):
         all_notes = self.get_all_note_files()
-        samples_dir = os.path.join(os.path.dirname(__file__), '..')
+        samples_dir = base_dir()
         os.makedirs(self.folder, exist_ok=True)
         if not all_notes:
             # prepare welcome note

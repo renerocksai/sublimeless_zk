@@ -10,7 +10,7 @@ def SettingsEditor(theme, settings_filn):
     editor = ZettelkastenScintilla(document_filn=settings_filn, editor_type='settings')
 
     editor.setUtf8(True)  # Set encoding to UTF-8
-    txt = get_settings(settings_filn, raw=True)
+    txt = get_settings(raw=True)
     editor.setText(txt)  # 'myCodeSample' is a string containing some C-code
     editor.setLexer(None)  # We install lexer later
     # editor.setFont(self._myFont)    # Gets overridden by lexer later on

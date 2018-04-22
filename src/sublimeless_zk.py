@@ -23,6 +23,7 @@ from autobib import Autobib
 from textproduction import TextProduction
 from tagsearch import TagSearch
 from imagehandler import ImageHandler
+from settings import settings_filn, base_dir
 
 
 class Sublimeless_Zk(QObject):
@@ -256,15 +257,14 @@ class Sublimeless_Zk(QObject):
         editor.text_shortcut_handler.shortcut_insert_citation.connect(self.insert_citation)
         editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
         editor.textChanged.connect(self.unsaved)
-
     def run(self):
         self.app = QApplication(sys.argv)
         if sys.platform == 'darwin':
             # TODO: this sort-of fixes the menu formatting for [,[ style shortcuts
-            self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
-
+            # self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
+            pass
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        theme = Theme('../themes/solarized_light.json')
+        theme = Theme(f'{base_dir()}/themes/solarized_light.json')
         self.gui = MainWindow(theme)
         self.gui.setFocus()
         self.init_actions()
@@ -380,7 +380,7 @@ class Sublimeless_Zk(QObject):
     def open_folder(self, folder=None):
         """
         """
-        if folder is None:
+        if not folder:
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
             if self.project:
@@ -477,7 +477,7 @@ class Sublimeless_Zk(QObject):
         editor.setModified(False)
 
     def show_preferences(self):
-        self.open_document('../settings_default.json', is_settings_file=True)
+        self.open_document(settings_filn, is_settings_file=True)
 
     #
     # Zettelkasten Command Slots
@@ -881,7 +881,7 @@ class Sublimeless_Zk(QObject):
         editor.setText(result_text)
 
     def advanced_tag_search(self, search_spec=None):
-        if search_spec is None:
+        if not search_spec:
             search_spec = show_input_panel(None, '#tags and not !#tags::', '')
         if not search_spec:
             return
