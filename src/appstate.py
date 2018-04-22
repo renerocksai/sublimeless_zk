@@ -18,7 +18,7 @@ class AppState:
                       mode='r', encoding='utf-8', errors='ignore') as f:
                 txt = f.read()
                 json_dict = json.loads(txt)
-                self.recent_projects = json_dict.get('recent_folders')
+                self.recent_projects = json_dict.get('recent_projects')
                 if not self.recent_projects:
                     self.recent_projects = [self.get_default_project_folder()]
         self.save()
