@@ -303,7 +303,8 @@ class Sublimeless_Zk(QObject):
         id2tags, tags2ids = self.project.find_all_notes_all_tags()
         title = f'# Notes referencing {tag}'
         note_ids = tags2ids[tag]
-        self.project.externalize_note_links(note_ids, title)
+        notes = [self.project.note_file_by_id(note_id) for note_id in note_ids]
+        self.project.externalize_note_links(notes, title)
         self.reload(self.gui.search_results_editor)
 
     def clicked_citekey(self, citekey, ctrl, alt, shift):
@@ -546,7 +547,7 @@ class Sublimeless_Zk(QObject):
         editor.lexer().on_click_indicator(line, index, 0)
         return
 
-    def insert_link(self):
+    def insert_link(self, pos=None):
         print('Insert Link')
         editor = self.get_active_editor()
         if not isinstance(editor, ZettelkastenScintilla):
@@ -554,6 +555,7 @@ class Sublimeless_Zk(QObject):
         extension = self.project.settings.get('markdown_extension')
         note_list_dict = {f: f for f in [os.path.basename(x).replace(extension, '') for x in self.project.get_all_note_files()]}
         selected_note, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Link to Note', note_list_dict)
+
         if selected_note:
             note_id, title = selected_note.split(' ', 1)
             link_txt = self.project.style_link(note_id, title)
@@ -561,10 +563,9 @@ class Sublimeless_Zk(QObject):
             line, index = editor.getCursorPosition()
             replace_index_start = index
             replace_index_end = index
-            textpos = editor.positionFromLineIndex(line, index)
-            if textpos > 1 and index > 1:
-                if editor.text()[textpos-2:textpos] == '[[':
-                    replace_index_start -= 2
+            # the lexer sends us an int, the QAction a bool
+            if isinstance(pos, int) and not isinstance(pos, bool):
+                replace_index_start -= 2
             editor.setSelection(line, replace_index_start, line, replace_index_end)
             editor.replaceSelectedText(link_txt)
     ''''''
@@ -574,21 +575,16 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(note_files, '# All Notes')
         self.reload(self.gui.search_results_editor)
 
-        if not check_editor:
-            return
-
-        # now replace the potential [!
-        editor = self.get_active_editor()
-        if isinstance(editor, ZettelkastenScintilla):
-            line, index = editor.getCursorPosition()
-            replace_index_start = index
-            replace_index_end = index
-            textpos = editor.positionFromLineIndex(line, index)
-            if textpos > 1 and index > 1:
-                if editor.text()[textpos-2:textpos] == '[!':
-                    replace_index_start -= 2
-            editor.setSelection(line, replace_index_start, line, replace_index_end)
-            editor.replaceSelectedText('')
+        # the lexer sends us an int, the QAction a bool
+        if isinstance(check_editor, int) and not isinstance(check_editor, bool):
+            # now replace the potential [!
+            editor = self.get_active_editor()
+            if isinstance(editor, ZettelkastenScintilla):
+                line, index = editor.getCursorPosition()
+                replace_index_start = index - 2
+                replace_index_end = index
+                editor.setSelection(line, replace_index_start, line, replace_index_end)
+                editor.replaceSelectedText('')
 
     def show_all_tags(self, check_editor=True):
         print('show all tags')
@@ -601,24 +597,18 @@ class Sublimeless_Zk(QObject):
                   mode='w', encoding='utf-8', errors='ignore') as f:
             f.write(lines)
         self.reload(self.gui.search_results_editor)
+        # the lexer sends us an int, the QAction a bool
+        if isinstance(check_editor, int) and not isinstance(check_editor, bool):
+            # now replace the potential #!
+            editor = self.get_active_editor()
+            if isinstance(editor, ZettelkastenScintilla):
+                line, index = editor.getCursorPosition()
+                replace_index_start = index - 2
+                replace_index_end = index
+                editor.setSelection(line, replace_index_start, line, replace_index_end)
+                editor.replaceSelectedText('')
 
-        if not check_editor:
-            return
-
-        # now replace the potential #!
-        editor = self.get_active_editor()
-        if isinstance(editor, ZettelkastenScintilla):
-            line, index = editor.getCursorPosition()
-            replace_index_start = index
-            replace_index_end = index
-            textpos = editor.positionFromLineIndex(line, index)
-            if textpos > 1 and index > 1:
-                if editor.text()[textpos-2:textpos] == '#!':
-                    replace_index_start -= 2
-            editor.setSelection(line, replace_index_start, line, replace_index_end)
-            editor.replaceSelectedText('')
-
-    def insert_tag(self):
+    def insert_tag(self, pos=None):
         print('insert tag')
         editor = self.get_active_editor()
         if not isinstance(editor, ZettelkastenScintilla):
@@ -630,10 +620,8 @@ class Sublimeless_Zk(QObject):
             line, index = editor.getCursorPosition()
             replace_index_start = index
             replace_index_end = index
-            textpos = editor.positionFromLineIndex(line, index)
-            if textpos > 1 and index > 1:
-                if editor.text()[textpos-2:textpos] == '#?':
-                    replace_index_start -= 2
+            if isinstance(pos, int) and not isinstance(pos, bool):
+                replace_index_start -= 2
             editor.setSelection(line, replace_index_start, line, replace_index_end)
             editor.replaceSelectedText(selected_tag)
 
@@ -653,7 +641,7 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(ref_note_files, f'Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
 
-    def insert_citation(self):
+    def insert_citation(self, pos=None):
         print('insert citation')
         editor = self.get_active_editor()
         if not isinstance(editor, ZettelkastenScintilla):
@@ -675,13 +663,9 @@ class Sublimeless_Zk(QObject):
         line, index = editor.getCursorPosition()
         replace_index_start = index
         replace_index_end = index
-        textpos = editor.positionFromLineIndex(line, index)
-        if textpos > 1 and index > 1:
-            before = editor.text()[textpos - 2:textpos]
-            if before == '[@' or before == '[#':
-                replace_index_start -= 2
+        if isinstance(pos, int) and not isinstance(pos, bool):
+            replace_index_start -= 2
         editor.setSelection(line, replace_index_start, line, replace_index_end)
-
         mmd_style = self.project.settings.get('citations-mmd-style', None)
         if mmd_style:
             fmt_completion = '[][#{}]'
