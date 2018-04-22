@@ -33,6 +33,7 @@ class Sublimeless_Zk(QObject):
         self.gui = None
         self.app_state = AppState()
         self.project = Project(self.app_state.recent_projects[-1])
+        self._show_images_disabled = True and getattr(sys, 'frozen', False)
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -81,11 +82,12 @@ class Sublimeless_Zk(QObject):
         self.autoBibAction = QAction('Insert Bibliography', self)
         self.autoBibAction.setShortcut('Ctrl+B')
 
-        self.showImagesAction = QAction('Show Images', self)
-        self.showImagesAction.setShortcut('Shift+Ctrl+I')
+        if not self._show_images_disabled:
+            self.showImagesAction = QAction('Show Images', self)
+            self.showImagesAction.setShortcut('Shift+Ctrl+I')
 
-        self.hideImagesAction = QAction('Hide Images', self)
-        self.hideImagesAction.setShortcut('Shift+Ctrl+H')
+            self.hideImagesAction = QAction('Hide Images', self)
+            self.hideImagesAction.setShortcut('Shift+Ctrl+H')
 
         self.autoTocAction = QAction('Insert Table of Contents', self)
         self.autoTocAction.setShortcut('Shift+Ctrl+T')
@@ -162,8 +164,10 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
-        view.addAction(self.showImagesAction)
-        view.addAction(self.hideImagesAction)
+
+        if not self._show_images_disabled:
+            view.addAction(self.showImagesAction)
+            view.addAction(self.hideImagesAction)
 
         tools.addAction(self.expandOverviewNoteAction)
         tools.addAction(self.refreshExpandedNoteAction)
@@ -191,8 +195,10 @@ class Sublimeless_Zk(QObject):
         self.refreshExpandedNoteAction.triggered.connect(self.refresh_expanded_note)
         self.advancedTagSearchAction.triggered.connect(self.advanced_tag_search)
         self.autoBibAction.triggered.connect(self.auto_bib)
-        self.showImagesAction.triggered.connect(self.show_images)
-        self.hideImagesAction.triggered.connect(self.hide_images)
+
+        if not self._show_images_disabled:
+            self.showImagesAction.triggered.connect(self.show_images)
+            self.hideImagesAction.triggered.connect(self.hide_images)
         self.autoTocAction.triggered.connect(self.auto_toc)
         self.numberHeadingsAction.triggered.connect(self.number_headings)
         self.denumberHeadingsAction.triggered.connect(self.denumber_headings)
@@ -264,7 +270,7 @@ class Sublimeless_Zk(QObject):
             # self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
             pass
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        theme = Theme(f'{base_dir()}/themes/solarized_light.json')
+        theme = Theme(f'{base_dir()}/themes/monokai.json')
         self.gui = MainWindow(theme)
         self.gui.setFocus()
         self.init_actions()
