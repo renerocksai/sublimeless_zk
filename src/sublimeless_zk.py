@@ -23,7 +23,7 @@ from autobib import Autobib
 from textproduction import TextProduction
 from tagsearch import TagSearch
 from imagehandler import ImageHandler
-from settings import settings_filn, base_dir
+from settings import settings_filn, base_dir, get_settings
 
 
 class Sublimeless_Zk(QObject):
@@ -111,7 +111,6 @@ class Sublimeless_Zk(QObject):
         self.undoAction.setShortcut('Ctrl+Z')
         self.redoAction = QAction('Redo', self)
         self.redoAction.setShortcut('Shift+Ctrl+Z')
-
 
         ## Editor shortcut overrides
         ##
@@ -270,7 +269,8 @@ class Sublimeless_Zk(QObject):
             # self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
             pass
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        theme = Theme(f'{base_dir()}/themes/monokai.json')
+        theme_f = os.path.join(base_dir(), get_settings().get('theme', 'themes/monokai.json'))
+        theme = Theme(f'{theme_f}')
         self.gui = MainWindow(theme)
         self.gui.setFocus()
         self.init_actions()
