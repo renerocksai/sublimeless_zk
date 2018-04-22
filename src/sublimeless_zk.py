@@ -91,7 +91,7 @@ class Sublimeless_Zk(QObject):
         self.autoTocAction.setShortcut('Shift+Ctrl+T')
 
         self.numberHeadingsAction = QAction('Insert Section Numbers', self)
-        self.numberHeadingsAction.setShortcut('Ctrl+Shift+I')
+        self.numberHeadingsAction.setShortcut('Ctrl+Shift+N')
 
         self.denumberHeadingsAction = QAction('Remove Section Numbers', self)
         self.denumberHeadingsAction.setShortcut('Ctrl+Shift+R')
@@ -186,24 +186,46 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
 
     def init_editor_text_shortcuts(self, editor):
+        # TODO: iterate over __ALL__ shortcuts
+        # to make sure editors don't consume them
+
         commands = editor.standardCommands()
-        deletable_keys = (
+        deletable_keys = [
             Qt.ShiftModifier | Qt.Key_Return, Qt.ControlModifier | Qt.Key_Return,
             Qt.ShiftModifier | Qt.Key_Enter, Qt.ControlModifier | Qt.Key_Enter,
             Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
 
-        )
+        ]
         if sys.platform == 'darwin':
-            deletable_keys = (
+            deletable_keys = [
                 Qt.ShiftModifier | Qt.Key_Return, Qt.MetaModifier | Qt.Key_Return,
                 Qt.ShiftModifier | Qt.Key_Enter, Qt.MetaModifier | Qt.Key_Enter,
                 Qt.AltModifier | Qt.Key_Enter, Qt.AltModifier | Qt.Key_Return,
-            )
+            ]
+
+        # now make sure our other actions won't get consumed by QScintilla
+        other_ctrl_keys = [
+            Qt.Key_E, Qt.Key_R, Qt.Key_T, Qt.Key_B,
+            Qt.ShiftModifier | Qt.Key_I,
+            Qt.ShiftModifier | Qt.Key_H,
+            Qt.ShiftModifier | Qt.Key_T,
+            Qt.ShiftModifier | Qt.Key_N,
+            Qt.ShiftModifier | Qt.Key_R,
+        ]
+
+        if sys.platform == 'darwin':
+            modifier = Qt.ControlModifier    # very strange auto-translation
+        else:
+            modifier = Qt.ControlModifier
+
+        for key_combo in other_ctrl_keys:
+            key_combo |= modifier
+            deletable_keys.append(key_combo)
 
         for key_combo in deletable_keys:
             command = commands.boundTo(key_combo)
             if command is not None:
-                #print('Clearing key combo', key_combo, 'for command', command.description())
+                print('Clearing key combo', key_combo, 'for command', command.description())
                 if command.key() == key_combo:
                     command.setKey(0)
                 elif command.alternateKey() == key_combo:
