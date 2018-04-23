@@ -91,9 +91,10 @@ class MainWindow(QMainWindow):
         editor.setAutoIndent(True)
         editor.setScrollWidthTracking(True)
         editor.setMarginType(0, QsciScintilla.SymbolMargin)
-        editor.setMarginWidth(0, "0000")
-        editor.setMarginWidth(1, "0000")
+        editor.setMarginWidth(0, "0")        # todo: do we want margins?
+        editor.setMarginWidth(1, "")
         editor.setMarginsForegroundColor(QColor("#ff888888"))
+        editor.setMarginsBackgroundColor(QColor(self.theme.style_infos['default']['background']))
 
         show_block_quotes = True
         lexer = ZkMdLexer(editor, self.theme, highlight_saved_searches=False, show_block_quotes=show_block_quotes)

@@ -56,6 +56,9 @@ class Theme:
         background = theme_d.get('background', "#fffdf6e3")
         foreground = theme_d.get('foreground', "#ff657b83")
 
+        self.background = background
+        self.foreground = foreground
+
         self.highlight = theme_d.get('linehighlight', "#3F3D3812")
         self.line_pad_bottom = theme_d.get('line_padding_bottom', self.line_pad_bottom)
         self.line_pad_top = theme_d.get('line_padding_top', self.line_pad_bottom)
