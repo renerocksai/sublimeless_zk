@@ -135,7 +135,7 @@ class ZkMdLexer(QsciLexerCustom):
             search_spec = self.parent().text()[search_spec_pos:].split('\n', 1)[0]
             # emit note clicked signal
             self.search_spec_clicked.emit(search_spec, ctrl, alt, shift)
-            print('search spec clicked:', search_spec)
+            #print('search spec clicked:', search_spec)
         elif noteid_pos:
             p = re.compile(r'([0-9.]{12,18})')
             match = p.match(self.parent().text()[noteid_pos:noteid_pos + 20])
@@ -272,7 +272,7 @@ class ZkMdLexer(QsciLexerCustom):
         # list ordered
         p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
-            print('ordered', match.groups())
+            #print('ordered', match.groups())
             a = match.start()
             b = match.end()
             no_blocks_in.append((a, b))

@@ -31,4 +31,14 @@ def get_settings(raw=False):
             return json.loads(txt)
 
 
+def get_pandoc():
+    settings = get_settings()
+    guesses = [settings.get('path_to_pandoc', 'pandoc')]
+    guesses.extend(['pandoc', '/usr/local/bin/pandoc', '/usr/bin/pandoc'])
+    for attempt in guesses:
+        if os.system(f'{attempt} --help') == 0:
+            return attempt
+    return None
+
+
 # todo make QObject that emits settings changed / slot interface for eg Project class

@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
                 buttonReply = QMessageBox.question(self, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
                                                    QMessageBox.No)
                 if buttonReply == QMessageBox.Yes:
-                    print('Yes clicked.')
+                    pass
                 else:
                     event.ignore()
                 break

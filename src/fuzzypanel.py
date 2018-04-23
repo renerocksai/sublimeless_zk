@@ -97,13 +97,11 @@ class FuzzySearchPanel(QWidget):
         self.update_listbox()
 
     def up_pressed(self):
-        print('up')
         row = self.list_box.currentRow()
         if row > 0:
             self.list_box.setCurrentRow(row - 1)
 
     def down_pressed(self):
-        print('down')
         row = self.list_box.currentRow()
         if row < len(self.fuzzy_items):
             self.list_box.setCurrentRow(row + 1)
