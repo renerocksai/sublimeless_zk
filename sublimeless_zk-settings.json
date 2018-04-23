@@ -27,8 +27,8 @@
     // false to disable
     "show_bookmarks_in_gutter": true,
 
-    // fall-back: location of ag if it cannot be found in the PATH
-    "path_to_ag": "/usr/local/bin/ag",
+    // fall-back: location of pandoc if it cannot be found in the PATH
+    "path_to_pandoc": "/usr/local/bin/pandoc",
 
     // for auto-completion of citekeys and auto-bibs
     // enter the full path to your .bib file here

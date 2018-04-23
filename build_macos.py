@@ -15,7 +15,7 @@ includefiles = [
     ('search_results_default.md', 'search_results_default.md'),
     ('sublimeless_zk-settings.json', 'sublimeless_zk-settings.json'),
     ('zettelkasten/201804141018 Welcome.md', 'zettelkasten/201804141018 Welcome.md'),
-    ('zettelkasten/rene_shades.png', 'zettelkasten/rene_shades.png')
+    ('zettelkasten/rene_shades.png', 'zettelkasten/rene_shades.png'),
 ]  #path_platforms
 
 excludes = [
@@ -50,6 +50,10 @@ setup(
       version = version,
       author = 'Rene Schallner',
       description = "Sublimeless_ZK",
-      options = {"build_exe": build_exe_options},
+      options = {"build_exe": build_exe_options,
+                 "bdist_mac": { "iconfile": "if_Note_Book_Alt_86976.icns",
+                                "custom_info_plist": "Info.plist",
+                                },
+                 },
       executables = [sublimeless_zk],
 )

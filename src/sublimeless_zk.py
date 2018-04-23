@@ -23,7 +23,7 @@ from autobib import Autobib
 from textproduction import TextProduction
 from tagsearch import TagSearch
 from imagehandler import ImageHandler
-from settings import settings_filn, base_dir, get_settings
+from settings import settings_filn, base_dir, get_settings, get_pandoc
 
 
 class Sublimeless_Zk(QObject):
@@ -262,6 +262,7 @@ class Sublimeless_Zk(QObject):
         editor.text_shortcut_handler.shortcut_insert_citation.connect(self.insert_citation)
         editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
         editor.textChanged.connect(self.unsaved)
+
     def run(self):
         self.app = QApplication(sys.argv)
         if sys.platform == 'darwin':
@@ -283,6 +284,14 @@ class Sublimeless_Zk(QObject):
         try:
             exit_code = self.app.exec_()
         except:
+            mb = QMessageBox()
+            mb.setIcon(QMessageBox.Critical)
+            mb.setWindowTitle('Error')
+            mb.setText('Exception caught:')
+            mb.setDetailedText(str(e) + '\n' + traceback.format_exc())
+            mb.setStandardButtons(QMessageBox.Ok)
+            mb.exec_()
+
             traceback.print_exc()
         sys.exit(exit_code)
 
@@ -686,28 +695,35 @@ class Sublimeless_Zk(QObject):
 
         bibfile = Autobib.look_for_bibfile(self.project)
         if bibfile:
-            text = editor.text()
-            ck2bib = Autobib.create_bibliography(text, bibfile, pandoc='pandoc')
-            marker = '<!-- references (auto)'
-            marker_line = marker
-            if mmd_style:
-                marker_line += ' -->'
-            bib_lines = [marker_line + '\n']
-            for citekey in sorted(ck2bib):
-                bib = ck2bib[citekey]
-                line = '[{}]: {}\n'.format(citekey, bib)
-                bib_lines.append(line)
-            if not mmd_style:
-                bib_lines.append('-->')
-            new_lines = []
-            for line in text.split('\n'):
-                if line.strip().startswith(marker):
-                    break
-                new_lines.append(line)
-            result_text = '\n'.join(new_lines)
-            result_text += '\n' + '\n'.join(bib_lines) + '\n'
-            editor.setText(result_text)
-            editor.setCursorPosition(editor.lines(), 0)
+            try:
+                text = editor.text()
+                pandoc = get_pandoc()
+                if not pandoc:
+                    QMessageBox.warning(editor, 'Pandoc not found', 'The pandoc program could not be executed. Have you installed it?\n\nCheck the setting "path_to_pandoc".')
+                    return
+                ck2bib = Autobib.create_bibliography(text, bibfile, pandoc=pandoc)
+                marker = '<!-- references (auto)'
+                marker_line = marker
+                if mmd_style:
+                    marker_line += ' -->'
+                bib_lines = [marker_line + '\n']
+                for citekey in sorted(ck2bib):
+                    bib = ck2bib[citekey]
+                    line = '[{}]: {}\n'.format(citekey, bib)
+                    bib_lines.append(line)
+                if not mmd_style:
+                    bib_lines.append('-->')
+                new_lines = []
+                for line in text.split('\n'):
+                    if line.strip().startswith(marker):
+                        break
+                    new_lines.append(line)
+                result_text = '\n'.join(new_lines)
+                result_text += '\n' + '\n'.join(bib_lines) + '\n'
+                editor.setText(result_text)
+                editor.setCursorPosition(editor.lines(), 0)
+            except:
+                Autobib.log_exception('wtf', True)
 
     def auto_toc(self):
         # TOC markers

@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
 import glob
 import re
 from subprocess import Popen, PIPE
 from collections import defaultdict
+import traceback
 
 
 class Autobib:
@@ -178,7 +181,7 @@ class Autobib:
         """
         Splits pandoc output into citation and bib part
         """
-        # print('pandoc_out:', repr(pandoc_out))
+        #print('pandoc_out:', repr(pandoc_out))
         pdsplit = pandoc_out.split('\n\n')
         citation = '(no citation generated)'
         bib =  '(no bib generated)'
@@ -192,14 +195,33 @@ class Autobib:
 
     @staticmethod
     def run(pandoc_bin, bibfile, stdin):
-        args = [pandoc_bin, '-t', 'plain', '--bibliography', bibfile]
-        # using universal_newlines here gets us into decoding troubles as the
-        # encoding then is guessed and can be ascii which can't deal with
-        # unicode characters. hence, we handle \r ourselves
-        p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate(bytes(stdin, 'utf-8'))
-        # make me windows-safe
-        stdout = stdout.decode('utf-8', errors='ignore').replace('\r', '')
-        stderr = stderr.decode('utf-8', errors='ignore').replace('\r', '')
-        # print('pandoc says:', stderr)
+        stdout = ''
+        stderr = ''
+        try:
+            args = [pandoc_bin, '-t', 'plain',
+                    f'--filter',
+                    f'{os.path.join(os.path.dirname(pandoc_bin), "pandoc-citeproc")}',
+                    '--bibliography', bibfile]
+            # using universal_newlines here gets us into decoding troubles as the
+            # encoding then is guessed and can be ascii which can't deal with
+            # unicode characters. hence, we handle \r ourselves
+            p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = p.communicate(bytes(stdin, 'utf-8'))
+            # make me windows-safe
+            stdout = stdout.decode('utf-8', errors='ignore').replace('\r', '')
+            stderr = stderr.decode('utf-8', errors='ignore').replace('\r', '')
+            # print('pandoc says:', stderr)
+        except FileNotFoundError:
+            print(f'Pandoc executable ({pandoc_bin}) not found')
+            Autobib.log_exception(args, True)
+        except:
+            Autobib.log_exception(args, True)
         return stdout
+
+    @staticmethod
+    def log_exception(arg, exception=False):
+        with open('/tmp/sublimeless_zk-exception.txt', 'a', encoding='utf-8', errors='ignore') as f:
+            f.write(f'{arg}\n')
+            if exception:
+                f.write(traceback.format_exc())
+            f.flush()
