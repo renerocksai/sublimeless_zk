@@ -107,7 +107,8 @@ class TextProduction:
         elif link_type == 'tag':
             id2tags, tags2ids = project.find_all_notes_all_tags()
             note_ids = tags2ids[link]
-            result_lines = project.format_note_links(note_ids)
+            notes = [project.note_file_by_id(note_id) for note_id in note_ids]
+            result_lines = project.format_note_links(notes)
             result_lines.append('')
         elif link_type == 'citekey':
             notes = project.find_all_citations(link)
