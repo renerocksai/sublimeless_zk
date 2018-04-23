@@ -34,7 +34,7 @@
   "quote": {"symbol": {"color": "#657b83"},
             "text" :  {"color": "#657b83", "style": "italic"}},
 
-  "code.fenced":    {"color": "#ffffff", "background": "#404040"},
+  "code.fenced":    {"color": "#ffffff", "background": "#4a4a4a"},
   "code":           {"color": "#b58900"},
 
   "list.symbol"   : {"color": "#93a1a1"},
