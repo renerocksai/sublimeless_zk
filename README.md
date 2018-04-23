@@ -16,7 +16,7 @@ on Windows
 
 Solarized
 
-![solarized](imgs/solarized.png)
+![solarized](imgs/windows1.png)
 
 
 Settings
