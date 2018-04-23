@@ -37,6 +37,8 @@ if __name__ == '__main__':
             import shutil
             if os.path.exists(DEPLOY_DIR):
                 shutil.rmtree(DEPLOY_DIR)
+                import time
+                time.sleep(1)    # bloody windows
             os.makedirs(DEPLOY_DIR)
         elif sys.argv[1].lower() == '--deploy-dir':
             print(DEPLOY_DIR)
@@ -44,8 +46,10 @@ if __name__ == '__main__':
             import os
             # effing windows is sloooow
             import time
-            time.sleep(3)
+            time.sleep(10)
             src = 'dist'
+            if sys.platform == 'win32':
+                src = 'src\\dist'
             dest = 'sublimeless_zk-{prefix}-{version}-win10'.format(version=version, prefix=prefix)
             os.rename(src, os.path.join(DEPLOY_DIR, dest))
     else:

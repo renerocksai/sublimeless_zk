@@ -146,7 +146,6 @@ class Autobib:
         citekeys_re = [re.escape('@' + citekey) for citekey in citekeys]
         citekeys_re.extend([re.escape('[#' + citekey) for citekey in citekeys])
         citekeys_re = [ckre + citekey_stops for ckre in citekeys_re]
-        print('\n'.join(citekeys_re))
         finder = re.compile('|'.join(citekeys_re))
         founds_raw = finder.findall(text)
         founds = []
