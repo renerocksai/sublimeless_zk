@@ -199,5 +199,16 @@ class MainWindow(QMainWindow):
         editor.setMaximumWidth(1024)
         return editor
 
-''' End Class '''
+    def closeEvent(self, event):
+        editor_list = [self.qtabs.widget(i) for i in range(self.qtabs.count())]
+        for editor in editor_list:
+            if editor.isModified():
+                msg = "You have unsaved changes. Quit anyway?"
+                buttonReply = QMessageBox.question(self, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
+                                                   QMessageBox.No)
+                if buttonReply == QMessageBox.Yes:
+                    print('Yes clicked.')
+                else:
+                    event.ignore()
+                break
 

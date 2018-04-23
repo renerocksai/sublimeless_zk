@@ -176,7 +176,7 @@ class Sublimeless_Zk(QObject):
 
     def connect_signals(self):
         # tab actions
-        self.gui.qtabs.tabCloseRequested.connect(self.gui.qtabs.removeTab)
+        self.gui.qtabs.tabCloseRequested.connect(self.tab_close_requested)
 
         # normal actions
         self.newAction.triggered.connect(self.zk_new_zettel)
@@ -356,10 +356,6 @@ class Sublimeless_Zk(QObject):
         if editor.isModified():
             self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name) + '*')
 
-    def closeEvent(self, event):
-        # TODO: implement
-        pass
-
     #
     # Comnands / Actions
     #
@@ -387,11 +383,17 @@ class Sublimeless_Zk(QObject):
     def open_folder(self, folder=None):
         """
         """
+        editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
+        for editor in editor_list:
+            if editor.isModified():
+                msg = "You have unsaved changes. Save them first?"
+                buttonReply = QMessageBox.question(self.gui, 'Save Changes', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                if buttonReply == QMessageBox.Yes:
+                    self.save_all()
+                break
         if not folder:
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
-            if self.project:
-                self.save_all()
             self.gui.qtabs.clear()
             self.app_state.recent_projects.append(folder)
             self.project = Project(folder)
@@ -903,6 +905,16 @@ class Sublimeless_Zk(QObject):
         if not editor:
             return
         editor.delete_all_images()
+
+    def tab_close_requested(self, index):
+        editor = self.gui.qtabs.widget(index)
+        if editor.isModified():
+            msg = f"You have unsaved changes in {os.path.basename(editor.file_name)} Close anyway?"
+            buttonReply = QMessageBox.question(editor, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
+                                               QMessageBox.No)
+            if buttonReply == QMessageBox.No:
+                return    # ignore
+        self.gui.qtabs.removeTab(index)
 
 
 if __name__ == '__main__':
