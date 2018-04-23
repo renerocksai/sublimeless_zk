@@ -294,7 +294,7 @@ class Sublimeless_Zk(QObject):
         exit_code = 0
         try:
             exit_code = self.app.exec_()
-        except:
+        except Exception as e:
             mb = QMessageBox()
             mb.setIcon(QMessageBox.Critical)
             mb.setWindowTitle('Error')
@@ -319,7 +319,7 @@ class Sublimeless_Zk(QObject):
             self.recent_projects_actions[i].setVisible(False)
 
         for i, folder in enumerate(reversed(self.app_state.recent_projects[:self.recent_projects_limit])):
-            text = f'&{i+1} {os.path.basename(folder)}'
+            text = f'&{i+1}: {os.path.basename(folder)}'
             self.recent_projects_actions[i].setText(text)
             self.recent_projects_actions[i].setData(folder)
             self.recent_projects_actions[i].setVisible(True)

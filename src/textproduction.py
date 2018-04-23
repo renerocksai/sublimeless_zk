@@ -96,7 +96,6 @@ class TextProduction:
         """
         Expand note-link under cursor inside the current editor
         """
-
         link_type, link = project.get_link_under_cursor(editor)
         result_lines = []
         if link_type == 'note_id':
