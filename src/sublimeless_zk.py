@@ -34,6 +34,8 @@ class Sublimeless_Zk(QObject):
         self.app_state = AppState()
         self.project = Project(self.app_state.recent_projects[-1])
         self._show_images_disabled = True and getattr(sys, 'frozen', False)
+        self.recent_projects_limit = 10
+        self.recent_projects_actions = []
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -112,6 +114,13 @@ class Sublimeless_Zk(QObject):
         self.redoAction = QAction('Redo', self)
         self.redoAction.setShortcut('Shift+Ctrl+Z')
 
+        # Recent folders actions
+        for i in range(self.recent_projects_limit):
+            self.recent_projects_actions.append(
+                QAction(self, visible=False,
+                        triggered=self.open_recent_project)
+            )
+
         ## Editor shortcut overrides
         ##
         editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
@@ -128,20 +137,22 @@ class Sublimeless_Zk(QObject):
     def initMenubar(self):
         menubar = self.gui.menuBar()
 
-        file = menubar.addMenu("File")
+        self.file_menu = menubar.addMenu("File")
         edit = menubar.addMenu("Edit")
         view = menubar.addMenu("View")
         tools = menubar.addMenu('Tools')
         about = menubar.addMenu("About")
 
-        file.addAction(self.newAction)
+        self.file_menu.addAction(self.newAction)
         # file.addAction(self.newTabAction)
-        file.addAction(self.openFolderAction)
-        file.addAction(self.saveAction)
-        file.addAction(self.saveAllAction)
-        file.addSeparator()
+        self.file_menu.addAction(self.openFolderAction)
+        self.file_menu.addAction(self.saveAction)
+        self.file_menu.addAction(self.saveAllAction)
+        self.file_menu.addSeparator()
         # here go the most recents
-
+        for i in range(self.recent_projects_limit):
+            self.file_menu.addAction(self.recent_projects_actions[i])
+        self.update_recent_project_actions()
 
         edit.addAction(self.undoAction)
         edit.addAction(self.redoAction)
@@ -298,6 +309,22 @@ class Sublimeless_Zk(QObject):
     #
     # Qt SLOTS
     #
+    def open_recent_project(self):
+        action = self.sender()
+        if action:
+            self.open_folder(action.data())
+
+    def update_recent_project_actions(self):
+        for i in range(self.recent_projects_limit):
+            self.recent_projects_actions[i].setVisible(False)
+
+        for i, folder in enumerate(reversed(self.app_state.recent_projects[:self.recent_projects_limit])):
+            text = f'&{i+1} {os.path.basename(folder)}'
+            self.recent_projects_actions[i].setText(text)
+            self.recent_projects_actions[i].setData(folder)
+            self.recent_projects_actions[i].setVisible(True)
+
+
     def clicked_noteid(self, noteid, ctrl, alt, shift):
         print('noteid', noteid, ctrl, alt, shift)
         filn = self.project.note_file_by_id(noteid)
@@ -404,6 +431,8 @@ class Sublimeless_Zk(QObject):
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
             self.gui.qtabs.clear()
+            if folder in self.app_state.recent_projects:
+                self.app_state.recent_projects = [f for f in self.app_state.recent_projects if f != folder]
             self.app_state.recent_projects.append(folder)
             self.project = Project(folder)
             self.project.prepare()
@@ -415,6 +444,7 @@ class Sublimeless_Zk(QObject):
             if self.project.show_welcome:
                 self.open_document(self.project.welcome_note)
             self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
+            self.update_recent_project_actions()
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
