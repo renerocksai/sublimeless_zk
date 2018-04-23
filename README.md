@@ -9,6 +9,11 @@ Monokai
 
 ![monokai](imgs/monokai.png)
 
+on Windows
+
+![win](imgs/windows2.png)
+
+
 Solarized
 
 ![solarized](imgs/solarized.png)
@@ -22,3 +27,4 @@ Settings
 Sublimeless_ZK in Action
 
 ![action](imgs/demo1.gif)
+
