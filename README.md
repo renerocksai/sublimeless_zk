@@ -10,6 +10,10 @@ In short, it helps you manage an archive of interlinked notes that look like thi
 
 See the [Usage](#usage) section below to see how this package might support your workflow.
 
+Alternatively, watch it in action :smile:
+
+![zk_mode_demo](imgs/demo1.gif)
+
 This app is the result of trying to make a stand-alone version of [sublime_zk](https://github.com/renerocksai/sublime_zk), my SublimeText Zettelkasten package, in Zettelkasten mode.
 
 ## Features
@@ -976,7 +980,6 @@ anything starting with auto but nothing starting with plane: #auto*, !#plane*
 
 You can execute the search by clicking on the underlined search spec.
 
-![zk_mode_demo](imgs/demo1.gif)
 
 ## Credits
 
