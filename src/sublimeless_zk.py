@@ -26,6 +26,7 @@ from tagsearch import TagSearch
 from imagehandler import ImageHandler
 from settings import settings_filn, base_dir, get_settings, get_pandoc
 from about import AboutDlg
+from findandreplace import FindDlg
 
 
 class Sublimeless_Zk(QObject):
@@ -54,6 +55,8 @@ class Sublimeless_Zk(QObject):
 
     def init_actions(self):
         self.aboutAction = QAction('About Sublimeless Zettelkasten', self)
+        self.findReplaceAction = QAction('Find/replace...', self)
+        self.findReplaceAction.setShortcut('Ctrl+F')
 
         self.newAction = QAction("New Zettel Note", self)
         self.newAction.setShortcuts(["Ctrl+N", "Shift+Return", "Shift+Enter"])
@@ -156,6 +159,7 @@ class Sublimeless_Zk(QObject):
 
         self.file_menu = menubar.addMenu("File")
         edit = menubar.addMenu("Edit")
+        find = menubar.addMenu("Search")
         view = menubar.addMenu("View")
         tools = menubar.addMenu('Tools')
         about = menubar.addMenu("About")
@@ -188,9 +192,13 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.denumberHeadingsAction)
         edit.addAction(self.showPreferencesAction)
 
+        find.addAction(self.findReplaceAction)
+        find.addAction(self.advancedTagSearchAction)
+
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
+
 
         if not self._show_images_disabled:
             view.addAction(self.showImagesAction)
@@ -198,7 +206,6 @@ class Sublimeless_Zk(QObject):
 
         tools.addAction(self.expandOverviewNoteAction)
         tools.addAction(self.refreshExpandedNoteAction)
-        tools.addAction(self.advancedTagSearchAction)
 
         about.addAction(self.aboutAction)
 
@@ -208,6 +215,7 @@ class Sublimeless_Zk(QObject):
 
         # normal actions
         self.autosave_timer.timeout.connect(self.on_timer)
+        self.findReplaceAction.triggered.connect(self.find_and_replace)
         self.aboutAction.triggered.connect(self.about)
         self.newAction.triggered.connect(self.zk_new_zettel)
         self.openFolderAction.triggered.connect(self.open_folder)
@@ -332,6 +340,13 @@ class Sublimeless_Zk(QObject):
         action = self.sender()
         if action:
             self.open_folder(action.data())
+
+    def find_and_replace(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        finder = FindDlg(self.gui, editor)
+        finder.show()
 
     def update_recent_project_actions(self):
         for i in range(self.recent_projects_limit):
