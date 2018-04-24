@@ -125,7 +125,7 @@ You can edit all settings by opening the settings file:
 
 * Windows: Use the menu: Edit > Settings
 * macOS:
-    * press <key>Command</key> + <key>,</key>
+    * press <kbd>Command</kbd> + <kbd>,</kbd>
     * alternatively use the menu: sublimeless_zk > Preferences...
 
 
@@ -371,7 +371,7 @@ The following line in the settings turns MultiMarkdown mode on:
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then click it
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
-* [Find references](#searching-for-friends) Cursor in link, then <kbd>alt</kbd> + <kbd>enter</kbd>
+* [Find references](#searching-for-friends) <kbd>ALT</kbd> + click
 * [View all tags](#getting-an-overview-of-all-your-tags) <kbd>#</kbd> + <kbd>!</kbd>
 * [View all notes](#listing-all-notes) <kbd>[</kbd> + <kbd>!</kbd>
 * [Insert tag](#inserting-tags) <kbd>#</kbd> + <kbd>?</kbd>
@@ -584,7 +584,7 @@ Like note-links, tags can also be "followed" by clicking them.
 
 #### Advanced Tag Search
 
-To search for more sophisticated tag combinations, use the command `Search for Tag Combination` (<key>Control</key> + <key>T</key>) from the search menu.
+To search for more sophisticated tag combinations, use the command `Search for Tag Combination` (<kbd>Control</kbd> + <kbd>T</kbd>) from the search menu.
 
 It will prompt you for the tags you want to search for and understands quite a powerful syntax; let's walk through it:
 
@@ -682,7 +682,7 @@ This overview is just a collection of note links with brief descriptions and a b
 Now, if you wanted to turn this overview note into a text containing the contents of the linked notes instead of just the links, then you can *expand* the note like this:
 
 * Use the Tools menu: Tools > Expand Overview Note
-* <key>Control</key> + <key>E</key>
+* <kbd>Control</kbd> + <kbd>E</kbd>
 
 You will be asked for the name of your new overview note et voila! Depending on your linked notes, the overview note will be expanded into a new note, maybe looking like this:
 
@@ -701,7 +701,7 @@ As you can see, the lines containing note links are replaced by the contents of 
 It might happen that you change some notes that are already expanded into your new expanded overview note. If that happens and you have left the comments in, then you can refresh the expanded overview:
 
 * Use the Tools menu: Tools > Refresh expanded Note
-* <key>Control</key> + <key>R</key>
+* <kbd>Control</kbd> + <kbd>R</kbd>
 
 **Note:** Only notes with comments starting with `<!-- !` will be considered for a refresh.
 
@@ -797,7 +797,7 @@ It is common practice to keep local bibliographies in your notes. This makes eac
 In any note with citations
 
 * pick `Insert Bibliography` from the edit menu
-* press <key>Control</key> + <key>B</key>
+* press <kbd>Control</kbd> + <kbd>B</kbd>
 
 This will add a long comment to your note in the following format *(line wrapping added for github manually)*:
 
@@ -839,7 +839,7 @@ Some notes can get quite long, especially when turning overview notes into growi
 To insert a table of contents at your current cursor position:
 
 * from the edit menu select `Insert Table of Contents`
-* press <key>Control</key> + <key>Shift</key> + <key>T</key>
+* press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>
 
 The table of contents will be placed between two automatically generated comments that also serve as markers for the plugin. It will consist of a bulleted list consisting of links to the headings in your text. The links are only relevant when converting your text into another format, e.g. by using the *markdown preview* plugin.
 
@@ -911,7 +911,7 @@ The following animation shows TOC insertion and refreshing in action:
 Especially when your text is large enough for needing a table of contents, it is a good idea to number your sections. This can be done automatically as follows:
 
 * from the edit menu select `Insert Section Numbers`
-* press <key>Control</key> + <key>Shift</key> + <key>N</key>
+* press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>
 
 Automatically inserted section numbers will look like in the following note:
 
