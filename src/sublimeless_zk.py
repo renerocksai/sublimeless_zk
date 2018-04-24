@@ -57,6 +57,8 @@ class Sublimeless_Zk(QObject):
         self.aboutAction = QAction('About Sublimeless Zettelkasten', self)
         self.findReplaceAction = QAction('Find/replace...', self)
         self.findReplaceAction.setShortcut('Ctrl+F')
+        self.findInFilesAction = QAction('Find in files...', self)
+        self.findInFilesAction.setShortcut('Shift+Ctrl+F')
 
         self.newAction = QAction("New Zettel Note", self)
         self.newAction.setShortcuts(["Ctrl+N", "Shift+Return", "Shift+Enter"])
@@ -193,6 +195,7 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.showPreferencesAction)
 
         find.addAction(self.findReplaceAction)
+        find.addAction(self.findInFilesAction)
         find.addAction(self.advancedTagSearchAction)
 
         view.addAction(self.showAllNotesAction)
@@ -216,6 +219,7 @@ class Sublimeless_Zk(QObject):
         # normal actions
         self.autosave_timer.timeout.connect(self.on_timer)
         self.findReplaceAction.triggered.connect(self.find_and_replace)
+        self.findInFilesAction.triggered.connect(self.find_in_files)
         self.aboutAction.triggered.connect(self.about)
         self.newAction.triggered.connect(self.zk_new_zettel)
         self.openFolderAction.triggered.connect(self.open_folder)
@@ -956,7 +960,7 @@ class Sublimeless_Zk(QObject):
 
     def advanced_tag_search(self, search_spec=None):
         if not search_spec:
-            search_spec = show_input_panel(None, '#tags and not !#tags::', '')
+            search_spec = show_input_panel(None, '#tags and not !#tags:', '')
         if not search_spec:
             return
         if search_spec.startswith('[!'):
@@ -965,10 +969,15 @@ class Sublimeless_Zk(QObject):
         elif search_spec.startswith('#!'):
             self.show_all_tags(check_editor=False)
             return
-        notes = TagSearch.advanced_tag_search(search_spec, self.project)
-        notes = [self.project.note_file_by_id(note_id) for note_id in notes]
-        self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec)
-        self.reload(self.gui.search_results_editor)
+
+        if search_spec.strip().startswith('#') or search_spec.startswith('!#'):
+            notes = TagSearch.advanced_tag_search(search_spec, self.project)
+            notes = [self.project.note_file_by_id(note_id) for note_id in notes]
+            self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec)
+            self.reload(self.gui.search_results_editor)
+        else:
+            self.find_in_files(search_spec)
+        return
 
     def show_images(self):
         # image links with attributes
@@ -999,6 +1008,22 @@ class Sublimeless_Zk(QObject):
     def about(self):
         about = AboutDlg(self.gui)
         about.exec_()
+
+    def find_in_files(self, search_term=None):
+        if not search_term:
+            search_term = show_input_panel(None, 'Find in files:', '')
+        if not search_term:
+            return
+        note_files = self.project.get_all_note_files()
+        result_notes = []
+        for note in note_files:
+            with open(note, mode='r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
+                if search_term in text:
+                    result_notes.append(note)
+        self.project.externalize_note_links(result_notes, '# Notes matching search ' + search_term)
+        self.reload(self.gui.search_results_editor)
+        return result_notes
 
 
 if __name__ == '__main__':
