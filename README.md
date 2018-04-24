@@ -33,7 +33,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Optional](#insert-links-with-or-without-titles) insertion of `[[links]] WITH note titles` instead of just `[[links]]`
 * Inline expansion of [note links](#inline-expansion-of-note-links), [tags](#inline-expansion-of-tags), and [citekeys](#inline-expansion-of-citekeys) via `[ctrl]+[.]`
 * [Searching for advanced tag combinations](#advanced-tag-search)
-* [Automatic Bibliographies](#automatic-bibliographies), [auto-completion for citekeys](#auto-completion-for-citekeys), and fuzzy-search [insertion of citations](#inserting-a-citation)
+* [Automatic Bibliographies](#automatic-bibliographies),  and fuzzy-search [insertion of citations](#inserting-a-citation)
 * [Automatic Table Of Contents](#automatic-table-of-contents)
 * [Automatic Section Numbering](#automatic-section-numbering)
 * [Color Schemes](#color-schemes)
@@ -369,13 +369,12 @@ The following line in the settings turns MultiMarkdown mode on:
 
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then click it
-* [Open link with keyboard](#creating-a-link) Selector on text + <kbd>ctrl</kbd> + <kbd>enter</kbd>
-* [Open link with mouse](#creating-a-link) click on link
+* [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
 * [Find references](#searching-for-friends) Cursor in link, then <kbd>alt</kbd> + <kbd>enter</kbd>
 * [View all tags](#getting-an-overview-of-all-your-tags) <kbd>#</kbd> + <kbd>!</kbd>
 * [View all notes](#listing-all-notes) <kbd>[</kbd> + <kbd>!</kbd>
-* [Autocomplete tag](#experimental-tag-selector) <kbd>#</kbd> + <kbd>?</kbd>
+* [Insert tag](#inserting-tags) <kbd>#</kbd> + <kbd>?</kbd>
 * Find tag references: Just click a #tag
 * [Expand link inline](#inline-expansion-of-note-links) <kbd>ctrl</kbd> + <kbd>.</kbd>
 * [Expand tag inline](#inline-expansion-of-tags) (with referencing notes) <kbd>ctrl</kbd> + <kbd>.</kbd>
