@@ -39,7 +39,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Color Schemes](#monokai-extended-color-scheme)
 * [Saved Searches](#saved-searches)
 
- 
+
 ## Contents
 
 * [Installation](#installation)
@@ -59,9 +59,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Solarized Color Scheme](#solarized-color-scheme)
     * [Location of your .bib file](#location-of-your-bib-file)
     * [Citation Reference Style](#citation-reference-style)
-    * [Inline image preview size](#inline-image-preview-size)
-    * [Auto inline image preview](#auto-inline-image-preview)
-    * [Default panes](#default-panes)
+
 * [Usage](#usage)
     * [Shortcut cheatsheet](#shortcut-cheatsheet)
     * [Creating a new note](#creating-a-new-note)
@@ -74,7 +72,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Listing all notes](#listing-all-notes)
     * [Working with tags](#working-with-tags)
         * [Getting an overview of all your tags](#getting-an-overview-of-all-your-tags)
-        * [Experimental tag selector](#experimental-tag-selector)
+        * [Inserting tags](#inserting-tags)
         * [Searching for notes containing specific tags](#searching-for-notes-containing-specific-tags)
         * [Advanced Tag Search](#advanced-tag-search)
             * [Grammar and Syntax](#grammar-and-syntax)
@@ -88,12 +86,10 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Auto-Completion for citekeys](#auto-completion-for-citekeys)
         * [Automatic Bibliographies](#automatic-bibliographies)
         * [Searching for notes referencing a specific citekey](#searching-for-notes-referencing-a-specific-citekey)
-    * [Inline Local Image Display](#inline-local-image-display)
     * [Section Numbering and Table Of Contents](#section-numbering-and-table-of-contents)
         * [Automatic Table Of Contents](#automatic-table-of-contents)
         * [Automatic Section Numbering](#automatic-section-numbering)
-    * [Working with Panes](#working-with-panes)
-    * [The Ultimate Zettelkasten Mode](#zettelkasten-mode)
+    * [Saved Searches](#saved-searches)
 * [Credits](#credits)
 
 
@@ -128,7 +124,7 @@ If you want the best aesthetics, [download](https://assets.ubuntu.com/v1/fad7939
 You can edit all settings by opening the settings file:
 
 * Windows: Use the menu: Edit > Settings
-* macOS: 
+* macOS:
     * press <key>Command</key> + <key>,</key>
     * alternatively use the menu: sublimeless_zk > Preferences...
 
@@ -306,7 +302,7 @@ This theme is active per default, in the settings file:
 #### Solarized Color Scheme
 
 ![solarized](imgs/solarized.png)
- 
+
 This theme is activated like this in the settings file:
 
 ```json
@@ -316,7 +312,7 @@ This theme is activated like this in the settings file:
     "theme": "themes/solarized_light.json",
 ```
 
-**Note:** For a theme change to take effect, you need to re-start the app. 
+**Note:** For a theme change to take effect, you need to re-start the app.
 
 
 ### Location of your .bib file
@@ -567,7 +563,7 @@ If you see a link in a note and wonder what **other** notes also reference this 
 
 ### Listing all notes
 
-The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the search results. 
+The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the search results.
 
 ### Working with tags
 
@@ -579,7 +575,7 @@ When you press `#!` (that is the `#` key followed by the `!` key) quickly, the s
 ![taglist](https://user-images.githubusercontent.com/30892199/32422037-fd32b18e-c29d-11e7-85d0-2d008b07fe1d.png)
 
 
-#### Tag selector
+#### Inserting Tags
 Press `#+?` to ask for a list of all tags used in your note archive. You can narrow down the search and finally pick the tag you like.
 
 ![tagsel](https://user-images.githubusercontent.com/30892199/32405205-25f94bc0-c161-11e7-914a-1a82bdf9c2f9.png)
