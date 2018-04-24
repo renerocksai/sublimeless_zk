@@ -6,10 +6,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, QTimer
 import re
 import unicodedata
 from collections import Counter
+import time
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -36,6 +37,19 @@ class Sublimeless_Zk(QObject):
         self._show_images_disabled = True and getattr(sys, 'frozen', False)
         self.recent_projects_limit = 10
         self.recent_projects_actions = []
+        self.autosave_timer = QTimer()
+        self.time_since_last_autosave = 0
+        self.autosave_interval = get_settings().get('auto_save_interval', 0)
+
+    def on_timer(self):
+        if not self.autosave_interval:
+            return
+        time_now = time.time()
+        if time_now > self.time_since_last_autosave + self.autosave_interval:
+            self.time_since_last_autosave = time_now
+            self.save_all()
+        return
+
 
     def init_actions(self):
         self.newAction = QAction("New Zettel Note", self)
@@ -190,6 +204,7 @@ class Sublimeless_Zk(QObject):
         self.gui.qtabs.tabCloseRequested.connect(self.tab_close_requested)
 
         # normal actions
+        self.autosave_timer.timeout.connect(self.on_timer)
         self.newAction.triggered.connect(self.zk_new_zettel)
         self.openFolderAction.triggered.connect(self.open_folder)
         self.saveAction.triggered.connect(self.save)
@@ -290,7 +305,7 @@ class Sublimeless_Zk(QObject):
         self.connect_signals()
         self.project = None
         self.open_folder(self.app_state.recent_projects[-1])
-
+        self.autosave_timer.start(1000)
         exit_code = 0
         try:
             exit_code = self.app.exec_()

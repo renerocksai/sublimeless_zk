@@ -25,6 +25,7 @@
 
     // when highlighting: also show bookmark symbols in the gutter?
     // false to disable
+    // currently unsupported
     "show_bookmarks_in_gutter": true,
 
     // fall-back: location of pandoc if it cannot be found in the PATH
@@ -36,9 +37,11 @@
 
     // make sure images don't get too large
     // scale them to max_width, proportionally
+    // currently unsupported
     "img_maxwidth": 320,
 
     // set to true if you want images to be displayed automatically when you open a note
+    // currently unsupported
     "auto_show_images": false,
 
     // separator to use when appending numbered suffix to duplicate headings
@@ -64,4 +67,6 @@
     // - title
     // - ID       <-- default
     "sort_notelists_by": "id",
+
+    "auto_save_interval": 60,
 }
