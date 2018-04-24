@@ -36,7 +36,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Automatic Bibliographies](#automatic-bibliographies), [auto-completion for citekeys](#auto-completion-for-citekeys), and fuzzy-search [insertion of citations](#inserting-a-citation)
 * [Automatic Table Of Contents](#automatic-table-of-contents)
 * [Automatic Section Numbering](#automatic-section-numbering)
-* [Color Schemes](#monokai-extended-color-scheme)
+* [Color Schemes](#color-schemes)
 * [Saved Searches](#saved-searches)
 
 
@@ -54,7 +54,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Insert links with or without titles](#insert-links-with-or-without-titles)
     * [IDs in titles of new notes](#ids-in-titles-of-new-notes)
     * [New Note templates](#new-note-templates)
-    * [Color Scheme](#color-scheme)
+    * [Color Schemes](#color-schemes)
         * [Monokai Color Scheme](#monokai-color-scheme)
         * [Solarized Color Scheme](#solarized-color-scheme)
     * [Location of your .bib file](#location-of-your-bib-file)
