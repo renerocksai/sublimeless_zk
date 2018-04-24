@@ -16,6 +16,8 @@ includefiles = [
     ('sublimeless_zk-settings.json', 'sublimeless_zk-settings.json'),
     ('zettelkasten/201804141018 Welcome.md', 'zettelkasten/201804141018 Welcome.md'),
     ('zettelkasten/rene_shades.png', 'zettelkasten/rene_shades.png'),
+    ('app_logo_64.png', 'app_logo_64.png'),
+    ('app_picture.png', 'app_picture.png'),
 ]  #path_platforms
 
 excludes = [
