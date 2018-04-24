@@ -1028,5 +1028,3 @@ class Sublimeless_Zk(QObject):
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
-
-
