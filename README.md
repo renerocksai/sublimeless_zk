@@ -1,11 +1,13 @@
 # sublimeless_zk - The Sublime-less Zettelkasten
 
+![about](imgs/about.png)
+
 ## Coming soon...
 
 Need to write that README, test a little, and upload releases for Windows and macOS.
 
 
-Monokai
+Monokai Theme
 
 ![monokai](imgs/monokai.png)
 
@@ -14,12 +16,12 @@ on Windows
 ![win](imgs/windows2.png)
 
 
-Solarized
+Solarized Theme
 
 ![solarized](imgs/solarized.png)
 
 
-Settings
+Settings like SublimeText
 
 ![settings](imgs/settings.png)
 

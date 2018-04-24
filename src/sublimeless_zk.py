@@ -25,6 +25,7 @@ from textproduction import TextProduction
 from tagsearch import TagSearch
 from imagehandler import ImageHandler
 from settings import settings_filn, base_dir, get_settings, get_pandoc
+from about import AboutDlg
 
 
 class Sublimeless_Zk(QObject):
@@ -52,6 +53,8 @@ class Sublimeless_Zk(QObject):
 
 
     def init_actions(self):
+        self.aboutAction = QAction('About Sublimeless Zettelkasten', self)
+
         self.newAction = QAction("New Zettel Note", self)
         self.newAction.setShortcuts(["Ctrl+N", "Shift+Return", "Shift+Enter"])
 
@@ -197,7 +200,7 @@ class Sublimeless_Zk(QObject):
         tools.addAction(self.refreshExpandedNoteAction)
         tools.addAction(self.advancedTagSearchAction)
 
-        # about.addAction(self.aboutAction)
+        about.addAction(self.aboutAction)
 
     def connect_signals(self):
         # tab actions
@@ -205,6 +208,7 @@ class Sublimeless_Zk(QObject):
 
         # normal actions
         self.autosave_timer.timeout.connect(self.on_timer)
+        self.aboutAction.triggered.connect(self.about)
         self.newAction.triggered.connect(self.zk_new_zettel)
         self.openFolderAction.triggered.connect(self.open_folder)
         self.saveAction.triggered.connect(self.save)
@@ -976,6 +980,10 @@ class Sublimeless_Zk(QObject):
             if buttonReply == QMessageBox.No:
                 return    # ignore
         self.gui.qtabs.removeTab(index)
+
+    def about(self):
+        about = AboutDlg(self.gui)
+        about.exec_()
 
 
 if __name__ == '__main__':
