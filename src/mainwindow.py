@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
@@ -55,6 +57,8 @@ class MainWindow(QMainWindow):
         self._lyt.addWidget(mainsplit)
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.qtabs.setTabsClosable(True)
+        if sys.platform == 'win32':
+            self.setWindowIcon(QIcon(f"{os.path.join(base_dir(), 'sublimeless_zk.ico')}"))
         self.show()
 
     def _btn_action(self):
