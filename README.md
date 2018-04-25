@@ -34,7 +34,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 ## Main Features
 *(This app is still in active development. If you like, stay up to date with latest developments at: [Its dedicated Zettelkasten.de Forum Thread](https://forum.zettelkasten.de/discussion/226/renes-sublimeless-zettelkasten#latest))*
 
-* Place wiki style links like `[[this]]` or `[this]` (and old-school links like this `§201711111709`) into your notes to link to other notes in your note archive.
+* Place wiki style links like `[[this]]` or `[this]` into your notes to link to other notes in your note archive.
 * Clicking such a link will open the corresponding note in a new tab.
 * Pressing <kbd>alt</kbd> and clicking a link will search for all notes also referencing the linked note [('friend notes')](#searching-for-friends).
 * Typing `[[` will open a list of existing notes so you can quickly link to existing notes.
@@ -124,11 +124,11 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 
 There are no installers. Just download and enjoy.
 
-The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section of the GitHub repository provides binary [downloads](https://github.com/renerocksai/sublimeless_zk/releases) for up-to-date versions of both Windows 10 (64bit) and macOs. 
+The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section of the GitHub repository provides binary [downloads](https://github.com/renerocksai/sublimeless_zk/releases) for up-to-date versions of both Windows 10 (64bit) and macOs.
 
 ### Windows
 
-* Download the Windows ZIP (`sublimeless_zk-pre-x.y-win10.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases) 
+* Download the Windows ZIP (`sublimeless_zk-pre-x.y-win10.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
 * Unzip `sublimeless_zk-pre-x.y-win10.zip`
 * In the resulting `sublimeless_zk-pre-x.y-win10` folder, `sublimeless_zk.exe` is the program you want to run.
 
@@ -138,7 +138,7 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 
 
 ### macOS
-* Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases) 
+* Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
 * Unzip `sublimeless_zk-pre-x.y-macOS.zip`
 * In the resulting `sublimeless_zk-pre-x.y-macOS` folder, `sublimeless_zk-pre-x.y.app` is the program you want to run.
 
@@ -624,7 +624,7 @@ If you now click into `[[201710282118]]`, the target note will be opened in a ne
 
 Here you can see what the list of notes to choose from looks like:
 
-![screenshot2](https://user-images.githubusercontent.com/30892199/32403198-25f55650-c134-11e7-8f62-58fdbfb13c2b.png)
+![screenshot2](imgs/insert-link.png)
 
 #### Implicitly creating a new note via a link
 There is another way to create a new note: Just create a link containing its title and click it.
@@ -698,9 +698,6 @@ When inserting links manually, you are can choose between the following supporte
 ## Wiki Style with title
 [[201711111708 here goes the note's title]] same with title
 
-## Old-School
-§201711111709 support for old-school links :)
-
 ## Single-Pair
 [201711111709] one pair of brackets is enough
 
@@ -711,7 +708,7 @@ When inserting links manually, you are can choose between the following supporte
 
 This is how they are rendered:
 
-![link_styles](https://user-images.githubusercontent.com/30892199/33497107-fdaf0c50-d6cc-11e7-81d3-27af3ba9e740.png)
+![link_styles](imgs/link-styles.png)
 
 
 ### Searching for friends
@@ -732,13 +729,13 @@ Over time you might collect quite a number of **#tags** assigned to your notes. 
 
 When you press `#!` (that is the `#` key followed by the `!` key) quickly, the search results will list all your #tags right next to your text:
 
-![taglist](https://user-images.githubusercontent.com/30892199/32422037-fd32b18e-c29d-11e7-85d0-2d008b07fe1d.png)
+![taglist](imgs/show-all-tags.png)
 
 
 #### Inserting Tags
 Press `#+?` to ask for a list of all tags used in your note archive. You can narrow down the search and finally pick the tag you like.
 
-![tagsel](https://user-images.githubusercontent.com/30892199/32405205-25f94bc0-c161-11e7-914a-1a82bdf9c2f9.png)
+![tagsel](imgs/tag-sel.png)
 
 #### Searching for notes containing specific tags
 Like note-links, tags can also be "followed" by clicking them. This will produce a list of notes tagged with that tag in the search results area.
@@ -809,13 +806,19 @@ Pretty powerful.
 
 I omitted examples using the `*` placeholder, it should be pretty obvious.
 
-The following screen-shot illustrates the advanced tag search in action:
+The following screen-shots illustrate the advanced tag search in action:
 
-* at the top right the results for `##AI, !#world*` are shown: only one note matches
-* at the bottom right the results for `##AI` are shown
-* the left side shows both notes containing `##AI`, one of them also tagged with `#world-domination` which gets eliminated by `, !#world*`.
+* the first one shows the results for `##AI`:
+    * two notes match
+    * one of them is tagged with `##AI #world-domination`
+* the first one shows the results for `##AI, !#world*`:
+    * only one note matches
+    * it is tagged with `##AI`
+    * the note from before is also tagged with `#world-domination` which gets eliminated by `, !#world*`.
 
-![adv_tag_search](https://user-images.githubusercontent.com/30892199/33188877-f53a9f88-d09d-11e7-9791-681ba9d7eeb3.png)
+![adv_tag_search](imgs/advresult2.png)
+
+![adv_tag_search](imgs/advresult1.png)
 
 ### Expansion of overview notes with selective refresh
 
@@ -847,7 +850,7 @@ Now, if you wanted to turn this overview note into a text containing the content
 
 You will be asked for the name of your new overview note et voila! Depending on your linked notes, the overview note will be expanded into a new note, maybe looking like this:
 
-![expanded](https://user-images.githubusercontent.com/30892199/32693323-613c43fe-c729-11e7-8773-04a9e20034f7.png)
+![expanded](imgs/expanded.png)
 
 As you can see, the lines containing note links are replaced by the contents of their corresponding notes, enclosed in comment lines. You can now edit and save this file to your liking.
 
