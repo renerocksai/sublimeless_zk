@@ -124,11 +124,11 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 
 There are no installers. Just download and enjoy.
 
-The [releases](https://https://github.com/renerocksai/sublimeless_zk/releases) section of the GitHub repository provides binary [downloads](https://https://github.com/renerocksai/sublimeless_zk/releases) for up-to-date versions of both Windows 10 (64bit) and macOs. 
+The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section of the GitHub repository provides binary [downloads](https://github.com/renerocksai/sublimeless_zk/releases) for up-to-date versions of both Windows 10 (64bit) and macOs. 
 
 ### Windows
 
-* Download the windows ZIP (`sublimeless_zk-pre-x.y-win10.zip`) [from the GitHub release archive](https://https://github.com/renerocksai/sublimeless_zk/releases) 
+* Download the Windows ZIP (`sublimeless_zk-pre-x.y-win10.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases) 
 * Unzip `sublimeless_zk-pre-x.y-win10.zip`
 * In the resulting `sublimeless_zk-pre-x.y-win10` folder, `sublimeless_zk.exe` is the program you want to run.
 
@@ -138,9 +138,9 @@ The [releases](https://https://github.com/renerocksai/sublimeless_zk/releases) s
 
 
 ### macOS
-* [download the release](https://https://github.com/renerocksai/sublimeless_zk/releases)
-* Unzip `sublimeless_zk-pre-x.y-win10.zip`
-* In the resulting `sublimeless_zk-pre-0.2-win10` folder, `sublimeless_zk.exe` is the program you want to run.
+* Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases) 
+* Unzip `sublimeless_zk-pre-x.y-macOS.zip`
+* In the resulting `sublimeless_zk-pre-x.y-macOS` folder, `sublimeless_zk-pre-x.y.app` is the program you want to run.
 
 ### Installing Pandoc
 
