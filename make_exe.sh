@@ -7,13 +7,10 @@ python bundle_version.py --init
 DEPLOY_BASE=$(python bundle_version.py --deploy-dir)
 
 # cx_Freeze approach
-DEPLOY_DIR=${DEPLOY_BASE}/semantic_zk-${PREFIX}-${VERSION}-macOS
-mkdir -p ${DEPLOY_DIR}
+mkdir -p ${DEPLOY_BASE}
 
 # GUI
 rm -fr build/
 python build_macos.py bdist_mac 2>&1  |tee build-sublimeless_zk-${PREFIX}-${VERSION}.log
-# cp -v Info.plist if_Note_Book_Alt_86976.icns build/sublimeless_zk-${VERSION}.app/Contents/
-# cp -v if_Note_Book_Alt_86976.icns build/sublimeless_zk-${VERSION}.app/Contents/icon.icns
-mv -v build/sublimeless_zk-${VERSION}.app ${DEPLOY_DIR}/
-rm -fr build/
+python bundle_version.py --rename-dist
+#rm -fr build/

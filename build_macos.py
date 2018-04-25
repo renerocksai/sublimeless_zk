@@ -1,5 +1,5 @@
 from cx_Freeze import setup, Executable
-from bundle_version import version
+from bundle_version import prefix, version
 import sys
 sys.path.append('src')
 
@@ -48,8 +48,8 @@ sublimeless_zk = Executable(
 )
 
 setup(
-      name = "Sublimeless_ZK",
-      version = version,
+      name = "sublimeless_zk",
+      version = prefix + '-' + version,
       author = 'Rene Schallner',
       description = "Sublimeless_ZK",
       options = {"build_exe": build_exe_options,

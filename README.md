@@ -1,6 +1,6 @@
 # The Sublime-less Zettelkasten
 
-This is a note taking app to enable ID-based, Wiki-style links, and #tags in your documents.
+This is a note taking app that enables clickable ID-based Wiki-style links, and #tags in your plain text (Markdown) documents.
 
 If you follow the (plain-text) Zettelkasten method (as proposed by [Zettelkasten.de](https://zettelkasten.de) or [takesmartnotes.com](http://takesmartnotes.com/#moreinfo)), this might appeal to you.
 
@@ -8,35 +8,49 @@ In short, it helps you manage an archive of interlinked notes that look like thi
 
 ![about](imgs/about.png)
 
+In addition to being a specialized Markdown text-editor and text-browser, Sublimeless_ZK is loaded with features for text-production:
+
+* sophisticated search methods for finding associated notes that
+    * reference the same #tag combination
+    * or cite a certain source
+    * or are linking to a certain note
+* expanding notes containing links to other notes (overview notes) into notes notes containing the linked notes' contents
+    * can be refreshed if source notes change
+    * refresh can be enabled / disabled on a per contained note basis
+* parameterized templates for new notes
+* easy insertion of links, #tags, and citation-keys via fuzzy-search
+* auto-insertion (and removal) of section numbers
+* auto-insertion of tables of contents
+* auto-insertion of bibliographies
+
 See the [Usage](#usage) section below to see how this package might support your workflow.
 
 Alternatively, watch it in action :smile:
 
 ![zk_mode_demo](imgs/demo1.gif)
 
-This app is the result of trying to make a stand-alone version of [sublime_zk](https://github.com/renerocksai/sublime_zk), my SublimeText Zettelkasten package, in Zettelkasten mode.
+This app is the result of trying to make a stand-alone version of [sublime_zk](https://github.com/renerocksai/sublime_zk), the SublimeText Zettelkasten package.
 
-## Features
-*(This package is still in active development. If you like, stay up to date with latest developments at: [Its dedicated Zettelkasten.de Forum Thread](https://forum.zettelkasten.de/discussion/226/renes-sublimeless-zettelkasten#latest))*
+## Main Features
+*(This app is still in active development. If you like, stay up to date with latest developments at: [Its dedicated Zettelkasten.de Forum Thread](https://forum.zettelkasten.de/discussion/226/renes-sublimeless-zettelkasten#latest))*
 
 * Place wiki style links like `[[this]]` or `[this]` (and old-school links like this `§201711111709`) into your notes to link to other notes in your note archive.
 * Clicking such a link will open the corresponding note in a new tab.
-* Pressing `[alt]+[enter]` inside a link will search for all notes also referencing the linked note [('friend notes')](#searching-for-friends).
+* Pressing <kbd>alt</kbd> and clicking a link will search for all notes also referencing the linked note [('friend notes')](#searching-for-friends).
 * Typing `[[` will open a list of existing notes so you can quickly link to existing notes.
-* Typing `[shift]+[enter]` lets you enter a name for a new note. The new note is then created with a new note ID.
-* Implicit note creation via links to non-existing notes' titles, see [below](#implicitly-creating-a-new-note-via-a-link).
+* <kbd>[shift]</kbd>+<kbd>[enter]</kbd> lets you enter a name for a new note. The new note is then created with a new note ID.
+* Implicit note creation by clicking links to non-existing notes' titles, see [below](#implicitly-creating-a-new-note-via-a-link).
 * The ID format is timestamp-based YYYYMMDDHHMM - eg: 201710282111, but can be switched second-precision YYYYMMDDHHMMSS - eg: 20171224183045
-* Highlighting of note links
-* Highlighting of #tags
-* Highlighting of footnote references `[^like this one]` and `[ref. @pandoc]` references.
-* Typing `#!` will display all your **#tags**, sorted in the search results area
+* Highlighting of #tags and @citekeys.
+* Typing `#!` will display all your **#tags**, sorted, in the search results area
 * `#?` opens up a list of all your **#tags** and lets you fuzzy search and select them (like note-links).
-* Clicking a **#tag** or citekey will search for all notes containing this tag / citekey.
+* Clicking a **#tag** or @citekey will search for all notes containing this tag / citekey.
 * [Expansion of overview notes with selective refresh](#expansion-of-overview-notes-with-selective-refresh)!!!
 * [Templates for new notes](#new-note-templates)
 * [Optional](#insert-links-with-or-without-titles) insertion of `[[links]] WITH note titles` instead of just `[[links]]`
-* Inline expansion of [note links](#inline-expansion-of-note-links), [tags](#inline-expansion-of-tags), and [citekeys](#inline-expansion-of-citekeys) via `[ctrl]+[.]`
+* Inline expansion of [note links](#inline-expansion-of-note-links), [tags](#inline-expansion-of-tags), and [citekeys](#inline-expansion-of-citekeys) via <kbd>ctrl</kbd>+<kbd>.</kbd>
 * [Searching for advanced tag combinations](#advanced-tag-search)
+* [Find in files](#find-in-files)
 * [Automatic Bibliographies](#automatic-bibliographies),  and fuzzy-search [insertion of citations](#inserting-a-citation)
 * [Automatic Table Of Contents](#automatic-table-of-contents)
 * [Automatic Section Numbering](#automatic-section-numbering)
@@ -51,29 +65,38 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [macOS](#macos)
     * [Installing Pandoc](#installing-pandoc)
     * [Installing the Ubuntu Mono Font](#installing-the-ubuntu-mono-font)
+
 * [Configuration](#configuration)
-    * [Markdown filename extension](#markdown-filename-extension)
-    * [Single or double brackets](#single-or-double-brackets)
-    * [Note ID precision](#note-id-precision)
-    * [Insert links with or without titles](#insert-links-with-or-without-titles)
-    * [IDs in titles of new notes](#ids-in-titles-of-new-notes)
-    * [New Note templates](#new-note-templates)
+    * [Files](#files)
+        * [The settings file](#the-settings-file)
+        * [Markdown filename extension](#markdown-filename-extension)
+        * [Auto-Save Interval](#auto-save-interval)
+    * [Notes and Links](#notes-and-links)
+        * [Single or double brackets](#single-or-double-brackets)
+        * [Note ID precision](#note-id-precision)
+        * [Insert links with or without titles](#insert-links-with-or-without-titles)
+        * [IDs in titles of new notes](#ids-in-titles-of-new-notes)
+        * [New Note templates](#new-note-templates)
     * [Color Schemes](#color-schemes)
         * [Monokai Color Scheme](#monokai-color-scheme)
         * [Solarized Color Scheme](#solarized-color-scheme)
-    * [Location of your .bib file](#location-of-your-bib-file)
-    * [Citation Reference Style](#citation-reference-style)
+    * [Bibliographies and Citations](#bibliographies-and-citations)
+        * [Location of your .bib file](#location-of-your-bib-file)
+        * [Citation Reference Style](#citation-reference-style)
 
 * [Usage](#usage)
     * [Shortcut cheatsheet](#shortcut-cheatsheet)
+    * [User Interface](#user-interface)
+        * [Menus](#menus)
+    * [Note Archive Folder](#note-archive-folder)
     * [Creating a new note](#creating-a-new-note)
     * [Creating a new note and link from selected text](#creating-a-new-note-and-link-from-selected-text)
     * [Creating a link](#creating-a-link)
-        * [Using auto-completion to insert note-links](#using-auto-completion-to-insert-note-links)
         * [Implicitly creating a new note via a link](#implicitly-creating-a-new-note-via-a-link)
         * [Supported link styles](#supported-link-styles)
     * [Searching for friends](#searching-for-friends)
     * [Listing all notes](#listing-all-notes)
+    * [Find in files](#find-in-files)
     * [Working with tags](#working-with-tags)
         * [Getting an overview of all your tags](#getting-an-overview-of-all-your-tags)
         * [Inserting tags](#inserting-tags)
@@ -125,6 +148,9 @@ If you want the best aesthetics, [download](https://assets.ubuntu.com/v1/fad7939
 
 ## Configuration
 
+### Files
+
+#### The Settings File
 You can edit all settings by opening the settings file:
 
 * Windows: Use the menu: Edit > Settings
@@ -132,14 +158,58 @@ You can edit all settings by opening the settings file:
     * press <kbd>Command</kbd> + <kbd>,</kbd>
     * alternatively use the menu: sublimeless_zk > Preferences...
 
+**Note:** You need to save the settings after you changed them.
 
-### Markdown filename extension
+**Note:** Some changes only take effect after restarting the app: color scheme, for instance.
+
+
+The settings file is just a text file an can be edited like any other text file. Here is an excerpt from the default settings:
+
+**Note:** All lines starting with `//` are just comments.
+
+```json
+{
+    // Theme:
+    //    themes/monokai.json
+    //    themes/solarized_light.json
+    "theme": "themes/monokai.json",
+
+    // The preferred markdown extension
+    "markdown_extension": ".md",
+```
+
+We will go into further details later, but here is a quick reference of all currently supported settings:
+
+| setting | default | remarks |
+|---------|---------|---------|
+"theme" | "themes/monokai.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
+"markdown_extension" | ".md" | Extension of your note files. |
+"new_note_template" | `"---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
+"double_brackets" | true | Insert links with [[double brackets]] (true) or [single brackets] (false)|
+"insert_links_with_titles" | false | insert note title after inserted link |
+"id_in_title" | false | New notes title will contain the note id (true) or not (false) |
+"tag_prefix" | "#" | Prefix character(s) for tags. |
+"path_to_pandoc" | "/usr/local/bin/pandoc" | Explicit location of the pandoc program. Only needed for auto-bib, and if pandoc can't be found automatically.|
+"bibfile" | "/path/to/zotero.bib" | bibliography file to use if none is contained in the notes folder |
+"toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
+"citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
+"seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true) or default YYYYMMDDHHMM IDs (false) |
+"sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
+"auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
+
+#### Markdown filename extension
 By default, the extension `.md` is used for your notes. If that does not match your style, you can change it with the `markdown_extension` setting. Just replace `.md` with `.txt` or `.mdown` or whatever you like.
 
-### Single or double brackets
+#### Auto-Save Interval
+
+The setting `auto_save_interval` specifies the interval in seconds, at which unsaved notes will be saved automatically. Set this to `0` to disable auto-save.
+
+### Notes and Links
+
+#### Single or double brackets
 Whether you want to use `[[this link style]]` or `[that link style]` is totally up to you. Both work. But you need to configure which style you prefer, so automatically inserted links will match your style. `[[double bracket]]` links are the default, and if you want to change that to single bracket links, set the `double_brackets` parameter to `false` in the settings file.
 
-### Note ID precision
+#### Note ID precision
 
 The default note ID format is a timestamp in `YYYYMMDDHHMM` format, with minute precision. If you tend to create more than one note per minute, this can be a problem. In that case, you can change the note ID format to `YYYYMMDDHHMMSS`, with second-precision.
 
@@ -152,7 +222,7 @@ The following setting influences the note ID format:
     "seconds_in_id": true,
 ```
 
-### Insert links with or without titles
+#### Insert links with or without titles
 There are numerous times where the app inserts a `[[link]]` to a note into your text on your behalf. You may not only choose the single or double-bracketness of the links, you may also choose whether the **note title** should follow the inserted link.
 
 The setting `"insert_links_with_titles"` takes care of that and is set to `false` by default:
@@ -173,7 +243,7 @@ Examples how inserted links might look like depending on this setting:
 [[199901012359]]
 ```
 
-### IDs in titles of new notes
+#### IDs in titles of new notes
 
 When you create a new note, its title will automatically be inserted and an ID will be assigned to it (see [Creating a new note](#creating-a-new-note)). If you want the ID to be part of the title, change the setting `id_in_title` from `false` to `true`.
 
@@ -195,9 +265,7 @@ tags =
 The setting id_in_title is set to false.
 ```
 
-You can find this setting in the file `sublime_zk.sublime-settings`.
-
-### New Note templates
+#### New Note templates
 
 If you need further customizing of how your new notes should look like, you can define your own template:
 
@@ -258,7 +326,7 @@ The format string works like this:
 * `{timestamp: %Y-%m-%d %H:%M}`: _2018-02-26 16:32_
 * `{timestamp: %a, %b %d, %Y}`: _Mon, Feb 26, 2018_
 
-#### Example YAML note header
+##### Example YAML note header
 
 To produce a YAML note header (for pandoc), like this:
 
@@ -318,8 +386,9 @@ This theme is activated like this in the settings file:
 
 **Note:** For a theme change to take effect, you need to re-start the app.
 
+### Bibliographies and Citations
 
-### Location of your .bib file
+#### Location of your .bib file
 If you [work with bibliographies](#working-with-bibliographies), this app can make use of your `.bib` files to enable insertion of `@citekeys` (or `#citekeys` if you use MultiMarkdown) and [automatic creation of bibliographies](#automatic-bibliographies) inside of your notes.
 
 **Note:** If a `.bib` file resides in your note archive folder then the app will find it automatically. No configuration needed!
@@ -334,7 +403,7 @@ However, if you maintain your `.bib` file outside of your note archive, then you
 
 In cases where both a bibfile setting is present *and* an actual `.bib` file is found in your note archive, the one in the note archive will be used.
 
-### Citation Reference Style
+#### Citation Reference Style
 
 Two major ways to handle citations in Markdown documents exist: Pandoc and MultiMarkdown. Which one you use, depends on your preferred tool-chain.
 
@@ -372,19 +441,93 @@ The following line in the settings turns MultiMarkdown mode on:
 ### Shortcut cheatsheet
 
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
-* [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then click it
+* [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
+* [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
-* [Find references](#searching-for-friends) <kbd>ALT</kbd> + click
+* [Find referencing (friend) notes](#searching-for-friends) <kbd>ALT</kbd> + click link to note
 * [View all tags](#getting-an-overview-of-all-your-tags) <kbd>#</kbd> + <kbd>!</kbd>
 * [View all notes](#listing-all-notes) <kbd>[</kbd> + <kbd>!</kbd>
 * [Insert tag](#inserting-tags) <kbd>#</kbd> + <kbd>?</kbd>
-* Find tag references: Just click a #tag
+* [Find tag references](#searching-for-notes-containing-specific-tags): Just click a #tag
 * [Expand link inline](#inline-expansion-of-note-links) <kbd>ctrl</kbd> + <kbd>.</kbd>
 * [Expand tag inline](#inline-expansion-of-tags) (with referencing notes) <kbd>ctrl</kbd> + <kbd>.</kbd>
 * [Expand citekey inline](#inline-expansion-of-citekeys) (with referencing notes) <kbd>ctrl</kbd> + <kbd>.</kbd>
 * [Insert multimarkdown citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>#</kbd> (needs `"citations-mmd-style": true`)
 * [Insert pandoc citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>@</kbd> (needs `"citations-mmd-style": false`)
+
+### User Interface
+As you can see in the various screenshots, the user interface is split into three areas; they are:
+
+* left: note editor tabs
+* top right: search results area
+    * will display results of various implicit or explicit searches you perform
+* bottom right: [saved searches](#saved-searches) area
+
+#### Menus
+
+There are keyboard shortcuts for almost everything, but sometimes it is just handy to browse through the menus.
+
+Let's introduce them!
+
+* sublimeless_zk (only on macOS)
+    * About sublimeless_zk : Show about dialog
+    * Preferences... : Opens the settings file for editing.
+
+* File
+    * New Zettel Note : create a new note
+    * Open Notes Folder : switch to another note folder
+    * Save : save the current file (note or settings or saved searches)
+    * Save All : save all files
+    * 1: most recent notes folder : opens it
+    * 2: second most recent notes folder : opens it
+    * ...
+    * 9: ninth most recent notes folder : opens it
+
+* Edit
+    * Undo : undo last action in current editor
+    * Redo : redo last action in current editor
+    * Copy : copy selected text to clipboard
+    * Cut : cut selected text to clipboard
+    * Paste : paste clipboard into current editor
+    * Insert Link to Note : insert a link via fuzzy search panel
+    * Insert Tag : insert a tag via fuzzy search panel
+    * Expand Link : expand a link / tag / citekey inline in the line below
+    * Insert Citation : insert a citation key via fuzzy search panel
+    * Insert Bibliography : insert bibliography of all cited sources in current note
+    * Insert Table of Contents : insert a table of contents into current note
+    * Insert Section Numbers : prefix headings with section numbers
+    * Remove Section Numbers : remove section numbers from headings if present
+    * Settings... (Windows only) : Opens the settings file for editing
+
+* Search
+    * Find/replace... : show search and (optionally) replace dialog to find/replaace text in current editor
+    * Find in files : search for text in all notes
+    * Search for Tag Combination : Advanced Tag Search
+
+* View
+    * Show all notes : shows all notes in the search results
+    * Show all referencing notes : If cursor is in a link / tag / citation key, search for all notes with the same reference (link/tag/citekey)
+    * Show all Tags: shows a tag list in the search results
+    * Full Screen (macOS only) : go full screen
+
+* Tools
+    * Expand Overview Note : create new note from current one where all links are replaced by contents
+    * Refresh expanded Note: Refresh such an expanded note if sources have changed
+
+* About (Windows only) : Shows the about dialog
+
+
+### Note Archive Folder
+
+When you first start the app, it creates a `zettelkasten` folder in your home / user directory. On Windows, this is typically `C:\Users\your.username\`, on macOS it is typically `/Users/your.username/`, and on Linux it usually is `/home/your.username/`.
+
+This `zettelkasten` folder comes with one or more default notes to get you started.
+
+If you have an existing note archive already, you can switch to it with <kbd>ctrl</kbd>+<kbd>O</kbd>, or use the File > Open... menu.
+
+The app keeps track of up to 10 recently opened note archive folders, which are accessible at the bottom of the File menu.
+
 
 ### Creating a new note
 
@@ -561,12 +704,15 @@ This is how they are rendered:
 
 
 ### Searching for friends
-If you see a link in a note and wonder what **other** notes also reference this note, then that is easy enough to do: Just place the cursor inside the link and press `[alt]+[enter]`.
+If you see a link in a note and wonder what **other** notes also reference this note, then that is easy enough to do: Just hold down the <kbd>alt</kbd> key when clicking the link. Alternatively, place the cursor inside the link and press <kbd>alt</kbd>+<kbd>enter</kbd>.
 
 
 ### Listing all notes
 
 The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the search results.
+
+### Find in files
+<kbd>shift</kbd>+<kbd>ctrl</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
 
 ### Working with tags
 
@@ -584,7 +730,7 @@ Press `#+?` to ask for a list of all tags used in your note archive. You can nar
 ![tagsel](https://user-images.githubusercontent.com/30892199/32405205-25f94bc0-c161-11e7-914a-1a82bdf9c2f9.png)
 
 #### Searching for notes containing specific tags
-Like note-links, tags can also be "followed" by clicking them.
+Like note-links, tags can also be "followed" by clicking them. This will produce a list of notes tagged with that tag in the search results area.
 
 #### Advanced Tag Search
 
@@ -845,7 +991,7 @@ To insert a table of contents at your current cursor position:
 * from the edit menu select `Insert Table of Contents`
 * press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>
 
-The table of contents will be placed between two automatically generated comments that also serve as markers for the plugin. It will consist of a bulleted list consisting of links to the headings in your text. The links are only relevant when converting your text into another format, e.g. by using the *markdown preview* plugin.
+The table of contents will be placed between two automatically generated comments that also serve as markers for the app. It will consist of a bulleted list consisting of links to the headings in your text. The links are only relevant when converting your text into HTML.
 
 Why a bulleted list and not a numbered one? You might have numbered the sections yourself. Numbered lists would get in the way in that case. Also, numbered lists produce `ii.` instead of `1.2` when nesting them.
 
@@ -951,7 +1097,9 @@ The animation below shows both section (re-)numbering and auto-TOC:
 
 The bottom right editor shows a saved searches file. This is a simple Text file where you can name and store search terms.
 
-Its syntax is very simple; to define a search, you just add a line, consisting of the following parts:
+**Note:** This file is saved automatically each time a note is saved. If you manually want to save it, just press <kbd>ctrl</kbd>+<kbd>S</kbd> while the text cursor is in the saved searches editor.
+
+The syntax is very simple; to define a search, you just add a line, consisting of the following parts:
 
 * an optional search name
 * a colon `:`, followed by either

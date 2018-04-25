@@ -996,6 +996,8 @@ class Sublimeless_Zk(QObject):
         editor.delete_all_images()
 
     def tab_close_requested(self, index):
+        if self.gui.qtabs.count() == 1:
+            return
         editor = self.gui.qtabs.widget(index)
         if editor.isModified():
             msg = f"You have unsaved changes in {os.path.basename(editor.file_name)} Close anyway?"

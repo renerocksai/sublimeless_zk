@@ -65,8 +65,10 @@
 
     // Sort note lists (search results) by
     // - title
-    // - ID       <-- default
+    // - id       <-- default
     "sort_notelists_by": "id",
 
+    // Save unsaved files every n seconds
+    // if 0: auto-save is disabled
     "auto_save_interval": 60,
 }

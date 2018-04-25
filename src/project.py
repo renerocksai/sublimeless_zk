@@ -24,13 +24,15 @@ class Project:
 
     def prepare(self):
         all_notes = self.get_all_note_files()
-        samples_dir = base_dir()
+        samples_dir = os.path.join(base_dir(), 'zettelkasten')
         os.makedirs(self.folder, exist_ok=True)
         if not all_notes:
-            # prepare welcome note
+            # prepare welcome notes
+            sample_notes = os.listdir(samples_dir)
+            for s in sample_notes:
+                shutil.copy2(os.path.join(samples_dir, s),
+                             os.path.join(self.folder, s))
             self.welcome_note = os.path.join(self.folder, '201804141018 Welcome.md')
-            shutil.copy2(os.path.join(samples_dir, 'zettelkasten', '201804141018 Welcome.md'),
-                         os.path.join(self.folder))
             self.show_welcome = True
         elif len(all_notes) == 1:
             self.welcome_note = all_notes[0]
@@ -38,11 +40,11 @@ class Project:
 
         if not os.path.exists(self.get_saved_searches_filn()):
             # prepare sample search
-            shutil.copy2(os.path.join(samples_dir, 'saved_searches_default.md'),
+            shutil.copy2(os.path.join(base_dir(), 'saved_searches_default.md'),
                          self.get_saved_searches_filn())
         if not os.path.exists(self.get_search_results_filn()):
             # prepare welcome message
-            shutil.copy2(os.path.join(samples_dir, 'search_results_default.md'),
+            shutil.copy2(os.path.join(base_dir(), 'search_results_default.md'),
                          self.get_search_results_filn())
 
     def get_saved_searches_filn(self):
