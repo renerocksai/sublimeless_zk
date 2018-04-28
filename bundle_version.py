@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 DEPLOY_DIR = '_deploy'
 
-version = '0.2'
+version = '0.2.1'
 prefix = 'pre'
 release_notes = '''
 This release contains:
@@ -10,14 +10,14 @@ This release contains:
 
 **New features:**
 
-* 
+*
 
 See the [README](https://github.com/renerocksai/sublimeless_zk) for intstructions.
 
 **Released files:**
 
 * **macOS:** `sublimeless_zk-{prefix}-{version}-macOS.zip`
-* **Windows 10:** `sublimeless_zk-{prefix}-{version}-win10.zip` 
+* **Windows 10:** `sublimeless_zk-{prefix}-{version}-win10.zip`
 '''.format(version=version, prefix=prefix)
 
 # for bash scripts and windows .cmd
@@ -56,6 +56,8 @@ if __name__ == '__main__':
                 appname += '.app'
                 src = os.path.join('build', appname)
                 release_os = 'macOS'
+            else:
+                src = os.path.join('src', 'dist', 'sublimeless_zk')
             dest = 'sublimeless_zk-{prefix}-{version}-{os}'.format(version=version, prefix=prefix, os=release_os)
             if sys.platform == 'darwin':
                 dest = os.path.join(dest, appname)
