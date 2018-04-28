@@ -152,6 +152,9 @@ class Sublimeless_Zk(QObject):
         self.editThemeAction = QAction('Edit current Theme...', self)
         self.chooseThemeAction = QAction('Switch Theme...', self)
 
+        self.renameNoteAction = QAction('Rename Note...', self)
+        self.deleteNoteAction = QAction('Delete Note...', self)
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -190,6 +193,8 @@ class Sublimeless_Zk(QObject):
         self.file_menu.addAction(self.closeCurrentTabAction)
         self.file_menu.addSeparator()
         self.file_menu.addAction(self.fuzzyOpenAction)
+        self.file_menu.addAction(self.renameNoteAction)
+        self.file_menu.addAction(self.deleteNoteAction)
         self.file_menu.addSeparator()
         # here go the most recents
         for i in range(self.recent_projects_limit):
@@ -274,6 +279,8 @@ class Sublimeless_Zk(QObject):
         self.newThemeAction.triggered.connect(self.new_theme)
         self.editThemeAction.triggered.connect(self.edit_theme)
         self.chooseThemeAction.triggered.connect(self.switch_theme)
+        self.renameNoteAction.triggered.connect(self.rename_note)
+        self.deleteNoteAction.triggered.connect(self.delete_note)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1176,6 +1183,26 @@ class Sublimeless_Zk(QObject):
                 f.write(settings_raw)
             QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
 
+    def rename_note(self):
+        pass
+
+    def delete_note(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type != 'normal':
+            return
+        note_filn = os.path.basename(editor.file_name)
+        msg = f"Are you sure you want to delete note {note_filn} ?"
+        buttonReply = QMessageBox.question(self.gui, 'Delete Note', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if buttonReply == QMessageBox.Yes:
+            try:
+                os.unlink(editor.file_name)
+            except:
+                pass
+            # close tab
+            index = self.gui.qtabs.currentIndex()
+            self.gui.qtabs.removeTab(index)
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
