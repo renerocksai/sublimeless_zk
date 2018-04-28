@@ -13,7 +13,7 @@
     "background": "#ff444444",
     "foreground": "#ff1c1c1c"
   },
-  "font": {"face": "Ubuntu Mono", "size": 14, "style": "normal"},
+  "font": {"face": "Ubuntu Mono", "size": 12, "style": "normal"},
   "caret": "#fff8f8f0",
 
   "text.italic":     {"symbol": {"color": "#AAAAAA", "style": "italic"},
