@@ -803,8 +803,8 @@ class Sublimeless_Zk(QObject):
             Turn heading into a reference as in `[heading](#reference)`.
             """
             ref = unicodedata.normalize('NFKD', heading).encode('ascii', 'ignore')
-            ref = re.sub('[^\w\s-]', '', ref.decode('ascii', errors='ignore')).strip().lower()
-            return re.sub('[-\s]+', '-', ref)
+            ref = re.sub(r'[^\w\s-]', '', ref.decode('ascii', errors='ignore')).strip().lower()
+            return re.sub(r'[-\s]+', '-', ref)
 
         def find_toc_region(text):
             """
@@ -848,7 +848,7 @@ class Sublimeless_Zk(QObject):
             if ref_counter[ref] > 1:
                 ref = ref + '{}{}'.format(suffix_sep, ref_counter[ref] - 1)
 
-            match = re.match('\s*(#+)(.*)', heading)
+            match = re.match(r'\s*(#+)(.*)', heading)
             hashes, title = match.groups()
             title = title.strip()
             line = '    ' * (level - 1) + f'* [{title}](#{ref})'
@@ -872,7 +872,7 @@ class Sublimeless_Zk(QObject):
                     continue
                 headings_to_skip += 1
                 heading = heading_match.group()
-                match = re.match('(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
+                match = re.match(r'(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
                 spaces, hashes, old_numbering, title = match.groups()
                 level = len(hashes) - 1
                 if level < current_level:
@@ -903,7 +903,7 @@ class Sublimeless_Zk(QObject):
                     continue
                 headings_to_skip += 1
                 heading = heading_match.group()
-                match = re.match('(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
+                match = re.match(r'(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
                 spaces, hashes, old_numbering, title = match.groups()
                 new_heading = f'{hashes} {title}'
                 text = text[:heading_match.start()] \
@@ -981,7 +981,7 @@ class Sublimeless_Zk(QObject):
 
     def show_images(self):
         # image links with attributes
-        RE_IMG_LINKS = '(!\[)(.*)(\])(\()(.*)(\))(\{)(.*)(\})'
+        RE_IMG_LINKS = r'(!\[)(.*)(\])(\()(.*)(\))(\{)(.*)(\})'
 
         editor = self.get_active_editor()
         if not editor:
