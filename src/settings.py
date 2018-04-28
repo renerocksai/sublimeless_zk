@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 import jstyleson as json
 from pathlib import Path
 import os
@@ -19,7 +20,7 @@ def base_dir():
 default_settings = json.loads(open(os.path.join(base_dir(), 'sublimeless_zk-settings.json'), mode='r', encoding='utf-8', errors='ignore').read())
 
 
-def get_settings(raw=False):
+def get_settings(raw=False, on_error=None):
     if not os.path.exists(settings_filn):
         # copy template
         src_path = os.path.join(base_dir(), 'sublimeless_zk-settings.json')
@@ -32,9 +33,26 @@ def get_settings(raw=False):
         else:
             try:
                 ret = json.loads(txt)
-            except:
+            except JSONDecodeError as e:
                 ret = default_settings
+                if on_error:
+                    e.lineno = get_real_error_lineno(txt, e.lineno)
+                    on_error(e)
             return ret
+
+
+def get_real_error_lineno(txt, lineno):
+    logical_line_no = 1
+    if lineno == 1:
+        return 1
+    line_index = 0   # just to be safe against the invariant
+    for line_index, line in enumerate(txt.split('\n')):
+        if line.strip().startswith('//'):
+            continue
+        logical_line_no += 1
+        if logical_line_no == lineno:
+            break
+    return line_index + 1
 
 
 def get_pandoc():

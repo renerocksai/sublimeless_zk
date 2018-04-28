@@ -305,6 +305,13 @@ class Sublimeless_Zk(QObject):
         editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
         editor.textChanged.connect(self.unsaved)
 
+    def on_settings_editor_json_error(self, jsonerror):
+        settings_editor = self.show_preferences()
+        settings_editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
+        QMessageBox.critical(settings_editor, "Parsing Error in Settings", f'{jsonerror.msg} in line {jsonerror.lineno} column {jsonerror.colno}')
+        settings_editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
+
+
     def run(self):
         self.app = QApplication(sys.argv)
         if sys.platform == 'darwin':
@@ -322,6 +329,8 @@ class Sublimeless_Zk(QObject):
         self.project = None
         self.open_folder(self.app_state.recent_projects[-1])
         self.autosave_timer.start(1000)
+        test_settings = get_settings(raw=False, on_error=self.on_settings_editor_json_error)
+
         exit_code = 0
         try:
             exit_code = self.app.exec_()
@@ -506,7 +515,7 @@ class Sublimeless_Zk(QObject):
         if editor:
             self.gui.qtabs.setCurrentIndex(tab_index)
             editor.setFocus()
-            return
+            return editor
 
         # make new editor from file
         if is_settings_file:
@@ -525,6 +534,7 @@ class Sublimeless_Zk(QObject):
         index, e = self.document_to_index_editor(document_filn)
         if index >= 0:
             self.gui.qtabs.setCurrentIndex(index)
+        return editor
     ''''''
 
     def save(self):
@@ -537,6 +547,7 @@ class Sublimeless_Zk(QObject):
             self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
             # Settings changed
             if editor.editor_type == 'settings':
+                test_settings = get_settings(on_error=self.on_settings_editor_json_error)
                 self.project.reload_settings()
 
         # always save saved searches
@@ -563,7 +574,8 @@ class Sublimeless_Zk(QObject):
         editor.setModified(False)
 
     def show_preferences(self):
-        self.open_document(settings_filn, is_settings_file=True)
+        editor = self.open_document(settings_filn, is_settings_file=True)
+        return editor
 
     #
     # Zettelkasten Command Slots

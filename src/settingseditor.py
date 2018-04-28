@@ -50,3 +50,4 @@ def SettingsEditor(theme, settings_filn):
     # give it a good size
     editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
     return editor
+
