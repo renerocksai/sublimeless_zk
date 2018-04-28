@@ -139,6 +139,9 @@ class Sublimeless_Zk(QObject):
         self.fuzzyOpenAction = QAction('Browse notes to open...', self)
         self.fuzzyOpenAction.setShortcut('Ctrl+P')
 
+        self.closeCurrentTabAction = QAction('Close current tab', self)
+        self.closeCurrentTabAction.setShortcut('Ctrl+W')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -174,6 +177,7 @@ class Sublimeless_Zk(QObject):
         self.file_menu.addAction(self.openFolderAction)
         self.file_menu.addAction(self.saveAction)
         self.file_menu.addAction(self.saveAllAction)
+        self.file_menu.addAction(self.closeCurrentTabAction)
         self.file_menu.addSeparator()
         self.file_menu.addAction(self.fuzzyOpenAction)
         self.file_menu.addSeparator()
@@ -250,6 +254,7 @@ class Sublimeless_Zk(QObject):
         self.denumberHeadingsAction.triggered.connect(self.denumber_headings)
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
         self.fuzzyOpenAction.triggered.connect(self.fuzzy_open)
+        self.closeCurrentTabAction.triggered.connect(self.close_current_tab)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -553,6 +558,9 @@ class Sublimeless_Zk(QObject):
             if os.path.exists(the_path):
                 self.open_document(the_path)
     ''''''
+
+    def close_current_tab(self):
+        self.tab_close_requested(self.gui.qtabs.currentIndex())
 
     def save(self):
         tab_index = self.gui.qtabs.currentIndex()
