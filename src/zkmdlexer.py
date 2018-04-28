@@ -5,8 +5,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
 from split_regions import split_regions
-
+from settings import get_settings
 KeyboardModifiers = int
+
 
 class ZkMdLexer(QsciLexerCustom):
 
@@ -27,6 +28,8 @@ class ZkMdLexer(QsciLexerCustom):
         self.show_block_quotes = show_block_quotes
         self.settings_mode = settings_mode
         self.headings = []
+        self.settings = get_settings()
+        self.double_brackets = self.settings.get('double_brackets', True)
 
         # Default text settings
         # ----------------------
@@ -491,6 +494,9 @@ class ZkMdLexer(QsciLexerCustom):
         # zettel links without noteid -> create note
         p = re.compile(r'([\[]?\[)([^]\n]*)(\][\]]?)')
         for match in p.finditer(text):
+            if self.double_brackets:
+                if match.group(1) == '[':
+                    continue
             #print('create zettel', match.group())
             regions.append((match.start(), match.end(), match.group(), 'zettel.link'))
             # make clickable
