@@ -63,6 +63,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Installation](#installation)
     * [Windows](#windows)
     * [macOS](#macos)
+    * [Linux](#linux)
     * [Installing Pandoc](#installing-pandoc)
     * [Installing the Ubuntu Mono Font](#installing-the-ubuntu-mono-font)
 
@@ -141,6 +142,24 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 * Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
 * Unzip `sublimeless_zk-pre-x.y-macOS.zip`
 * In the resulting `sublimeless_zk-pre-x.y-macOS` folder, `sublimeless_zk-pre-x.y.app` is the program you want to run.
+
+### Linux
+
+* Download the Linux `.tar.gz` (`sublimeless_zk-pre-x.y-linux.tar.gz`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
+* Unpack `sublimeless_zk-pre-x.y-linux.tar.gz`
+* In the resulting `sublimeless_zk-pre-x.y-linux` folder, `sublimeless_zk` is the program you want to run.
+
+#### Alternative Linux Installation
+
+If the above method doesn't work, you can try running the sources directly
+
+* Install python 3.6 (eg, from [Anaconda](https://continuum.py))
+* Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder`
+* Download or `git clone` the sources directly from [GitHub](https://github.com/renerocksai/sublimeless_zk)
+* change into the `src` folder
+* run `python3 sublimeless_zk.py`
+
+
 
 ### Installing Pandoc
 
