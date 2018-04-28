@@ -71,4 +71,10 @@
     // Save unsaved files every n seconds
     // if 0: auto-save is disabled
     "auto_save_interval": 60,
+
+    // ignore the first # heading when inserting section numbers
+    // this is useful if the first heading is your note title and
+    // you don't want it numbered
+    // to ignore: set to true
+    "skip_first_heading_when_numbering": false
 }

@@ -922,6 +922,12 @@ class Sublimeless_Zk(QObject):
         headings_to_skip = 0
         text = editor.text()
         heading_matcher = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
+
+        settings = self.project.settings
+        skip_first_heading = settings.get('skip_first_heading_when_numbering', False)
+        if skip_first_heading:
+            headings_to_skip = 1
+
         while True:
             for heading_index, heading_match in enumerate(heading_matcher.finditer(text)):
                 if heading_index < headings_to_skip:
@@ -953,6 +959,12 @@ class Sublimeless_Zk(QObject):
         headings_to_skip = 0
         text = editor.text()
         heading_matcher = re.compile('^(#{1,6})(.+)$', flags=re.MULTILINE)
+
+        settings = self.project.settings
+        skip_first_heading = settings.get('skip_first_heading_when_numbering', False)
+        if skip_first_heading:
+            headings_to_skip = 1
+
         while True:
             for heading_index, heading_match in enumerate(heading_matcher.finditer(text)):
                 if heading_index < headings_to_skip:
