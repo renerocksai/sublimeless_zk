@@ -11,6 +11,9 @@ import re
 import unicodedata
 from collections import Counter
 import time
+from json import JSONDecodeError
+import jstyleson as json
+
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -24,7 +27,7 @@ from autobib import Autobib
 from textproduction import TextProduction
 from tagsearch import TagSearch
 from imagehandler import ImageHandler
-from settings import settings_filn, base_dir, get_settings, get_pandoc
+from settings import settings_filn, base_dir, get_settings, get_pandoc, get_real_error_lineno
 from about import AboutDlg
 from findandreplace import FindDlg
 
@@ -145,6 +148,10 @@ class Sublimeless_Zk(QObject):
         self.cycleTabsAction = QAction('Cycle through tabs', self)
         self.cycleTabsAction.setShortcut('Ctrl+Shift+[')
 
+        self.newThemeAction = QAction('New Theme...', self)
+        self.editThemeAction = QAction('Edit current Theme...', self)
+        self.chooseThemeAction = QAction('Switch Theme...', self)
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -214,9 +221,13 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
-
+        view.addSeparator()
+        view.addAction(self.newThemeAction)
+        view.addAction(self.chooseThemeAction)
+        view.addAction(self.editThemeAction)
 
         if not self._show_images_disabled:
+            view.addSeparator()
             view.addAction(self.showImagesAction)
             view.addAction(self.hideImagesAction)
 
@@ -260,6 +271,9 @@ class Sublimeless_Zk(QObject):
         self.fuzzyOpenAction.triggered.connect(self.fuzzy_open)
         self.closeCurrentTabAction.triggered.connect(self.close_current_tab)
         self.cycleTabsAction.triggered.connect(self.cycle_tabs)
+        self.newThemeAction.triggered.connect(self.new_theme)
+        self.editThemeAction.triggered.connect(self.edit_theme)
+        self.chooseThemeAction.triggered.connect(self.switch_theme)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -325,7 +339,6 @@ class Sublimeless_Zk(QObject):
         if command:
             command.setKey(Qt.ControlModifier | Qt.Key_Backspace)
 
-
     def connect_editor_signals(self, editor):
         # text shortcut actions
         self.init_editor_text_shortcuts(editor)
@@ -342,11 +355,12 @@ class Sublimeless_Zk(QObject):
         editor.text_shortcut_handler.shortcut_all_notes.connect(self.show_all_notes)
         editor.textChanged.connect(self.unsaved)
 
-    def on_settings_editor_json_error(self, jsonerror):
-        settings_editor = self.show_preferences()
-        settings_editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
-        QMessageBox.critical(settings_editor, "Parsing Error in Settings", f'{jsonerror.msg} in line {jsonerror.lineno} column {jsonerror.colno}')
-        settings_editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
+    def on_settings_editor_json_error(self, editor=None, jsonerror=None):
+        if editor is None:
+            editor = self.show_preferences()
+        editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
+        QMessageBox.critical(editor, "Parsing Error in JSON", f'{jsonerror.msg} in line {jsonerror.lineno} column {jsonerror.colno}')
+        editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
 
 
     def run(self):
@@ -356,8 +370,9 @@ class Sublimeless_Zk(QObject):
             # self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
             pass
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        theme_f = os.path.join(base_dir(), get_settings().get('theme', 'themes/monokai.json'))
-        theme = Theme(f'{theme_f}')
+        Theme.prepare_theme_folder()
+        theme_f = os.path.basename(get_settings().get('theme', 'monokai.json'))
+        theme = Theme(theme_f)
         self.gui = MainWindow(theme)
         self.gui.setFocus()
         self.init_actions()
@@ -543,7 +558,7 @@ class Sublimeless_Zk(QObject):
             editor.setText(f.read())
     ''''''
 
-    def open_document(self, document_filn, is_settings_file=False):
+    def open_document(self, document_filn, is_settings_file=False, editor_type=None):
         """
         Helper function to open a markdown or settings document in a new tab
         """
@@ -556,7 +571,9 @@ class Sublimeless_Zk(QObject):
 
         # make new editor from file
         if is_settings_file:
-            editor = SettingsEditor(self.gui.theme, document_filn)
+            if editor_type is None:
+                editor_type = 'settings'
+            editor = SettingsEditor(self.gui.theme, document_filn, editor_type)
         else:
             editor = self.gui.new_zk_editor(document_filn)
         document_name = os.path.basename(document_filn)
@@ -595,10 +612,25 @@ class Sublimeless_Zk(QObject):
             index = 0
         self.gui.qtabs.setCurrentIndex(index)
 
+    def validate_json(self, editor, on_error):
+        txt = editor.text()
+        try:
+            _ = json.loads(txt)
+            return True
+        except JSONDecodeError as e:
+            if on_error:
+                e.lineno = get_real_error_lineno(txt, e.lineno)
+                on_error(editor, e)
+        return False
+
     def save(self):
         tab_index = self.gui.qtabs.currentIndex()
         editor = self.gui.qtabs.currentWidget()
         if editor:
+            if editor.editor_type == 'theme' or editor.editor_type == 'settings':
+                txt = editor.text()
+                if not self.validate_json(editor, self.on_settings_editor_json_error):
+                    return
             with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
                 f.write(editor.text())
             editor.setModified(False)
@@ -607,6 +639,9 @@ class Sublimeless_Zk(QObject):
             if editor.editor_type == 'settings':
                 test_settings = get_settings(on_error=self.on_settings_editor_json_error)
                 self.project.reload_settings()
+            elif editor.editor_type == 'theme':
+                if os.path.basename(editor.file_name) == self.gui.theme.theme_name + '.json':
+                    QMessageBox.information(self.gui, 'Please restart', 'Please restart Sublime_ZK for the theme changes to take effect.')
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
@@ -631,8 +666,10 @@ class Sublimeless_Zk(QObject):
             f.write(editor.text())
         editor.setModified(False)
 
-    def show_preferences(self):
-        editor = self.open_document(settings_filn, is_settings_file=True)
+    def show_preferences(self, filn=None):
+        if not filn:
+            filn = settings_filn
+        editor = self.open_document(filn, is_settings_file=True)
         return editor
 
     #
@@ -763,7 +800,7 @@ class Sublimeless_Zk(QObject):
         if not isinstance(editor, ZettelkastenScintilla):
             return
         tag_list_dict = {f: f for f in self.project.find_all_tags()}
-        selected_tag, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Link to Note', tag_list_dict)
+        selected_tag, _ = show_fuzzy_panel(self.gui.qtabs, 'Insert Tag', tag_list_dict)
         if selected_tag:
             # check if editor contains #? right before current cursor position
             line, index = editor.getCursorPosition()
@@ -1108,6 +1145,36 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(result_notes, '# Notes matching search ' + search_term)
         self.reload(self.gui.search_results_editor)
         return result_notes
+
+    def new_theme(self):
+        theme_name = show_input_panel(self.gui, 'New Theme:', 'custom')
+        if not theme_name:
+            return
+        theme_path = Theme.prepare_new_theme(theme_name, self.gui.theme.theme_name)
+        editor = self.open_document(theme_path, is_settings_file=True)
+        return editor
+
+    def edit_theme(self):
+        filp = Theme.get_named_theme_path(self.gui.theme.theme_name)
+        editor = self.open_document(filp, is_settings_file=True, editor_type='theme')
+        return editor
+
+    def switch_theme(self):
+        available_themes = Theme.list_available_themes()
+        theme_list_dict = {t: t for t in available_themes}
+        selected_theme, _ = show_fuzzy_panel(self.gui, 'Switch to Theme', theme_list_dict)
+        if selected_theme:
+            if selected_theme == self.gui.theme.theme_name:
+                return
+            settings_raw = get_settings(raw=True)
+            repl_with = f'"theme": "themes/{selected_theme + ".json"}",'
+
+            re_what = re.compile(r'"theme":.*$', flags=re.MULTILINE)
+            settings_raw = re_what.sub(repl_with, settings_raw)
+            print(settings_raw)
+            with open(settings_filn, mode='w', encoding='utf-8', errors='ignore') as f:
+                f.write(settings_raw)
+            QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
 
 
 if __name__ == '__main__':

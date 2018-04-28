@@ -1,8 +1,53 @@
 import os
 import jstyleson as json
+from settings import base_dir
+from pathlib import Path
+from shutil import copy2
 
 
 class Theme:
+
+    @staticmethod
+    def theme_folder():
+        return os.path.join(Path.home(), 'sublimeless_zk.rc', 'themes')
+
+    @staticmethod
+    def prepare_theme_folder():
+        if not os.path.exists(Theme.theme_folder()):
+            os.makedirs(Theme.theme_folder(), exist_ok=True)
+        # copy sample themes
+        themes_src = os.path.join(base_dir(), 'themes')
+        for f in os.listdir(themes_src):
+            src = os.path.join(themes_src, f)
+            dest = os.path.join(Theme.theme_folder(), f)
+            if not os.path.exists(dest):
+                copy2(src, dest)
+        return Theme.theme_folder()
+
+    @staticmethod
+    def prepare_new_theme(new_theme_name, from_current_theme_name):
+        if not new_theme_name.endswith('.json'):
+            new_theme_name += '.json'
+        if not from_current_theme_name.endswith('.json'):
+            from_current_theme_name += '.json'
+        dest = os.path.join(Theme.theme_folder(), new_theme_name)
+        if not os.path.exists(dest):
+            themes_src = os.path.join(base_dir(), 'themes')
+            src = os.path.join(themes_src, from_current_theme_name)
+            copy2(src, dest)
+        return dest
+
+    @staticmethod
+    def get_named_theme_path(from_current_theme_name):
+        if not from_current_theme_name.endswith('.json'):
+            from_current_theme_name += '.json'
+        dest = os.path.join(Theme.theme_folder(), from_current_theme_name)
+        return dest
+
+    @staticmethod
+    def list_available_themes():
+        return [os.path.splitext(f)[0] for f in os.listdir(Theme.theme_folder()) if f.endswith('.json')]
+
     def __init__(self, theme_file):
         self.style_infos = {}
         self.style2id = {}
@@ -13,6 +58,7 @@ class Theme:
         self.selection = None
         self.line_pad_bottom = 3
         self.line_pad_top = 3
+        self.theme_name = os.path.splitext(os.path.basename(theme_file))[0]
 
         self.load_theme(theme_file)
         for styleid, style in enumerate(self.style_infos):
@@ -43,6 +89,7 @@ class Theme:
 
     def load_theme(self, theme_file):
         theme_d = {}
+        theme_file = os.path.join(Theme.theme_folder(), os.path.basename(theme_file))
         if not os.path.exists(theme_file):
             pass
         with open(theme_file, 'rt') as f:

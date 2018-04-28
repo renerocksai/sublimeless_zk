@@ -195,21 +195,24 @@ class ZkMdLexer(QsciLexerCustom):
                 # print(match.groups() , match.group())
                 text = text[:a] + 'x' * len(match.group(1) + match.group(2)) + text[b:]
 
-            p = re.compile(r':\s*(.*),$', flags=re.MULTILINE)
+            p = re.compile(r'(:\s+)(true|false|[0-9]+)')
+            for match in p.finditer(text):
+                a = match.start(2)
+                b = match.end(2)
+                print(match.group(2))
+                regions.append((a, b, match.group(2), 'footnote'))
+                # consume
+                # print(match.groups() , match.group())
+                # erase including colon
+                text = text[:match.start(1)] + 'x' * len(match.group()) + text[b:]
+
+            p = re.compile(r':\s*(.*),\s*$', flags=re.MULTILINE)
             for match in p.finditer(text):
                 # print(match.groups())
                 a = match.start(1)
                 b = match.end(1)
                 regions.append((a, b, match.group(1), 'tag'))
 
-            p = re.compile(r'(true|false|[0-9]+)')
-            for match in p.finditer(text):
-                a = match.start(1)
-                b = match.end(1)
-                regions.append((a, b, match.group(), 'footnote'))
-                # consume
-                # print(match.groups() , match.group())
-                text = text[:a] + 'x' * len(match.group()) + text[b:]
             self.apply_regions(regions, text)
             return
 

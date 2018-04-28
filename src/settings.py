@@ -37,7 +37,7 @@ def get_settings(raw=False, on_error=None):
                 ret = default_settings
                 if on_error:
                     e.lineno = get_real_error_lineno(txt, e.lineno)
-                    on_error(e)
+                    on_error(editor=None, jsonerror=e)
             return ret
 
 
