@@ -6,7 +6,6 @@ import sys
 
 settings_filn = os.path.join(Path.home(), 'sublimeless_zk-settings.json')
 
-
 def base_dir():
     if getattr(sys, 'frozen', False):
         # frozen
@@ -15,6 +14,9 @@ def base_dir():
         # unfrozen
         base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
     return base_dir
+
+
+default_settings = json.loads(open(os.path.join(base_dir(), 'sublimeless_zk-settings.json'), mode='r', encoding='utf-8', errors='ignore').read())
 
 
 def get_settings(raw=False):
@@ -28,7 +30,11 @@ def get_settings(raw=False):
         if raw:
             return txt
         else:
-            return json.loads(txt)
+            try:
+                ret = json.loads(txt)
+            except:
+                ret = default_settings
+            return ret
 
 
 def get_pandoc():
