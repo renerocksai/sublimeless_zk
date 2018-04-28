@@ -308,9 +308,23 @@ class Sublimeless_Zk(QObject):
         # ctrl/cmd + shift + [
         command = commands.find(QsciCommand.ParaUpExtend)
         if command:
-            print('cycle key')
             command.setKey(0)
             command.setAlternateKey(0)
+
+        # change opt+del from undo
+        command = commands.find(QsciCommand.Undo)
+        if command:
+            #command.setKey(0)   leave cmd+z intact
+            command.setAlternateKey(0)
+        # free opt+backspace and assign to cmd+backspace
+        command = commands.find(QsciCommand.DeleteWordLeft)
+        if command:
+            command.setKey(Qt.AltModifier|Qt.Key_Backspace)
+        # delete line with cmd+backspace
+        command = commands.find(QsciCommand.LineDelete)
+        if command:
+            command.setKey(Qt.ControlModifier | Qt.Key_Backspace)
+
 
     def connect_editor_signals(self, editor):
         # text shortcut actions
