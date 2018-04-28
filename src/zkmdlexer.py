@@ -199,7 +199,7 @@ class ZkMdLexer(QsciLexerCustom):
             for match in p.finditer(text):
                 a = match.start(2)
                 b = match.end(2)
-                print(match.group(2))
+                # print(match.group(2))
                 regions.append((a, b, match.group(2), 'footnote'))
                 # consume
                 # print(match.groups() , match.group())
