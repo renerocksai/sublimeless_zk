@@ -142,6 +142,9 @@ class Sublimeless_Zk(QObject):
         self.closeCurrentTabAction = QAction('Close current tab', self)
         self.closeCurrentTabAction.setShortcut('Ctrl+W')
 
+        self.cycleTabsAction = QAction('Cycle through tabs', self)
+        self.cycleTabsAction.setShortcut('Ctrl+Shift+[')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -207,6 +210,7 @@ class Sublimeless_Zk(QObject):
         find.addAction(self.findInFilesAction)
         find.addAction(self.advancedTagSearchAction)
 
+        view.addAction(self.cycleTabsAction)
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
@@ -255,6 +259,7 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
         self.fuzzyOpenAction.triggered.connect(self.fuzzy_open)
         self.closeCurrentTabAction.triggered.connect(self.close_current_tab)
+        self.cycleTabsAction.triggered.connect(self.cycle_tabs)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -299,6 +304,13 @@ class Sublimeless_Zk(QObject):
                 elif command.alternateKey() == key_combo:
                     command.setAlternateKey(0)
                 #print(command.key(), command.alternateKey())
+
+        # ctrl/cmd + shift + [
+        command = commands.find(QsciCommand.ParaUpExtend)
+        if command:
+            print('cycle key')
+            command.setKey(0)
+            command.setAlternateKey(0)
 
     def connect_editor_signals(self, editor):
         # text shortcut actions
@@ -561,6 +573,13 @@ class Sublimeless_Zk(QObject):
 
     def close_current_tab(self):
         self.tab_close_requested(self.gui.qtabs.currentIndex())
+
+    def cycle_tabs(self):
+        index = self.gui.qtabs.currentIndex()
+        index += 1
+        if index >= self.gui.qtabs.count():
+            index = 0
+        self.gui.qtabs.setCurrentIndex(index)
 
     def save(self):
         tab_index = self.gui.qtabs.currentIndex()
