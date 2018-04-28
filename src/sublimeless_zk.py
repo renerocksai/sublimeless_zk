@@ -136,6 +136,9 @@ class Sublimeless_Zk(QObject):
         self.redoAction = QAction('Redo', self)
         self.redoAction.setShortcut('Shift+Ctrl+Z')
 
+        self.fuzzyOpenAction = QAction('Browse notes to open...', self)
+        self.fuzzyOpenAction.setShortcut('Ctrl+P')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -171,6 +174,8 @@ class Sublimeless_Zk(QObject):
         self.file_menu.addAction(self.openFolderAction)
         self.file_menu.addAction(self.saveAction)
         self.file_menu.addAction(self.saveAllAction)
+        self.file_menu.addSeparator()
+        self.file_menu.addAction(self.fuzzyOpenAction)
         self.file_menu.addSeparator()
         # here go the most recents
         for i in range(self.recent_projects_limit):
@@ -244,6 +249,7 @@ class Sublimeless_Zk(QObject):
         self.numberHeadingsAction.triggered.connect(self.number_headings)
         self.denumberHeadingsAction.triggered.connect(self.denumber_headings)
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
+        self.fuzzyOpenAction.triggered.connect(self.fuzzy_open)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -535,6 +541,17 @@ class Sublimeless_Zk(QObject):
         if index >= 0:
             self.gui.qtabs.setCurrentIndex(index)
         return editor
+    ''''''
+
+    def fuzzy_open(self):
+        extension = self.project.settings.get('markdown_extension')
+        note_list_dict = {f: f for f in [os.path.basename(x).replace(extension, '') for x in self.project.get_all_note_files()]}
+        selected_note, _ = show_fuzzy_panel(self.gui.qtabs, 'Open Note', note_list_dict)
+
+        if selected_note:
+            the_path = os.path.join(self.project.folder, selected_note + extension)
+            if os.path.exists(the_path):
+                self.open_document(the_path)
     ''''''
 
     def save(self):

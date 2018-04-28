@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 DEPLOY_DIR = '_deploy'
 
-version = '0.2.1'
+version = '0.3'
 prefix = 'pre'
 release_notes = '''
 This release contains:
@@ -18,6 +18,7 @@ See the [README](https://github.com/renerocksai/sublimeless_zk) for intstruction
 
 * **macOS:** `sublimeless_zk-{prefix}-{version}-macOS.zip`
 * **Windows 10:** `sublimeless_zk-{prefix}-{version}-win10.zip`
+* **Linux:** `sublimeless_zk-{prefix}-{version}-linux.zip`
 '''.format(version=version, prefix=prefix)
 
 # for bash scripts and windows .cmd
