@@ -1184,7 +1184,28 @@ class Sublimeless_Zk(QObject):
             QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
 
     def rename_note(self):
-        pass
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type != 'normal':
+            return
+        note_filn = os.path.basename(editor.file_name)
+        note_id, title = os.path.splitext(os.path.basename(note_filn))[0].split(' ', 1)
+        new_title = show_input_panel(self.gui, 'New Title:', title)
+        if not new_title:
+            return
+        new_title = new_title.strip()
+        if new_title == title:
+            return
+        self.save()
+        settings = self.project.settings
+        extension = settings.get('markdown_extension', '.md')
+        new_note_filn = os.path.join(self.project.folder, f'{note_id} {new_title}{extension}')
+        os.rename(editor.file_name, new_note_filn)
+        # close tab
+        index = self.gui.qtabs.currentIndex()
+        self.gui.qtabs.removeTab(index)
+        self.open_document(new_note_filn)
 
     def delete_note(self):
         editor = self.get_active_editor()
