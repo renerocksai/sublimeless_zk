@@ -130,6 +130,7 @@ class Project:
             note_id = self.cut_after_note_id(candidate)
             if note_id:
                 self.notes[note_id] = candidate
+        return self.notes
 
     def note_template_handle_date_spec(self, template, note_id):
         if self.settings.get('seconds_in_id', False):

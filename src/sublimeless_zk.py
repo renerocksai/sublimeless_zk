@@ -30,6 +30,7 @@ from imagehandler import ImageHandler
 from settings import settings_filn, base_dir, get_settings, get_pandoc, get_real_error_lineno
 from about import AboutDlg
 from findandreplace import FindDlg
+from semantic_zk import SemanticZKDialog
 
 
 class Sublimeless_Zk(QObject):
@@ -155,6 +156,8 @@ class Sublimeless_Zk(QObject):
         self.renameNoteAction = QAction('Rename Note...', self)
         self.deleteNoteAction = QAction('Delete Note...', self)
 
+        self.exportHtmlAction = QAction('Export  archive to HTML...', self)
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -195,6 +198,8 @@ class Sublimeless_Zk(QObject):
         self.file_menu.addAction(self.fuzzyOpenAction)
         self.file_menu.addAction(self.renameNoteAction)
         self.file_menu.addAction(self.deleteNoteAction)
+        self.file_menu.addSeparator()
+        self.file_menu.addAction(self.exportHtmlAction)
         self.file_menu.addSeparator()
         # here go the most recents
         for i in range(self.recent_projects_limit):
@@ -281,6 +286,7 @@ class Sublimeless_Zk(QObject):
         self.chooseThemeAction.triggered.connect(self.switch_theme)
         self.renameNoteAction.triggered.connect(self.rename_note)
         self.deleteNoteAction.triggered.connect(self.delete_note)
+        self.exportHtmlAction.triggered.connect(self.export_to_html)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -472,7 +478,7 @@ class Sublimeless_Zk(QObject):
 
         # create new note with title of link
         settings = self.project.settings
-        extension = settings.get('markdown_extension')
+        extension = settings.get('markdown_extension', '.md')
         id_in_title = settings.get('id_in_title')
         new_id = self.project.timestamp()
         the_file = os.path.join(self.project.folder, new_id + ' ' + title + extension)
@@ -1224,6 +1230,11 @@ class Sublimeless_Zk(QObject):
             # close tab
             index = self.gui.qtabs.currentIndex()
             self.gui.qtabs.removeTab(index)
+
+    def export_to_html(self):
+        dlg = SemanticZKDialog(None, 'Export notes to HTML', self.project)
+        return dlg.exec_()
+
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

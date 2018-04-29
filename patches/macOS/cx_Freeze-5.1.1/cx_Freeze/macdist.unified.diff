@@ -1,0 +1,28 @@
+--- cx_Freeze/macdist.py	2017-12-16 18:39:21.000000000 +0100
++++ /Users/rs/anaconda3/lib/python3.6/site-packages/cx_Freeze/macdist.py	2018-03-10 23:41:36.000000000 +0100
+@@ -162,6 +162,10 @@
+                     # the referencedFile is already a relative path (to the executable)
+                     continue
+ 
++                if referencedFile.startswith('@'):
++                    # the referencedFile is already a relative path (to the executable)
++                    continue
++
+                 path, name = os.path.split(referencedFile)
+ 
+                 #some referenced files have not previously been copied to the
+@@ -171,8 +175,12 @@
+                 if (name not in files and not path.startswith('/usr') and not
+                         path.startswith('/System')):
+                     print(referencedFile)
+-                    self.copy_file(referencedFile,
+-                                   os.path.join(self.binDir, name))
++                    try:
++                        self.copy_file(referencedFile,
++                                       os.path.join(self.binDir, name))
++                    except:
++                        print('RENE: error with', referencedFile)
++                        continue
+                     files.append(name)
+ 
+                 # see if we provide the referenced file;
