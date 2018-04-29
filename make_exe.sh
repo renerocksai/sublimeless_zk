@@ -3,6 +3,8 @@
 VERSION=$(python bundle_version.py --version)
 PREFIX=$(python bundle_version.py --prefix)
 
+rm -fr _deploy
+
 python bundle_version.py --init
 DEPLOY_BASE=$(python bundle_version.py --deploy-dir)
 
