@@ -4,11 +4,7 @@ DEPLOY_DIR = '_deploy'
 version = '0.4'
 prefix = 'pre'
 release_notes = '''
-This release contains:
-
-*
-
-**New features:**
+## New features:
 
 *
 
@@ -43,7 +39,7 @@ if __name__ == '__main__':
                 release_os = 'macOS'
             elif sys.platform == 'win32':
                 release_os = 'win10'
-            
+
             print(os.path.join(DEPLOY_DIR, 'sublimeless_zk-{}-{}-{}'.format(prefix, version, release_os)))
         elif sys.argv[1].lower() == '--init':
             if os.path.exists(DEPLOY_DIR):
