@@ -1,0 +1,34 @@
+--- bindepend.py.orig	2018-04-28 13:28:08.000000000 +0200
++++ bindepend.py	2018-04-28 13:28:08.000000000 +0200
+@@ -670,7 +670,7 @@
+     # This seems to work in most cases.
+     exec_path = os.path.abspath(os.path.dirname(pth))
+ 
+- 
++
+     for lib in seen:
+ 
+         # Suppose that @rpath is not used for system libraries and
+@@ -874,12 +874,22 @@
+ 
+     # Python library NOT found. Resume searching using alternative methods.
+     # Applies only to non Windows platforms.
++    # Python library NOT found. Resume searching using alternative methods.
++    # Applies only to non Windows platforms.
+ 
+     if is_unix:
++        # Anaconda places the Python library in the lib directory, so
++        # we search this one as well.
++        prefix = os.path.join(compat.base_prefix, 'lib')
+         for name in PYDYLIB_NAMES:
+             python_libname = findLibrary(name)
+             if python_libname:
+                 return python_libname
++            # Search libpython relative to prefix
++            # Fallback for statically linked executables (e.g. Miniconda/Anaconda)
++            full_path = os.path.join(prefix, name)
++            if os.path.exists(full_path):
++                return full_path
+ 
+     elif is_darwin:
+         # On MacPython, Analysis.assemble is able to find the libpython with
