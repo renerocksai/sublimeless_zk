@@ -6,7 +6,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
 from libzk2setevi.convert import Zk2Setevi
 import traceback
 from subprocess import Popen, PIPE
-
+import webbrowser
 from autobib import Autobib
 
 
@@ -188,17 +188,25 @@ class Semantic_ZK(QWidget):
         # Convert Button
         convert_bt = QPushButton('Convert!')
         left_vlay.addWidget(convert_bt)
-        close_bt = QPushButton('Close')
-        left_vlay.addWidget(close_bt)
-        close_bt.clicked.connect(self.on_close_clicked)
 
         # HTML view
-        self.html_view = QWebView()
-        self.html_view.setHtml('<center><h2>Preview</h2></center>')
+        if sys.platform != 'linux':
+            self.html_view = QWebView()
+            self.html_view.setHtml('<center><h2>Preview</h2></center>')
+        else:
+            open_html_button = QPushButton('Open in browser...')
+            open_html_button.clicked.connect(self.open_html_clicked)
 
         # Add to splitter
         main_split.addWidget(left_widget)
-        main_split.addWidget(self.html_view)
+        if sys.platform != 'linux':
+            main_split.addWidget(self.html_view)
+        else:
+            left_vlay.addWidget(open_html_button)
+
+        close_bt = QPushButton('Close')
+        left_vlay.addWidget(close_bt)
+        close_bt.clicked.connect(self.on_close_clicked)
 
         # Add to self
         lay_all = QHBoxLayout()
@@ -319,7 +327,8 @@ class Semantic_ZK(QWidget):
             converter.create_html()
             url = 'file:///' + output_folder + '/index.html'
             qurl = QUrl(url)
-            self.html_view.load(qurl)
+            if sys.platform != 'linux':
+                self.html_view.load(qurl)
         except Exception as e:
             mb = QMessageBox()
             mb.setIcon(QMessageBox.Critical)
@@ -348,6 +357,10 @@ class Semantic_ZK(QWidget):
         percent = int(counter / count * 100)
         self.progressbar.setValue(percent)
         self.info_txt.setText(msg)
+
+    def open_html_clicked(self):
+        output_folder = self.ed_output_folder.text()
+        webbrowser.open(output_folder + '/index.html')
 
     def finish_callback(self):
         self.progressbar.setValue(100)

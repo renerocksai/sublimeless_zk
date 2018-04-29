@@ -37,6 +37,14 @@ if __name__ == '__main__':
             print(release_notes)
         elif sys.argv[1].lower() == '--tag':
             print('sublimeless_zk-{}-{}'.format(prefix, version))
+        elif sys.argv[1].lower() == '--dist-dir':
+            release_os = 'linux'
+            if sys.platform == 'darwin':
+                release_os = 'macOS'
+            elif sys.platform == 'win32':
+                release_os = 'win10'
+            
+            print(os.path.join(DEPLOY_DIR, 'sublimeless_zk-{}-{}-{}'.format(prefix, version, release_os)))
         elif sys.argv[1].lower() == '--init':
             if os.path.exists(DEPLOY_DIR):
                 shutil.rmtree(DEPLOY_DIR)
