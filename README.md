@@ -56,6 +56,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Automatic Section Numbering](#automatic-section-numbering)
 * [Color Schemes](#color-schemes)
 * [Saved Searches](#saved-searches)
+* [HTML Export into a semantic text view](#html-export)
 
 
 ## Contents
@@ -97,6 +98,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Supported link styles](#supported-link-styles)
     * [Searching for friends](#searching-for-friends)
     * [Listing all notes](#listing-all-notes)
+    * [Browsing through notes](#browsing-through-notes)
     * [Find in files](#find-in-files)
     * [Working with tags](#working-with-tags)
         * [Getting an overview of all your tags](#getting-an-overview-of-all-your-tags)
@@ -118,6 +120,8 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Automatic Table Of Contents](#automatic-table-of-contents)
         * [Automatic Section Numbering](#automatic-section-numbering)
     * [Saved Searches](#saved-searches)
+    * [HTML Export](#html-export)
+    * [Customizing Themes](#customizing-themes)
 * [Credits](#credits)
 
 
@@ -226,6 +230,7 @@ We will go into further details later, but here is a quick reference of all curr
 "seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true) or default YYYYMMDDHHMM IDs (false) |
 "sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
 "auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
+"skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
 
 #### Markdown filename extension
 By default, the extension `.md` is used for your notes. If that does not match your style, you can change it with the `markdown_extension` setting. Just replace `.md` with `.txt` or `.mdown` or whatever you like.
@@ -384,6 +389,12 @@ you can use the following settings:
 
 ### Color Schemes
 
+Two color schemes are provided by default. The sections below describe how you activate them in the settings file.
+
+You can also use the View > Switch Theme... menu to select a different theme.
+
+You can read moree on defining your own themes in [Customizing Themes](#customizing-themes).
+
 #### Monokai Color Scheme
 
 ![monokai](imgs/monokai.png)
@@ -473,6 +484,7 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
+* Fuzzy search and open note : <kbd>ctrl</kbd> + <kbd>P</kbd>
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
 * [Find referencing (friend) notes](#searching-for-friends) <kbd>ALT</kbd> + click link to note
@@ -509,6 +521,10 @@ Let's introduce them!
     * Open Notes Folder : switch to another note folder
     * Save : save the current file (note or settings or saved searches)
     * Save All : save all files
+    * Browse notes to open : fuzzy-search through notes, select to open
+    * Rename note... : rename the current note
+    * Delete note... : delete the current note
+    * Export archive to HTML... : [HTML Export](#html-export)
     * 1: most recent notes folder : opens it
     * 2: second most recent notes folder : opens it
     * ...
@@ -539,6 +555,9 @@ Let's introduce them!
     * Show all notes : shows all notes in the search results
     * Show all referencing notes : If cursor is in a link / tag / citation key, search for all notes with the same reference (link/tag/citekey)
     * Show all Tags: shows a tag list in the search results
+    * New Theme... : Create a new theme 
+    * Switch Theme... : Switch to a different theme
+    * Edit Theme... : edit the current theme
     * Full Screen (macOS only) : go full screen
 
 * Tools
@@ -737,6 +756,10 @@ If you see a link in a note and wonder what **other** notes also reference this 
 ### Listing all notes
 
 The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the search results.
+
+### Browsing through notes
+
+To quickly open a note you can open the note browser with <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>. This will let you fuzzy-search your notes and open the one you select.
 
 ### Find in files
 <kbd>shift</kbd>+<kbd>ctrl</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
@@ -1118,9 +1141,11 @@ Funny characters can be a challenge in the `(#references)`.
 .
 ```
 
-**Note:** You can refresh the section numbers at any time by repeating the above command.
+**Note:** 
 
-**Note:** To switch off numbered sections, use the command `Remove Section Numbers` from the edit menu.
+* You can refresh the section numbers at any time by repeating the above command.
+* To switch off numbered sections, use the command `Remove Section Numbers` from the edit menu.
+* The setting `"skip_first_heading_when_numbering": true` will skip the first heading of your note and not assign it a number. This can be useful if your first heading is the note title.
 
 The animation below shows both section (re-)numbering and auto-TOC:
 
@@ -1160,6 +1185,60 @@ anything starting with auto but nothing starting with plane: #auto*, !#plane*
 ```
 
 You can execute the search by clicking on the underlined search spec.
+
+## HTML Export
+
+
+You can export your note archive, or parts thereof, into a semantic text view, consisting of one big HTML file and optional images:
+
+* In the file menu, choose "Export archive to HTML..."
+* Click on the "..." button to select a destination folder
+* Optionally add a base URL if you plan to upload to a web server later (to get the links to images right)
+    * e.g. `https://my.server.com/folder`
+    * do this only if you **really** want to upload to a server.
+    * For checking the generated HTML locally, leave that field blank
+* Optionally specify start and end date ranges
+    * e.g. `2018`, or `20180429`
+* Optionally specify tags notes must be tagged with
+* Optionally specify tags notes must not be tagged with
+* Click "Convert!"
+
+![html export](imgs/htmlexport.png)
+
+
+The resulting semantic text view features:
+
+* Browsing
+    * Notes by title
+    * tags: see what notes are tagged with a certain #tag
+    * cite keys: see what notes cite a specific source
+
+* Notes
+    * show your notes
+    * show clickable #tags the note contains
+    * show links to expand into linked notes, for each paragraph that contains links.
+    * show links to cite keys that expand into the citation's source and also a list of links to notes that also cite that source
+    * show fenced code blocks with syntax-coloring
+    * show local images, automatically scaled 
+    
+* tags
+    * Are displayed in the #tags overview but also inside each note
+    * Clicking on a #tag expands it into a list of tagged notes
+
+* cite keys
+    * Are displayed in the @citations overview but also after each paragraph that contains citations.
+    * Clicking on a cite key shows the citation's source and also a list of links to notes that also cite that source
+
+Here is what it looks like when clicking on a demo note:
+
+![htmlexported](imgs/html-exported.png)
+
+On Linux, unfortunately there is no HTML preview, but an "open in browser" button:
+
+![linuxexport](imgs/htmlexport-linux.png)
+
+
+## Customizing Themes
 
 
 ## Credits
