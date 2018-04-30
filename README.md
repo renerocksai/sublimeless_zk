@@ -1152,7 +1152,7 @@ Funny characters can be a challenge in the `(#references)`.
 
 The animation below shows both section (re-)numbering and auto-TOC:
 
-![section-numbers](https://user-images.githubusercontent.com/30892199/33226705-12169142-d194-11e7-940a-8a8e26c054ae.gif)
+![section-numbers](imgs/auto-numbering.gif)
 
 ## Saved Searches
 
