@@ -393,7 +393,7 @@ Two color schemes are provided by default. The sections below describe how you a
 
 You can also use the View > Switch Theme... menu to select a different theme.
 
-You can read moree on defining your own themes in [Customizing Themes](#customizing-themes).
+You can read more on defining your own themes in [Customizing Themes](#customizing-themes).
 
 #### Monokai Color Scheme
 
@@ -484,7 +484,7 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
-* Fuzzy search and open note : <kbd>ctrl</kbd> + <kbd>P</kbd>
+* [Fuzzy search and open note](#browsing-through-notes) : <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
 * [Find referencing (friend) notes](#searching-for-friends) <kbd>ALT</kbd> + click link to note
@@ -569,11 +569,11 @@ Let's introduce them!
 
 ### Note Archive Folder
 
-When you first start the app, it creates a `zettelkasten` folder in your home / user directory. On Windows, this is typically `C:\Users\your.username\`, on macOS it is typically `/Users/your.username/`, and on Linux it usually is `/home/your.username/`.
+When you first start the app, it creates a `zettelkasten` folder in your home / user directory. On Windows, this is typically `C:\Users\your.username\zettelkasten`, on macOS it is typically `/Users/your.username/zettelkasten`, and on Linux it usually is `/home/your.username/zettelkasten`.
 
 This `zettelkasten` folder comes with one or more default notes to get you started.
 
-If you have an existing note archive already, you can switch to it with <kbd>ctrl</kbd>+<kbd>O</kbd>, or use the File > Open... menu.
+If you have an existing note archive already, you can switch to it with <kbd>ctrl/cmd</kbd>+<kbd>O</kbd>, or use the File > Open... menu.
 
 The app keeps track of up to 10 recently opened note archive folders, which are accessible at the bottom of the File menu.
 
@@ -759,10 +759,10 @@ The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the sea
 
 ### Browsing through notes
 
-To quickly open a note you can open the note browser with <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>. This will let you fuzzy-search your notes and open the one you select.
+To quickly open a note, you can open the note browser with <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>. This will let you fuzzy-search your notes and open the one you select.
 
 ### Find in files
-<kbd>shift</kbd>+<kbd>ctrl</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
+<kbd>shift</kbd>+<kbd>ctrl/cmd</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
 
 ### Working with tags
 
@@ -1155,7 +1155,7 @@ The animation below shows both section (re-)numbering and auto-TOC:
 
 The bottom right editor shows a saved searches file. This is a simple Text file where you can name and store search terms.
 
-**Note:** This file is saved automatically each time a note is saved. If you manually want to save it, just press <kbd>ctrl</kbd>+<kbd>S</kbd> while the text cursor is in the saved searches editor.
+**Note:** This file is saved automatically each time a note is saved. If you manually want to save it, just press <kbd>ctrl/cmd</kbd>+<kbd>S</kbd> while the text cursor is in the saved searches editor.
 
 The syntax is very simple; to define a search, you just add a line, consisting of the following parts:
 
