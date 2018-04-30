@@ -165,7 +165,7 @@ If the above method doesn't work, you can try running the sources directly
 * Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder pymmd markdown pypandoc pygments`
     * build the Multimarkdown shared library for pymmd (required for HTML export): `python3 -c "import pymmd; pymmd.build_mmd()"`
     * for that to work you need a working C compiler and cmake:
-        * `sudo apt-get install cmake gcc`
+        * `sudo apt-get install cmake gcc binutils`
 * Download or `git clone` the sources directly from [GitHub](https://github.com/renerocksai/sublimeless_zk)
 * change into the `src` folder
 * run `python3 sublimeless_zk.py`
