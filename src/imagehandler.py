@@ -34,7 +34,7 @@ class ImageHandler:
                     m = max_width / w
                     h *= m
                     w = max_width
-            size = (h,w)
+            size = (w, h)
             textposition = match.start()
             line, _ = editor.lineIndexFromPosition(textposition)
             editor.setSelection(line+1, 0, line+1, 0)
