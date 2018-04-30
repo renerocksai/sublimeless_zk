@@ -609,16 +609,12 @@ There is a very convenient shortcut to create notes from selected text and autom
 
 This will bring up the same input field at the bottom of the window, this time pre-filled with the selected text. When you press `[enter]`, a new note will be created, using the selected text as its title. In addition, the selected text in the original note will be replaced by a link to the new note.
 
-The following animation illustrates this:
-
-![new-note-from-sel](https://user-images.githubusercontent.com/30892199/35781566-18734f7c-09ec-11e8-8bd6-c2ee3ed240c1.gif)
-
 As a bonus feature, you can even select multiple lines and create a new note complete with title and body:
 
 * the first selected line will become the note's title
 * all the other selected lines will become the note's body (text).
 
-![new-note-from-multiline-sel](https://user-images.githubusercontent.com/30892199/36332808-fd458c9c-1373-11e8-9fe3-fa6755876499.gif)
+![new-note-from-multiline-sel](imgs/insert-link-sel-multiline.gif)
 
 
 ### Creating a link
@@ -922,7 +918,7 @@ It might happen that you change some notes that are already expanded into your n
 
 The following animation illustrates expansion and refreshing:
 
-![overview-expansion](https://user-images.githubusercontent.com/30892199/32693096-f2c69ffe-c724-11e7-9c6a-d01857e86ce1.gif)
+![overview-expansion](imgs/overview-note-expansion.gif)
 
 ### Inline expansion of note-links
 
@@ -975,7 +971,7 @@ Another workflow for producing overview notes is by #tag. So if you want to prod
 
 The following animation shows inline expansion of #tags in action:
 
-![expand-tag](https://user-images.githubusercontent.com/30892199/36258162-f198e972-1259-11e8-8b9c-0d6f4519c1e1.gif)
+![expand-tag](imgs/tag-expansion.gif)
 
 ### Inline expansion of citekeys
 In order to produce an outline of all notes citing a specific source, just press `[ctrl]+[.]` while the cursor is inside a *citekey*. This will produce a **bulleted list** of notes containing a reference to the *citekey*.
@@ -984,7 +980,7 @@ In order to produce an outline of all notes citing a specific source, just press
 
 The following animation shows inline expansion of citekeys in action:
 
-![expand-citekey](https://user-images.githubusercontent.com/30892199/36260348-6e56236a-1261-11e8-8046-fb7a9e246b9a.gif)
+![expand-citekey](imgs/citekey-expansion.gif)
 
 
 
@@ -999,7 +995,7 @@ When you made your choice, a citation link will be inserted into the text: `[@ci
 
 The following animation shows this in action:
 
-![insert-citation](https://user-images.githubusercontent.com/30892199/35771311-e8da9b06-092a-11e8-847b-aa1649da499d.gif)
+![insert-citation](imgs/insert-citation.gif)
 
 
 #### Automatic Bibliographies
@@ -1029,7 +1025,7 @@ _Die Zettelkastenmethode: Kontrolliere dein Wissen_. CreateSpace Independent Pub
 
 The animation below shows how handy this is :smile:
 
-![autobib](https://user-images.githubusercontent.com/30892199/33105451-6851a402-cf2d-11e7-8b5a-3d869a269aa0.gif)
+![autobib](imgs/auto-bib.gif)
 
 **Note:** You don't have to cite in the `[@pandoc]` notation. If a cite-key is in your text, it will get picked up. However, the generated references section will use the `[@pandoc]` notation, except if you set [change the setting](#citation-reference-style) `citations-mmd-style` to `true`, then the `[#citekey]: ...` MultiMarkdown notation will be used.
 
@@ -1116,7 +1112,7 @@ Funny characters can be a challenge in the `(#references)`.
 
 The following animation shows TOC insertion and refreshing in action:
 
-![auto-toc](https://user-images.githubusercontent.com/30892199/33225714-6b7aeb32-d17d-11e7-9d72-d2d890b0394c.gif)
+![auto-toc](imgs/auto-toc.gif)
 
 
 #### Automatic Section Numbering
@@ -1177,6 +1173,10 @@ The `search-spec` will be highlighted in the file, so you know exactly what will
 You can place Markdown headings anywhere in the file, too, like this:
 
 ```markdown
+# Shortcuts
+All Notes    :    [!
+All Tags     :    #!
+
 # Tag Searches
 just one  tag:          #tag
 tag1 or  tag2:          #tag1  #tag2
