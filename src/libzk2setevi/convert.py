@@ -297,8 +297,9 @@ class Zk2Setevi:
         new_text = text
         for pre, path, post, opt in ZkConstants.Img_Matcher.findall(text):
             if not path.startswith('http'):
+                print(path)
                 source_path = os.path.join(self.project.folder, path)
-                if os.path.exists(source_path):
+                if os.path.exists(source_path) and os.path.isfile(source_path):
                     dest_path = os.path.join(self.img_folder, os.path.basename(path))
                     shutil.copy2(source_path, dest_path)
                     # scale img wide
