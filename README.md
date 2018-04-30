@@ -22,6 +22,7 @@ In addition to being a specialized Markdown text-editor and text-browser, Sublim
 * auto-insertion (and removal) of section numbers
 * auto-insertion of tables of contents
 * auto-insertion of bibliographies
+* export to stand-alone semantic text view HTML
 
 See the [Usage](#usage) section below to see how this package might support your workflow.
 
@@ -122,6 +123,9 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Saved Searches](#saved-searches)
     * [HTML Export](#html-export)
     * [Customizing Themes](#customizing-themes)
+        * [Creating a new Theme](#creating-a-new-theme)
+        * [Editing Themes](#editing-themes)
+        * [Switching Themes](#switching-themes)
 * [Credits](#credits)
 
 
@@ -158,7 +162,10 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 If the above method doesn't work, you can try running the sources directly
 
 * Install python 3.6 (eg, from [Anaconda](https://continuum.py))
-* Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder`
+* Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder pymmd markdown pypandoc pygments`
+    * build the Multimarkdown shared library for pymmd (required for HTML export): `python3 -c "import pymmd; pymmd.build_mmd()"
+    * for that to work you need a working C compiler and cmake:
+        * `sudo apt-get install cmake gcc
 * Download or `git clone` the sources directly from [GitHub](https://github.com/renerocksai/sublimeless_zk)
 * change into the `src` folder
 * run `python3 sublimeless_zk.py`
@@ -1239,6 +1246,84 @@ On Linux, unfortunately there is no HTML preview, but an "open in browser" butto
 
 
 ## Customizing Themes
+
+Themes are simple JSON files that define 
+
+* the font
+* styles
+* colors
+
+of the Markdown editor.
+
+### Creating a new Theme 
+
+To create a new theme, run View > Create new Theme ... from the menu. You will be prompted for a name and upon entering it:
+
+* a copy of your currently active theme will be made your new theme
+* a json editor opens where you can modify your new theme
+
+When you File > Save (<kbd>ctrl/cmd</kbd> + <kbd>S</kbd>) the file, your new theme is ready. You can switch to it via View > Switch Theme. After switching, you need to restart Sublimeless_ZK to load the new theme.
+
+### Editing Themes
+
+When you create a new theme or when you run View > Edit current theme, a JSON editor opens so you can modify the theme.
+
+![Theme Editor](imgs/theme-editor.png)
+
+The following types are used in the description:
+
+type | description
+-----|------------
+font | has 3 fields: "face" = name of the font, "size" = font-size, "style" = style of the font
+pixels | a number of pixels
+color | HTML color code
+color with alpha | HTML color code with alpha prefix (1F in #1F333333)
+style | one of "normal", "bold", "italic", and "bolditalic"
+text-type | has a "color" field of type color, a "style" field of type style, and a "background" field of type color for the background color of the text
+markup | has a "symbol" field of type text-type for the markup symbol (`#` for headings, `*` or `_` for italic, ...), and a "text" field for styling the marked-up text
+
+The following fields define the appearance of the markdown editor:
+
+key        | type   | description
+-----------|--------|-------------
+background | color  | background color
+foreground | color  | default text color
+linehighlight | color with alpha | color and alpha (1F in #1F333333) for highlighting the current line
+line_padding_top | pixels | number of pixels to pad the top of lines with (extra line height)
+line_padding_bottom | pixels | number of pixels to pad the bottom of lines with (extra line height)
+selection | colors with alpha | "background" defines the background and foreground the text color of selected text
+font      | font | "face" = name of the font, "size" = font-size, "style" = style of the font
+caret     | color | color of the cursor
+text.italic | markup | defines how `_italic_` text is displayed
+text.bold | markup | defines how `**bold**` text is displayed
+text.bolditalic | markup | defines how `***bolditalic***` text is displayed
+h.symbol | text-type | defines how the markup symbol `#` is styled in headings
+h1.text | text-type | defines how the text of `# h1 headings` is styled
+h2.text | text-type | defines how the text of `## h2 headings` is styled
+h3.text | text-type | defines how the text of `### h3 headings` is styled
+h4.text | text-type | defines how the text of `#### h4 headings` is styled
+h5.text | text-type | defines how the text of `##### h5 headings` is styled
+h6.text | text-type | defines how the text of `###### h6 headings` is styled
+quote | markup | defines how `> quotes` are styled
+code.fenced | markup | defines how ` ```code blocks` are styled
+code | markup | defines how  &nbsp; &nbsp; &nbsp; &nbsp; `indented code` and `` `inline code` `` is styled
+list.symbol | text-type | the style of the `*`, `-`, and `1.` symbols in lists
+list.unordered | text-type | the style of the text of unordered `*` or `-` lists
+list.ordered | text-type | the style of the text of ordered `1.`, `2.`, ... lists
+tag | text-type | the style of `#tags`
+citekey | text-type | the style of `@citekeys` or `#citekeys` inside `[@citekey]` or `[][#citekey]` citations
+link | text-types | has 3 fields "title", "url", and "attr" for styling `[title](url){optional-attributes}` links
+zettel.link | text-type | style of `[[201804300800]]` note links 
+comment | text-type | style of `<!-- comments -->`
+footnote | text-type | style of `^text` inside a `[^footnote]` footnote
+
+**Note:** On save, the editor will display an error message if your JSON contains errors. The error message will contain a short description including the line and column number of the first character where the error occured. The cursor will be set at exactly that position so you can figure out more easily what is incorrect. Syntax-coloring should also help you formatting the theme file.
+
+### Switching Themes
+
+View > Switch Theme ... will open a fuzzy-searchable list of all installed themes. When you select a theme, you will receive a message to restart Sublimeless_ZK for the new theme to take effect.
+
+![theme-switcher](imgs/switch-theme.png)
 
 
 ## Credits
