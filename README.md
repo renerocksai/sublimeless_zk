@@ -1208,6 +1208,7 @@ You can export your note archive, or parts thereof, into a semantic text view, c
     * e.g. `2018`, or `20180429`
 * Optionally specify tags notes must be tagged with
 * Optionally specify tags notes must not be tagged with
+* Choose one of the [available parsers](#about-the-available-parsers)
 * Click "Convert!"
 
 ![html export](imgs/htmlexport.png)
@@ -1243,6 +1244,31 @@ Here is what it looks like when clicking on a demo note:
 On Linux, unfortunately there is no HTML preview, but an "open in browser" button:
 
 ![linuxexport](imgs/htmlexport-linux.png)
+
+### About the available parsers
+
+There are 3 different markdown parsers available:
+
+* basic: the fastest but least capable parser
+    * handles pandoc and multimarkdown citations
+    * handles pandoc and multimarkdown style fenced code blocks with syntax coloring
+    * no tables
+    * supports images
+* multimarkdown (default): fast parser, should always be used
+    * handles pandoc and multimarkdown citations
+    * handles pandoc and multimarkdown style fenced code blocks with syntax coloring
+    * handles multimarkdown tables
+    * supports images
+* pandoc: slow parser but can handle pandoc markdown
+    * handles pandoc and multimarkdown citations
+    * handles pandoc and multimarkdown style fenced code blocks with syntax coloring
+    * handles multimarkdown tables
+    * **handles pandoc tables**
+    * supports images
+
+You should always use the default mmd parser, even if your text uses pandoc syntax.
+
+The only exception is: If your text contains pandoc style tables, then go for the pandoc parser. Pandoc `[@citations]` and pandoc `~~~fenced cod blocks~~~` will be converted internally automatically by the tool, so that the multimarkdown parser can handle them.
 
 
 ## Customizing Themes
