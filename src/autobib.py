@@ -62,7 +62,7 @@ class Autobib:
         return citekeys
 
     @staticmethod
-    def extract_all_entries(bibfile):
+    def extract_all_entries(bibfile, unicode_conversion=False):
         """
         Return dict: {citekey: {title, authors, year}}
         """
@@ -82,21 +82,24 @@ class Autobib:
                 match = Autobib.author_matcher.findall(line)
                 if match:
                     authors = match[0]
-                    authors = convert_to_unicode({'author': authors})['author']
+                    if unicode_conversion:
+                        authors = convert_to_unicode({'author': authors})['author']
                     authors = Autobib.parse_authors(authors)
                     entries[current_citekey]['authors'] = authors
                     continue
                 match = Autobib.editor_matcher.findall(line)
                 if match:
                     editors = match[0]
-                    editors = convert_to_unicode({'editor': editors})['editor']
+                    if unicode_conversion:
+                        editors = convert_to_unicode({'editor': editors})['editor']
                     editors = Autobib.parse_authors(editors)
                     entries[current_citekey]['editors'] = authors
                     continue
                 match = Autobib.title_matcher.findall(line)
                 if match:
                     title = match[0]
-                    title = convert_to_unicode({'title': title})['title']
+                    if unicode_conversion:
+                        title = convert_to_unicode({'title': title})['title']
                     title = Autobib.remove_latex_commands(title)
                     entries[current_citekey]['title'] = title
                     continue

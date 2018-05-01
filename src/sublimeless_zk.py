@@ -910,7 +910,10 @@ class Sublimeless_Zk(QObject):
         loop = QEventLoop()
         QTimer.singleShot(1, loop.quit)
         loop.exec_()
-        self.bib_entries = Autobib.extract_all_entries(bibfile)
+        settings = self.project.settings
+        convert_to_unicode = settings.get('convert_bibtex_to_unicode', True)
+
+        self.bib_entries = Autobib.extract_all_entries(bibfile, unicode_conversion=convert_to_unicode)
         self.gui.statusBar().clearMessage()
 
     def insert_citation(self, pos=None):
