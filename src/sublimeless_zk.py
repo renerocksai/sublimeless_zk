@@ -1170,7 +1170,7 @@ class Sublimeless_Zk(QObject):
         for note in note_files:
             with open(note, mode='r', encoding='utf-8', errors='ignore') as f:
                 text = f.read()
-                if search_term in text:
+                if search_term in text.lower():
                     result_notes.append(note)
         self.project.externalize_note_links(result_notes, '# Notes matching search ' + search_term)
         self.reload(self.gui.search_results_editor)
