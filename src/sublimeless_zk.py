@@ -146,8 +146,11 @@ class Sublimeless_Zk(QObject):
         self.closeCurrentTabAction = QAction('Close current tab', self)
         self.closeCurrentTabAction.setShortcut('Ctrl+W')
 
-        self.cycleTabsAction = QAction('Cycle through tabs', self)
+        self.cycleTabsAction = QAction('Cycle backwards through tabs', self)
         self.cycleTabsAction.setShortcut('Ctrl+Shift+[')
+
+        self.cycleTabsForwardAction = QAction('Cycle forwards through tabs', self)
+        self.cycleTabsForwardAction.setShortcut('Ctrl+Shift+]')
 
         self.newThemeAction = QAction('New Theme...', self)
         self.editThemeAction = QAction('Edit current Theme...', self)
@@ -227,6 +230,7 @@ class Sublimeless_Zk(QObject):
         find.addAction(self.findInFilesAction)
         find.addAction(self.advancedTagSearchAction)
 
+        view.addAction(self.cycleTabsForwardAction)
         view.addAction(self.cycleTabsAction)
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
@@ -280,7 +284,8 @@ class Sublimeless_Zk(QObject):
         self.showAllNotesAction.triggered.connect(self.show_all_notes)
         self.fuzzyOpenAction.triggered.connect(self.fuzzy_open)
         self.closeCurrentTabAction.triggered.connect(self.close_current_tab)
-        self.cycleTabsAction.triggered.connect(self.cycle_tabs)
+        self.cycleTabsAction.triggered.connect(self.cycle_tabs_backward)
+        self.cycleTabsForwardAction.triggered.connect(self.cycle_tabs_forward)
         self.newThemeAction.triggered.connect(self.new_theme)
         self.editThemeAction.triggered.connect(self.edit_theme)
         self.chooseThemeAction.triggered.connect(self.switch_theme)
@@ -334,6 +339,11 @@ class Sublimeless_Zk(QObject):
 
         # ctrl/cmd + shift + [
         command = commands.find(QsciCommand.ParaUpExtend)
+        if command:
+            command.setKey(0)
+            command.setAlternateKey(0)
+        # ctrl/cmd + shift + ]
+        command = commands.find(QsciCommand.ParaDownExtend)
         if command:
             command.setKey(0)
             command.setAlternateKey(0)
@@ -618,11 +628,18 @@ class Sublimeless_Zk(QObject):
     def close_current_tab(self):
         self.tab_close_requested(self.gui.qtabs.currentIndex())
 
-    def cycle_tabs(self):
+    def cycle_tabs_forward(self):
         index = self.gui.qtabs.currentIndex()
         index += 1
         if index >= self.gui.qtabs.count():
             index = 0
+        self.gui.qtabs.setCurrentIndex(index)
+
+    def cycle_tabs_backward(self):
+        index = self.gui.qtabs.currentIndex()
+        index -= 1
+        if index <0:
+            index = self.gui.qtabs.count() - 1
         self.gui.qtabs.setCurrentIndex(index)
 
     def validate_json(self, editor, on_error):
