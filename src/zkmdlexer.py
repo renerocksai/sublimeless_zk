@@ -265,7 +265,7 @@ class ZkMdLexer(QsciLexerCustom):
 
         no_blocks_in = []
         # list unordered
-        p = re.compile(r'^(( {4})*[\*-]\s+)(.+?)$', flags=re.MULTILINE)
+        p = re.compile(r'^(( {4})*[\*-])(\s+.+?)$', flags=re.MULTILINE)
         for match in p.finditer(text):
             a = match.start()
             b = match.end()
