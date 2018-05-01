@@ -162,7 +162,7 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 If the above method doesn't work, you can try running the sources directly
 
 * Install python 3.6 (eg, from [Anaconda](https://continuum.py))
-* Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder pymmd markdown pypandoc pygments`
+* Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder pymmd markdown pypandoc pygments bibtexparser`
     * build the Multimarkdown shared library for pymmd (required for HTML export): `python3 -c "import pymmd; pymmd.build_mmd()"`
     * for that to work you need a working C compiler and cmake:
         * `sudo apt-get install cmake gcc binutils`
