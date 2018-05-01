@@ -926,6 +926,8 @@ class Sublimeless_Zk(QObject):
         ck_choices = {}
         for citekey, d in self.bib_entries.items():
             self.citekey_list.append(citekey)
+            if not d['authors']:
+                d['authors'] = d['editors']
             item = '{} {} - {} ({})'.format(d['authors'], d['year'], d['title'], citekey)
             ck_choices[item] = citekey
         item, citekey = show_fuzzy_panel(self.gui.qtabs, 'Insert Citation', ck_choices, longlines=True, manylines=True)
