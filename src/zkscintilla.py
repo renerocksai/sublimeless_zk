@@ -50,6 +50,7 @@ class ZettelkastenScintilla(QsciScintilla):
         self.SCN_MODIFIED.connect(self.text_changed)
 
         self.text_shortcut_handler = EditorTextShortCutHandler(self)
+        self.visual_flags = None
     ''''''
     def set_file_name(self, filn):
         self.file_name = filn
@@ -175,3 +176,43 @@ class ZettelkastenScintilla(QsciScintilla):
         self.text_shortcut_handler.keyPressEvent(event)
 
     ''''''
+    def toggle_auto_indent(self):
+        if self.editor_type != 'normal':
+            return
+        self.setAutoIndent(not self.autoIndent())
+        
+    def toggle_indentation_guides(self):
+        if self.editor_type != 'normal':
+            return
+        self.setIndentationGuides(not self.indentationGuides())
+    
+    def toggle_use_tabs(self):
+        if self.editor_type != 'normal':
+            return
+        self.setIndentationsUseTabs(not self.indentationsUseTabs())
+
+    def toggle_wrap_indent(self):
+        if self.editor_type != 'normal':
+            return
+        if self.wrapIndentMode() == QsciScintilla.WrapIndentSame:
+            self.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+        else:
+            self.setWrapIndentMode(QsciScintilla.WrapIndentSame)
+            
+    
+    def toggle_wrap_line(self):
+        if self.editor_type != 'normal':
+            return
+        if self.wrapMode() == QsciScintilla.WrapWord:
+            self.setWrapMode(QsciScintilla.WrapNone)
+        else:
+            self.setWrapMode(QsciScintilla.WrapWord)
+    
+    def toggle_wrap_markers(self):
+        if self.editor_type != 'normal':
+            return
+        if self.visual_flags == QsciScintilla.WrapFlagByText:
+            self.visual_flags = QsciScintilla.WrapFlagNone
+        else:
+            self.visual_flags = QsciScintilla.WrapFlagByText
+        self.setWrapVisualFlags(self.visual_flags)

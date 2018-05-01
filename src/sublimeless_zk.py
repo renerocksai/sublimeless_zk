@@ -173,6 +173,12 @@ class Sublimeless_Zk(QObject):
         self.reloadBibfileAction = QAction('Reload BIB file', self)
         self.reloadBibfileAction.setShortcut('Ctrl+Shift+B')
 
+        self.toggleWrapLineAction = QAction('Toggle Line Wrap', self)
+        self.toggleWrapMarkersAction = QAction('Toggle Wrap Markers', self)
+        self.toggleWrapIndentAction = QAction('Toggle Wrap Indent', self)
+        self.toggleAutoIndentAction = QAction('Toggle Auto-Indent')
+        self.toggleIndentationGuidesAction = QAction('Toggle Indentation Guiedes', self)
+        self.toggleUseTabsAction = QAction('Toggle TABs / Spaces', self)
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -203,10 +209,12 @@ class Sublimeless_Zk(QObject):
     def update_status_bar(self):
         editor = self.get_active_editor()
         if not editor:
+            self.gui.tab_spaces_label.setText('')
             self.gui.line_count_label.setText('')
             self.gui.word_count_label.setText('')
             return
         if editor.editor_type != 'normal':
+            self.gui.tab_spaces_label.setText('')
             self.gui.line_count_label.setText('')
             self.gui.word_count_label.setText('')
             return
@@ -215,7 +223,9 @@ class Sublimeless_Zk(QObject):
         word_count = len(t.split())
         self.gui.line_count_label.setText(f'Lines: {line_count}')
         self.gui.word_count_label.setText(f'Words: {word_count}')
-
+        
+        self.gui.format_editor_info(editor)
+        return
 
     def initMenubar(self):
         menubar = self.gui.menuBar()
@@ -251,6 +261,16 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.copyAction)
         edit.addAction(self.cutAction)
         edit.addAction(self.pasteAction)
+        edit.addSeparator()
+
+        edit_editor = edit.addMenu('Editor')
+        edit_editor.addAction(self.toggleAutoIndentAction)
+        edit_editor.addAction(self.toggleWrapLineAction)
+        edit_editor.addAction(self.toggleWrapMarkersAction)
+        edit_editor.addAction(self.toggleWrapIndentAction)
+        edit_editor.addAction(self.toggleIndentationGuidesAction)
+        edit_editor.addAction(self.toggleUseTabsAction)
+        
         edit.addSeparator()
         edit.addAction(self.insertLinkAction)
         edit.addAction(self.insertTagAction)
@@ -337,6 +357,13 @@ class Sublimeless_Zk(QObject):
         self.showHideSidePanelAction.triggered.connect(self.show_hide_sidepanel)
         self.toggleStatusBarAction.triggered.connect(self.toggle_statusbar)
         self.reloadBibfileAction.triggered.connect(self.reload_bibfile)
+
+        self.toggleAutoIndentAction.triggered.connect(self.toggle_auto_indent)
+        self.toggleIndentationGuidesAction.triggered.connect(self.toggle_indentation_guides)
+        self.toggleUseTabsAction.triggered.connect(self.toggle_use_tabs)
+        self.toggleWrapIndentAction.triggered.connect(self.toggle_wrap_indent)
+        self.toggleWrapLineAction.triggered.connect(self.toggle_wrap_line)
+        self.toggleWrapMarkersAction.triggered.connect(self.toggle_wrap_markers)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1334,7 +1361,48 @@ class Sublimeless_Zk(QObject):
             
     def toggle_statusbar(self):
         self.gui.statusBar().setVisible(not self.gui.statusBar().isVisible())
-            
+    
+    def toggle_auto_indent(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_auto_indent()
+        
+    def toggle_indentation_guides(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_indentation_guides()
+    
+    def toggle_use_tabs(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_use_tabs()
+
+    def toggle_wrap_indent(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_wrap_indent()
+    
+    def toggle_wrap_line(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_wrap_line()
+    
+    def toggle_wrap_markers(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type == 'normal':
+            editor.toggle_wrap_markers()
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

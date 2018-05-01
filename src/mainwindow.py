@@ -51,10 +51,18 @@ class MainWindow(QMainWindow):
         self.qtabs.setTabsClosable(True)
         if sys.platform == 'win32':
             self.setWindowIcon(QIcon(f"{os.path.join(base_dir(), 'sublimeless_zk.ico')}"))
+            
+        self.tab_spaces_label = QLabel('')
+        self.tab_spaces_label.setStyleSheet('QLabel{ font: 9px; color: #606060; }')
         self.line_count_label = QLabel('')
         self.line_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
         self.word_count_label = QLabel('')
         self.word_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
+        self.statusBar().addPermanentWidget(self.tab_spaces_label)
+        spc = QWidget()
+        spc.setMinimumWidth(20)
+
+        self.statusBar().addPermanentWidget(spc)
         self.statusBar().addPermanentWidget(self.line_count_label)
         self.statusBar().addPermanentWidget(self.word_count_label)
         self.statusBar().showMessage('Welcome to Sublimeless_ZK', 3000)
@@ -102,7 +110,8 @@ class MainWindow(QMainWindow):
 
         editor.setWrapMode(wrapmode)
         editor.setWrapVisualFlags(wrapvisual)
-        editor.setWrapIndentMode(autoindent)
+        editor.visual_flags = wrapvisual
+        editor.setWrapIndentMode(wrapindentmode)
 
         editor.setEolMode(QsciScintilla.EolUnix)
         editor.setEolVisibility(False)
@@ -136,6 +145,36 @@ class MainWindow(QMainWindow):
         # give it a good size
         editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
         return editor
+
+    def format_editor_info(self, editor):
+        if editor.indentationsUseTabs():
+            usetabs = 'TAB'
+        else:
+            usetabs = 'SPC'
+        
+        if editor.wrapMode() == QsciScintilla.WrapWord:
+            wrapmode = 'Wrap:Y'
+        else:
+            wrapmode = 'Wrap:N'
+        
+        if editor.visual_flags == QsciScintilla.WrapFlagByText:
+            wrapmode += '+show'
+        
+        if editor.wrapIndentMode() == QsciScintilla.WrapIndentIndented:
+            wrapmode += '+indent'
+        
+        if editor.autoIndent() == True:
+            autoindent = 'Indent:auto'
+        else:
+            autoindent = 'Indent:no'
+        
+        if editor.indentationGuides() == True:
+            guides = 'Guides:yes'
+        else:
+            guides = 'Guides:no'
+        
+        self.tab_spaces_label.setText(f'{usetabs:20} {wrapmode:20} {autoindent:20} {guides:20}')
+        return
 
     def make_search_results_editor(self):
         editor = ZettelkastenScintilla(editor_type='searchresults')
