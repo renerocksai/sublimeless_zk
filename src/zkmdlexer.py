@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.Qsci import *
-from split_regions import split_regions
+from split_regions import CascadingStyleRegions
 from settings import get_settings
 KeyboardModifiers = int
 
@@ -274,6 +274,10 @@ class ZkMdLexer(QsciLexerCustom):
             nosymbol = match.group()[len_symbol:]
             regions.append((a, a + len_symbol, match.group(1), 'list.symbol'))
             regions.append((a + len_symbol, b, nosymbol, 'list.unordered'))
+            # consume the symbol
+            sym_start = match.start(1)
+            sym_end = match.end(1)
+            text = text[:sym_start] + 'B' * len_symbol + text[sym_end:] 
 
         # list ordered
         p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
@@ -451,37 +455,40 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(replace_str) + text[b:]
 
         # bolditalic
-        p = re.compile(r'([\*_]{3})(?!\s)([^\n]+?)(?<!\s)(\1)')
+        p = re.compile(r'(\*{3}|_{3})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
+            # print('bolditalic', match.groups(), match.start())
             a = match.start()
             b = match.end()
             regions.append((a, a + 3, match.group(1), 'text.bolditalic.symbol'))
             regions.append((a + 3, b - 3, match.group(2), 'text.bolditalic.text'))
             regions.append((b - 3, b, match.group(3), 'text.bolditalic.symbol'))
             # consume
-            text = text[:a] + 'x' * len(match.group()) + text[b:]
+            text = text[:a] + 'I' * len(match.group()) + text[b:]
 
         # bold
-        p = re.compile(r'([\*_]{2})(?!\s)([^\n]+?)(?<!\s)(\1)')
+        p = re.compile(r'(\*{2}|_{2})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
+            # print('bold', match.groups(), match.start())
             a = match.start(1)
             b = match.end(3)
             regions.append((a, a + 2, match.group(1), 'text.bold.symbol'))
             regions.append((a + 2, b - 2, match.group(2), 'text.bold.text'))
             regions.append((b - 2, b, match.group(3), 'text.bold.symbol'))
             # consume
-            text = text[:a] + 'x' * len(match.group()) + text[b:]
+            text = text[:a] + 'b' * len(match.group()) + text[b:]
 
         # italic
-        p = re.compile(r'([\*_]{1})(?!\s)([^\n]+?)(?<!\s)(\1)')
+        p = re.compile(r'(\*{1}|_{1})(?!\s)([^\n]+?)(?<!\s)(\1)')
         for match in p.finditer(text):
+            # print('italic', match.groups(), match.start(), f'|{match.group()}|')
             a = match.start(1)
             b = match.end(3)
             regions.append((a, a + 1, match.group(1), 'text.italic.symbol'))
             regions.append((a + 1, b - 1, match.group(2), 'text.italic.text'))
             regions.append((b - 1, b, match.group(3), 'text.italic.symbol'))
             # consume
-            text = text[:a] + 'x' * len(match.group()) + text[b:]
+            text = text[:a] + 'i' * len(match.group()) + text[b:]
 
         # comments
         p = re.compile(r'(<!--)(.|\n)*?(-->)')
@@ -509,13 +516,9 @@ class ZkMdLexer(QsciLexerCustom):
 
     def apply_regions(self, regions, text):
         # sort and split regions
-        # layering
-        #    --> most important ones last
-        regions = [r for r in regions if r[0] < r[1]]    # filter out impty regions
-        regions.sort(key=lambda items: items[0])
-        did_replace = True
-        while did_replace:
-            did_replace, regions = split_regions(regions)
+        regions = [r for r in regions if r[0] < r[1]]    # filter out empty regions
+        csr = CascadingStyleRegions(text)
+        regions = csr.apply_regions(regions)
 
         style_regions = []
         # now translate regions to byte arrays
@@ -526,20 +529,21 @@ class ZkMdLexer(QsciLexerCustom):
             region_end = region[1]
             region_text = region[2]
             region_style = region[3]
-            gap = region_start - current_pos
-            gap_b = len(bytearray(text[current_pos:region_start], 'utf-8'))
-            if gap_b > 0:
-                style_regions.append((gap_b, 'default'))
+            # gap = region_start - current_pos
+            # gap_b = len(bytearray(text[current_pos:region_start], 'utf-8'))
+            # if gap_b > 0:
+            #    style_regions.append((gap_b, 'default'))
             match_b = len(bytearray(region_text, 'utf-8'))
             match = region_end - region_start
             style_regions.append((match_b, region_style))
-            current_pos += gap + match
-        gap = len(text) - current_pos
-        if gap > 0:
-            gap_b = len(bytearray(text[current_pos:], 'utf-8'))
-            style_regions.append((gap_b, 'default'))
+            # current_pos += gap + match
+            current_pos += match
+        #gap = len(text) - current_pos
+        #if gap > 0:
+        #    gap_b = len(bytearray(text[current_pos:], 'utf-8'))
+        #    style_regions.append((gap_b, 'default'))
 
         for num_chars, style in style_regions:
-            if num_chars > 0:
+            # if num_chars > 0:
                 self.setStyling(num_chars, self.style2id[style])
     ''''''

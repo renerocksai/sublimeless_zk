@@ -1,57 +1,44 @@
-def split_regions(regions):
-    num_regions_in = len(regions)
-    start_index = 0
-    new_regions = []
-    did_replace = False
-    while start_index < num_regions_in:
-        region = regions[start_index]
-        if start_index == num_regions_in - 1:
-            new_regions.append(region)
-            break
-        subregion = regions[start_index + 1]
-        if subregion[0] >= region[0] and subregion[1] <= region[1]:
-            new_subs = []
-            # merge and append
-            did_replace = True
-            if subregion[0] == region[0]:
-                new_subs.append(subregion)
-            else:
-                pre = subregion[0] - region[0]
-                new_subs.append((region[0], region[0] + pre, region[2][:pre], region[3]))
-                new_subs.append(subregion)
-            if subregion[1] < region[1]:
-                post = region[1] - subregion[1]
-                new_subs.append((subregion[1], region[1], region[2][-post:], region[3]))
-            new_regions.extend(new_subs)
-            start_index += 2  ## skip this one as it has been merged
-        else:
-            # no need to look further
-            new_regions.append(region)
-            start_index += 1
-            # continue with the next outer region
-    # append the last region
-    return did_replace, new_regions
+class CascadingStyleRegions:
+    def __init__(self, text):
+        self.len = len(text)
+        self.text = text
+        self.char_styles = ['default' for i in range(self.len)]
+        self.regions = None
+    
+    def apply_regions(self, regions):
+        if not regions:
+            self.regions = []
+            return[]
+
+        # sort regions by length, biggest first, and apply them
+        for region in reversed(sorted(regions, key=lambda x: x[1] - x[0])):
+            self.char_styles[region[0]:region[1]] = [region[3]] * (region[1] - region[0])
+        
+        # now collapse them
+        new_regions = []
+        current_style = self.char_styles[0]
+        current_start = 0
+        for index, style in enumerate(self.char_styles):
+            if style != current_style:
+                # style change
+                new_regions.append((current_start, index, self.text[current_start:index], current_style))
+                current_start = index
+                current_style = style
+        # append last region
+        if current_start != self.len:
+            new_regions.append((current_start, self.len, self.text[current_start:self.len], current_style))
+        self.regions = new_regions
+        return self.regions
 
 
 if __name__ == '__main__':
     regions = [
         (0, 10, '1234567890', 'heading'),
-        (2, 5, '345', 'bold')
+        (0, 3, '123', 'bold'),
+        (0, 5, '12345', 'italic')
     ]
-    print(regions)
-    print(split_regions(regions))
-
-    regions = [
-        (0, 10, '1234567890', 'heading'),
-        (7, 10, '890', 'bold')
-    ]
-    print(regions)
-    print(split_regions(regions))
-
-    regions = [
-        (0, 10, '1234567890', 'heading'),
-        (0, 3, '123', 'bold')
-    ]
-    print(regions)
-    print(split_regions(regions))
+    a = CascadingStyleRegions('1234567890 hello world')
+    regions = a.apply_regions(regions)
+    print('character styles:', a.char_styles)
+    print('\n'.join([str(region) for region in regions]))
 
