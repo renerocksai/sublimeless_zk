@@ -58,6 +58,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Color Schemes](#color-schemes)
 * [Saved Searches](#saved-searches)
 * [HTML Export into a semantic text view](#html-export)
+* [Command Palette](#command-palette)
 
 
 ## Contents
@@ -91,6 +92,8 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Shortcut cheatsheet](#shortcut-cheatsheet)
     * [User Interface](#user-interface)
         * [Menus](#menus)
+        * [Command Palette](#command-palette)
+        * [Status Bar](#status-bar)
     * [Note Archive Folder](#note-archive-folder)
     * [Creating a new note](#creating-a-new-note)
     * [Creating a new note and link from selected text](#creating-a-new-note-and-link-from-selected-text)
@@ -232,12 +235,20 @@ We will go into further details later, but here is a quick reference of all curr
 "tag_prefix" | "#" | Prefix character(s) for tags. |
 "path_to_pandoc" | "/usr/local/bin/pandoc" | Explicit location of the pandoc program. Only needed for auto-bib, and if pandoc can't be found automatically.|
 "bibfile" | "/path/to/zotero.bib" | bibliography file to use if none is contained in the notes folder |
+"convert_bibtex_to_unicode" | true | convert bibtex strings to unicode for showing umlauts etc. **Set this to false if loading your .bib file takes ages**
 "toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
 "citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
 "seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true) or default YYYYMMDDHHMM IDs (false) |
 "sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
 "auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
 "skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
+"wrap_lines" | true | wrap lines or rather scroll horizontally
+"show_wrap_markers" | true | show markers at the end of wrapping lines
+"indent_wrapped_lines" | false | should wrapping lines be indented even further
+"auto_indent" | true | automatically indent next line when pressing return
+"show_indentation_guides" | true | show guides for indented lines
+"use_tabs" | false | use tabs instead of 4 spaces when pressing the <kbd>TAB</kbd> key
+
 
 #### Markdown filename extension
 By default, the extension `.md` is used for your notes. If that does not match your style, you can change it with the `markdown_extension` setting. Just replace `.md` with `.txt` or `.mdown` or whatever you like.
@@ -488,11 +499,14 @@ The following line in the settings turns MultiMarkdown mode on:
 
 ### Shortcut cheatsheet
 
+* [Command Palette](#command-palette) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>P</kbd>
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
-* [Fuzzy search and open note](#browsing-through-notes) : <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
+* [Fuzzy search and open note](#browsing-through-notes)  <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
+* [Find in files](#find-in-files) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>F</kbd>
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
+* Cycle tabs  <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>[</kbd> (left) and <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>]</kbd> (right)
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
 * [Find referencing (friend) notes](#searching-for-friends) <kbd>ALT</kbd> + click link to note
 * [View all tags](#getting-an-overview-of-all-your-tags) <kbd>#</kbd> + <kbd>!</kbd>
@@ -509,9 +523,11 @@ The following line in the settings turns MultiMarkdown mode on:
 As you can see in the various screenshots, the user interface is split into three areas; they are:
 
 * left: note editor tabs
-* top right: search results area
-    * will display results of various implicit or explicit searches you perform
-* bottom right: [saved searches](#saved-searches) area
+* right: side-panel
+    * top right: search results area
+        * will display results of various implicit or explicit searches you perform
+    * bottom right: [saved searches](#saved-searches) area
+* bottom: status bar
 
 #### Menus
 
@@ -543,6 +559,13 @@ Let's introduce them!
     * Copy : copy selected text to clipboard
     * Cut : cut selected text to clipboard
     * Paste : paste clipboard into current editor
+    * Editor:
+        * Toggle Auto-Indent : auto-indent on/off
+        * Toggle Line Wrap : line wrap on/off
+        * Toggle Wrap Markers: show / hide markers at the end of wrapping lines
+        * Toggle Wrap Indent: indent wrapped lines even further
+        * Toggle Indentation Guides: show hide guides for indented lines
+        * Toggle TAB / Spaces : toggle <kbd>TAB</kbd> inserts TAB or spaces
     * Insert Link to Note : insert a link via fuzzy search panel
     * Insert Tag : insert a tag via fuzzy search panel
     * Expand Link : expand a link / tag / citekey inline in the line below
@@ -559,6 +582,11 @@ Let's introduce them!
     * Search for Tag Combination : Advanced Tag Search
 
 * View
+    * Show Command Palette... : does exactly that
+    * Cycle forwards through tabs: open next tab
+    * Cycle backwards through tabs: open previous tab
+    * Toggle Side Panel : Show / hide the side panel
+    * Toggle Status Bar : Show / hide the status bar
     * Show all notes : shows all notes in the search results
     * Show all referencing notes : If cursor is in a link / tag / citation key, search for all notes with the same reference (link/tag/citekey)
     * Show all Tags: shows a tag list in the search results
@@ -568,11 +596,48 @@ Let's introduce them!
     * Full Screen (macOS only) : go full screen
 
 * Tools
+    * Reload BIB file : Do this when your `.bib` file has changed
     * Expand Overview Note : create new note from current one where all links are replaced by contents
     * Refresh expanded Note: Refresh such an expanded note if sources have changed
 
 * About (Windows only) : Shows the about dialog
 
+#### Command Palette
+
+As alternative to the menus, you can also use the command palette, triggered by pressing <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>P</kbd>.
+
+You can fuzzy-search for any menu command there and select it by pressing <kbd>return</kbd> or double-clicking it.
+
+The following animation shows the command palette in action:
+
+![cmdpalette](imgs/cmdpanel-demo.gif)
+
+#### Side Panel
+
+The side-panel shows the current search results at the top for you to click and your [saved searches](#saved-searches) at the bottom.
+
+**Note:** You can show and hide the side panel with View > Toggle Side Panel or <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>J</kbd>.
+
+#### Status Bar
+
+The status bar at the bottom shows the following information:
+* line count of the current note
+* word cound of the current note
+* editor status information
+
+![statusbar](imgs/statusbar.png)
+
+The above image shows:
+
+* 38 lines in the current note
+* 130 words in the current note
+* line wrap is on (Y)
+* line wrapping markers are shown (+show)
+* wrapped lines are indented (+indent)
+* auto-indent is on (auto)
+* indentation guides are shown (yes)
+
+**Note:** You can show and hide the status bar with View > Toggle Status Bar or <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>J</kbd>.
 
 ### Note Archive Folder
 
@@ -997,6 +1062,13 @@ The following animation shows this in action:
 
 ![insert-citation](imgs/insert-citation.gif)
 
+**Note** 
+
+* Your `.bib` file is loaded the first time you insert a citation
+* Strings in the `.bib` file are being converted to unicode so umlauts and special characters can be displayed in the fuzzy panel
+* This conversion can take long
+* To disable the conversion and live with `u` instead of `ü`, set the setting `"convert_bibtex_to_unicode"` to `false`.
+* To re-load your `.bib` file, use the menu Tools > Reload BIB file or press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>B</kbd>
 
 #### Automatic Bibliographies
 It is common practice to keep local bibliographies in your notes. This makes each note self-contained and independent of `.bib` files. Manually maintaining a list of all your cited sources can be tedious and error-prone, especially in the case of long notes with many citations. Provided a `.bib` file is part of your note archive or you have [configured](#location-of-your-bib-file) one, then this app can take care of all your citations for you.

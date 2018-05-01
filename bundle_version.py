@@ -14,7 +14,7 @@ See the [README](https://github.com/renerocksai/sublimeless_zk) for intstruction
 
 * **macOS:** `sublimeless_zk-{prefix}-{version}-macOS.zip`
 * **Windows 10:** `sublimeless_zk-{prefix}-{version}-win10.zip`
-* **Linux:** `sublimeless_zk-{prefix}-{version}-linux.zip`
+* **Linux:** `sublimeless_zk-{prefix}-{version}-linux.tar.gz`
 '''.format(version=version, prefix=prefix)
 
 # for bash scripts and windows .cmd
