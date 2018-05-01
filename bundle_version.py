@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 DEPLOY_DIR = '_deploy'
 
-version = '0.4'
+version = '0.5'
 prefix = 'pre'
 release_notes = '''
 ## New features:
