@@ -796,7 +796,8 @@ class Sublimeless_Zk(QObject):
                 sel = editor.getSelection()
                 sel_start = editor.positionFromLineIndex(sel[0], sel[1])
                 sel_end = editor.positionFromLineIndex(sel[2], sel[3])
-                suggested_title = editor.text()[sel_start:sel_end]
+                textbytes = bytearray(editor.text(), "utf-8")
+                suggested_title = textbytes[sel_start:sel_end].decode('utf-8')
                 if '\n' in suggested_title:
                     lines = suggested_title.split('\n')
                     suggested_title = lines[0]
