@@ -123,7 +123,7 @@ class FuzzySearchPanel(QWidget):
     
     def eventFilter(self, watched, event):
         if event.type() == QEvent.KeyPress and event.matches(QKeySequence.InsertParagraphSeparator):
-            return_pressed()
+            self.return_pressed()
             return True
         else:
             return QWidget.eventFilter(self, watched, event)
