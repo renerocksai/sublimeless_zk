@@ -76,6 +76,7 @@ class FuzzySearchPanel(QWidget):
         self.input_line.down_pressed.connect(self.down_pressed)
         self.input_line.up_pressed.connect(self.up_pressed)
         self.list_box.itemDoubleClicked.connect(self.item_doubleclicked)
+        self.list_box.installEventFilter(self)
         self.input_line.setFocus()
 
     def update_listbox(self):
@@ -119,6 +120,13 @@ class FuzzySearchPanel(QWidget):
         key = self.fuzzy_items[row]
         value = self.item_dict[key]
         self.item_selected.emit(key, value)
+    
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.KeyPress and event.matches(QKeySequence.InsertParagraphSeparator):
+            return_pressed()
+            return True
+        else:
+            return QWidget.eventFilter(self, watched, event)
 
 
 class FuzzySearchDialog(QDialog):
