@@ -48,9 +48,11 @@ class Sublimeless_Zk(QObject):
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
 
     def on_timer(self):
+        time_now = int(time.time())
+        if time_now % 1 == 0:
+            self.update_status_bar()
         if not self.autosave_interval:
             return
-        time_now = time.time()
         if time_now > self.time_since_last_autosave + self.autosave_interval:
             self.time_since_last_autosave = time_now
             self.save_all()
@@ -161,8 +163,11 @@ class Sublimeless_Zk(QObject):
 
         self.exportHtmlAction = QAction('Export  archive to HTML...', self)
 
-        self.showHideSidePanelAction = QAction('Show/Hide Side Panel', self)
+        self.showHideSidePanelAction = QAction('Toggle Side Panel', self)
         self.showHideSidePanelAction.setShortcut('Ctrl+Shift+K')
+
+        self.toggleStatusBarAction = QAction('Toggle Side Panel', self)
+        self.toggleStatusBarAction.setShortcut('Ctrl+Shift+B')
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -189,6 +194,19 @@ class Sublimeless_Zk(QObject):
         self.commandPaletteAction = QAction('Show Command Palette...', self)
         self.commandPaletteAction.setShortcut('Ctrl+Shift+P')
         return
+
+    def update_status_bar(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        if editor.editor_type != 'normal':
+            return
+        t = editor.text()
+        line_count = len(t.split('\n'))
+        word_count = len(t.split())
+        self.gui.line_count_label.setText(f'Lines: {line_count}')
+        self.gui.word_count_label.setText(f'Words: {word_count}')
+
 
     def initMenubar(self):
         menubar = self.gui.menuBar()
@@ -243,6 +261,7 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.cycleTabsForwardAction)
         view.addAction(self.cycleTabsAction)
         view.addAction(self.showHideSidePanelAction)
+        view.addAction(self.toggleStatusBarAction)
         view.addSeparator()
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
@@ -306,6 +325,7 @@ class Sublimeless_Zk(QObject):
         self.exportHtmlAction.triggered.connect(self.export_to_html)
         self.commandPaletteAction.triggered.connect(self.show_command_palette)
         self.showHideSidePanelAction.triggered.connect(self.show_hide_sidepanel)
+        self.toggleStatusBarAction.triggered.connect(self.toggle_statusbar)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1283,7 +1303,9 @@ class Sublimeless_Zk(QObject):
             self.gui.saved_searches_editor.setVisible(True)
             self.gui.search_results_editor.setVisible(True)
             
-
+    def toggle_statusbar(self):
+        self.gui.statusBar().setVisible(not self.gui.statusBar().isVisible())
+            
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

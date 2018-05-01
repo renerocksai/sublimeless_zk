@@ -31,14 +31,6 @@ class MainWindow(QMainWindow):
         self._myFont = QFont()
         self._myFont.setPointSize(14)
 
-        self._btn = QPushButton("Qsci")
-        self._btn.setFixedWidth(50)
-        self._btn.setFixedHeight(50)
-        self._btn.clicked.connect(self._btn_action)
-        self._btn.setFont(self._myFont)
-        #self._lyt.addWidget(self._btn)
-
-
         self.qtabs = QTabWidget()
 
         mainsplit = QSplitter()
@@ -59,10 +51,14 @@ class MainWindow(QMainWindow):
         self.qtabs.setTabsClosable(True)
         if sys.platform == 'win32':
             self.setWindowIcon(QIcon(f"{os.path.join(base_dir(), 'sublimeless_zk.ico')}"))
+        self.line_count_label = QLabel('')
+        self.line_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
+        self.word_count_label = QLabel('')
+        self.word_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
+        self.statusBar().addPermanentWidget(self.line_count_label)
+        self.statusBar().addPermanentWidget(self.word_count_label)
+        self.statusBar().showMessage('Welcome to Sublimeless_ZK', 3000)
         self.show()
-
-    def _btn_action(self):
-        print("Hello World!")
 
     def recommended_editor_width(self, editor):
         font_metrics = QFontMetrics(editor.lexer().default_font)
