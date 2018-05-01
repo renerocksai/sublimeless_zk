@@ -76,5 +76,10 @@
     // this is useful if the first heading is your note title and
     // you don't want it numbered
     // to ignore: set to true
-    "skip_first_heading_when_numbering": false
+    "skip_first_heading_when_numbering": false,
+
+    // convert bibtex entries to unicode
+    //    - this gives you umlauts etc but parsing takes a loooong time
+    //    - set this to false if you have a big .bib file
+    "convert_bibtex_to_unicode": true
 }

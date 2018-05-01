@@ -203,8 +203,12 @@ class Sublimeless_Zk(QObject):
     def update_status_bar(self):
         editor = self.get_active_editor()
         if not editor:
+            self.gui.line_count_label.setText('')
+            self.gui.word_count_label.setText('')
             return
         if editor.editor_type != 'normal':
+            self.gui.line_count_label.setText('')
+            self.gui.word_count_label.setText('')
             return
         t = editor.text()
         line_count = len(t.split('\n'))
@@ -640,7 +644,7 @@ class Sublimeless_Zk(QObject):
                 editor_type = 'settings'
             editor = SettingsEditor(self.gui.theme, document_filn, editor_type)
         else:
-            editor = self.gui.new_zk_editor(document_filn)
+            editor = self.gui.new_zk_editor(document_filn, settings = self.project.settings)
         document_name = os.path.basename(document_filn)
         self.gui.qtabs.addTab(editor, document_name)
         editor.setModified(False)

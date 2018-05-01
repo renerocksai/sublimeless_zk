@@ -265,7 +265,7 @@ class ZkMdLexer(QsciLexerCustom):
 
         no_blocks_in = []
         # list unordered
-        p = re.compile(r'^(( {4})*[\*-])(\s+.+?)$', flags=re.MULTILINE)
+        p = re.compile(r'^(( {4}|\t)*[\*-])(\s+.+?)$', flags=re.MULTILINE)
         for match in p.finditer(text):
             a = match.start()
             b = match.end()
@@ -280,7 +280,7 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:sym_start] + 'B' * len_symbol + text[sym_end:] 
 
         # list ordered
-        p = re.compile(r'^(( {4})*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
+        p = re.compile(r'^(( {4}|\t)*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
             #print('ordered', match.groups())
             a = match.start()
@@ -292,7 +292,7 @@ class ZkMdLexer(QsciLexerCustom):
         # indented code blocks
         ### NEED TO STYLE THE \n !!!
         if self.show_block_quotes:
-            p = re.compile(r'^( {4})+(.+$)', flags=re.MULTILINE)
+            p = re.compile(r'^( {4}|\t)+(.+$)', flags=re.MULTILINE)
             for match in p.finditer(text):
                 a = match.start()
                 b = match.end()

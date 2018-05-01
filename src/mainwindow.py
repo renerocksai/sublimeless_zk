@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
             max_width = max(max_width, font_metrics.width(line))
         return max_width + 2 * 10 + 20    # 2 * margin width (we have 2 margins)
 
-    def new_zk_editor(self, filn=None):
+    def new_zk_editor(self, filn=None, settings=None):
         editor = ZettelkastenScintilla(document_filn=filn)
         editor.setUtf8(True)             # Set encoding to UTF-8
         if filn:
@@ -77,18 +77,41 @@ class MainWindow(QMainWindow):
             editor.setText(txt)
         editor.setLexer(None)            # We install lexer later
 
-        editor.setWrapMode(QsciScintilla.WrapWord)
-        editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
-        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+        if settings is None:
+            settings = {}
+        
+        wrapmode = QsciScintilla.WrapWord
+        wrapvisual = QsciScintilla.WrapFlagByText
+        wrapindentmode = QsciScintilla.WrapIndentIndented
+        autoindent = True
+        indentationguides = True
+        usetabs = False
+
+        if settings.get('wrap_lines', True) == False:
+            wrapmode = QsciScintilla.WrapNone
+        if settings.get('show_wrap_markers', True) == False:
+            wrapvisual = QsciScintilla.WrapFlagNone
+        if settings.get('indent_wrapped_lines', True) == False:
+            wrapindentmode = QsciScintilla.WrapIndentSame
+        if settings.get('auto_indent', True) == False:
+            autoindent = False
+        if settings.get('show_indentation_guides', True) == False:
+            indentationguides = False
+        if settings.get('use_tabs', False) == True:
+            usetabs = True
+
+        editor.setWrapMode(wrapmode)
+        editor.setWrapVisualFlags(wrapvisual)
+        editor.setWrapIndentMode(autoindent)
 
         editor.setEolMode(QsciScintilla.EolUnix)
         editor.setEolVisibility(False)
 
-        editor.setIndentationsUseTabs(False)
+        editor.setIndentationsUseTabs(usetabs)
         editor.setTabWidth(4)
-        editor.setIndentationGuides(True)
+        editor.setIndentationGuides(indentationguides)
         editor.setTabIndents(True)
-        editor.setAutoIndent(True)
+        editor.setAutoIndent(autoindent)
         editor.setScrollWidthTracking(True)
         editor.setMarginType(0, QsciScintilla.SymbolMargin)
         editor.setMarginWidth(0, "0")        # todo: do we want margins?
