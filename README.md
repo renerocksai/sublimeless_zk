@@ -462,6 +462,14 @@ However, if you maintain your `.bib` file outside of your note archive, then you
 
 In cases where both a bibfile setting is present *and* an actual `.bib` file is found in your note archive, the one in the note archive will be used.
 
+**Note** 
+
+* Your `.bib` file is loaded the first time you insert a citation
+* Strings in the `.bib` file are being converted to unicode so umlauts and special characters can be displayed in the fuzzy panel
+* This conversion can take long
+* To disable the conversion and live with `u` instead of `ü`, set the setting `"convert_bibtex_to_unicode"` to `false`.
+* To re-load your `.bib` file, use the menu Tools > Reload BIB file or press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>B</kbd>
+
 #### Citation Reference Style
 
 Two major ways to handle citations in Markdown documents exist: Pandoc and MultiMarkdown. Which one you use, depends on your preferred tool-chain.
