@@ -6,6 +6,7 @@ import re
 from subprocess import Popen, PIPE
 from collections import defaultdict
 import traceback
+from bibtexparser.customization import convert_to_unicode
 
 
 class Autobib:
@@ -14,6 +15,7 @@ class Autobib:
     """
     citekey_matcher = re.compile('^@.*{([^,]*)[,]?')
     author_matcher = re.compile(r'^\s*author\s*=\s*(.*)', re.IGNORECASE)
+    editor_matcher = re.compile(r'^\s*editor\s*=\s*(.*)', re.IGNORECASE)
     title_matcher = re.compile(r'^\s*title\s*=\s*(.*)', re.IGNORECASE)
     year_matcher = re.compile(r'^\s*year\s*=\s*(.*)', re.IGNORECASE)
 
@@ -68,7 +70,6 @@ class Autobib:
         if not os.path.exists(bibfile):
             print('bibfile not found:', bibfile)
             return {}
-        current_citekey = None
         with open(bibfile, mode='r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
@@ -81,12 +82,21 @@ class Autobib:
                 match = Autobib.author_matcher.findall(line)
                 if match:
                     authors = match[0]
+                    authors = convert_to_unicode({'author': authors})['author']
                     authors = Autobib.parse_authors(authors)
                     entries[current_citekey]['authors'] = authors
+                    continue
+                match = Autobib.editor_matcher.findall(line)
+                if match:
+                    editors = match[0]
+                    editors = convert_to_unicode({'editor': editors})['editor']
+                    editors = Autobib.parse_authors(editors)
+                    entries[current_citekey]['editors'] = authors
                     continue
                 match = Autobib.title_matcher.findall(line)
                 if match:
                     title = match[0]
+                    title = convert_to_unicode({'title': title})['title']
                     title = Autobib.remove_latex_commands(title)
                     entries[current_citekey]['title'] = title
                     continue

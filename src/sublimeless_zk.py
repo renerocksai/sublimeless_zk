@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QObject, QTimer
+from PyQt5.QtCore import QObject, QTimer, QEventLoop
 import re
 import unicodedata
 from collections import Counter
@@ -46,6 +46,7 @@ class Sublimeless_Zk(QObject):
         self.autosave_timer = QTimer()
         self.time_since_last_autosave = 0
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
+        self.bib_entries = None    # caching bib
 
     def on_timer(self):
         time_now = int(time.time())
@@ -166,8 +167,12 @@ class Sublimeless_Zk(QObject):
         self.showHideSidePanelAction = QAction('Toggle Side Panel', self)
         self.showHideSidePanelAction.setShortcut('Ctrl+Shift+K')
 
-        self.toggleStatusBarAction = QAction('Toggle Side Panel', self)
-        self.toggleStatusBarAction.setShortcut('Ctrl+Shift+B')
+        self.toggleStatusBarAction = QAction('Toggle Status Bar', self)
+        self.toggleStatusBarAction.setShortcut('Ctrl+Shift+J')
+
+        self.reloadBibfileAction = QAction('Reload BIB file', self)
+        self.reloadBibfileAction.setShortcut('Ctrl+Shift+B')
+
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -276,6 +281,7 @@ class Sublimeless_Zk(QObject):
             view.addAction(self.showImagesAction)
             view.addAction(self.hideImagesAction)
 
+        tools.addAction(self.reloadBibfileAction)
         tools.addAction(self.expandOverviewNoteAction)
         tools.addAction(self.refreshExpandedNoteAction)
 
@@ -326,6 +332,7 @@ class Sublimeless_Zk(QObject):
         self.commandPaletteAction.triggered.connect(self.show_command_palette)
         self.showHideSidePanelAction.triggered.connect(self.show_hide_sidepanel)
         self.toggleStatusBarAction.triggered.connect(self.toggle_statusbar)
+        self.reloadBibfileAction.triggered.connect(self.reload_bibfile)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -601,6 +608,7 @@ class Sublimeless_Zk(QObject):
                 self.open_document(self.project.welcome_note)
             self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
             self.update_recent_project_actions()
+            self.bib_entries = None          
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
@@ -893,18 +901,30 @@ class Sublimeless_Zk(QObject):
         self.project.externalize_note_links(ref_note_files, f'Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
 
+    def reload_bibfile(self):
+        bibfile = Autobib.look_for_bibfile(self.project)
+        if not bibfile:
+            return
+        self.gui.statusBar().showMessage(f'Loading {bibfile} ...')
+        # call the event loop to show the status message
+        loop = QEventLoop()
+        QTimer.singleShot(1, loop.quit)
+        loop.exec_()
+        self.bib_entries = Autobib.extract_all_entries(bibfile)
+        self.gui.statusBar().clearMessage()
+
     def insert_citation(self, pos=None):
         print('insert citation')
         editor = self.get_active_editor()
         if not isinstance(editor, ZettelkastenScintilla):
             return
-        self.citekey_list = []
-        bibfile = Autobib.look_for_bibfile(self.project)
-        if not bibfile:
-            return
-        entries = Autobib.extract_all_entries(bibfile)
+        
+        if self.bib_entries is None:
+            self.citekey_list = []
+            self.reload_bibfile()
+
         ck_choices = {}
-        for citekey, d in entries.items():
+        for citekey, d in self.bib_entries.items():
             self.citekey_list.append(citekey)
             item = '{} {} - {} ({})'.format(d['authors'], d['year'], d['title'], citekey)
             ck_choices[item] = citekey
