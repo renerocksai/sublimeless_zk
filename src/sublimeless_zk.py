@@ -1264,8 +1264,9 @@ class Sublimeless_Zk(QObject):
     
     def show_command_palette(self):
         d = {x: x for x in self.command_palette_actions.keys()}
-        actionText, _ =show_fuzzy_panel(self.gui, 'Run command', d, max_items=20)
-        self.command_palette_actions[actionText].activate(QAction.Trigger)
+        actionText, _=show_fuzzy_panel(self.gui, 'Run command', d)
+        if actionText:
+            self.command_palette_actions[actionText].activate(QAction.Trigger)
 
 
 if __name__ == '__main__':
