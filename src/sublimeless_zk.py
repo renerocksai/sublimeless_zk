@@ -161,6 +161,9 @@ class Sublimeless_Zk(QObject):
 
         self.exportHtmlAction = QAction('Export  archive to HTML...', self)
 
+        self.showHideSidePanelAction = QAction('Show/Hide Side Panel', self)
+        self.showHideSidePanelAction.setShortcut('Ctrl+Shift+K')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -239,6 +242,8 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.commandPaletteAction)
         view.addAction(self.cycleTabsForwardAction)
         view.addAction(self.cycleTabsAction)
+        view.addAction(self.showHideSidePanelAction)
+        view.addSeparator()
         view.addAction(self.showAllNotesAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
@@ -300,6 +305,7 @@ class Sublimeless_Zk(QObject):
         self.deleteNoteAction.triggered.connect(self.delete_note)
         self.exportHtmlAction.triggered.connect(self.export_to_html)
         self.commandPaletteAction.triggered.connect(self.show_command_palette)
+        self.showHideSidePanelAction.triggered.connect(self.show_hide_sidepanel)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1267,6 +1273,16 @@ class Sublimeless_Zk(QObject):
         actionText, _=show_fuzzy_panel(self.gui, 'Run command', d)
         if actionText:
             self.command_palette_actions[actionText].activate(QAction.Trigger)
+    
+    def show_hide_sidepanel(self):
+        print('SHOWHIDE')
+        if self.gui.saved_searches_editor.isVisible():
+            self.gui.saved_searches_editor.setVisible(False)
+            self.gui.search_results_editor.setVisible(False)
+        else:
+            self.gui.saved_searches_editor.setVisible(True)
+            self.gui.search_results_editor.setVisible(True)
+            
 
 
 if __name__ == '__main__':
