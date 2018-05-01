@@ -176,10 +176,16 @@ class Sublimeless_Zk(QObject):
 
         # todo: pack this into an action, too
         if sys.platform == 'darwin':
-            shortcut = QShortcut(Qt.MetaModifier| Qt.Key_Return, self.gui)
+            self.ctrl_return_sc = QShortcut(Qt.MetaModifier| Qt.Key_Return, self.gui)
         else:
-            shortcut = QShortcut(Qt.ControlModifier | Qt.Key_Return, self.gui)
-        shortcut.activated.connect(self.zk_follow_link)
+            self.ctrl_return_sc = QShortcut(Qt.ControlModifier | Qt.Key_Return, self.gui)
+        self.ctrl_return_sc.activated.connect(self.zk_follow_link)
+
+        # command palette action **must come last**
+        self.command_palette_actions = {action.text(): action for action in self.__dict__.values() if isinstance(action, QAction)}
+        self.commandPaletteAction = QAction('Show Command Palette...', self)
+        self.commandPaletteAction.setShortcut('Ctrl+Shift+P')
+        return
 
     def initMenubar(self):
         menubar = self.gui.menuBar()
@@ -230,6 +236,7 @@ class Sublimeless_Zk(QObject):
         find.addAction(self.findInFilesAction)
         find.addAction(self.advancedTagSearchAction)
 
+        view.addAction(self.commandPaletteAction)
         view.addAction(self.cycleTabsForwardAction)
         view.addAction(self.cycleTabsAction)
         view.addAction(self.showAllNotesAction)
@@ -292,6 +299,7 @@ class Sublimeless_Zk(QObject):
         self.renameNoteAction.triggered.connect(self.rename_note)
         self.deleteNoteAction.triggered.connect(self.delete_note)
         self.exportHtmlAction.triggered.connect(self.export_to_html)
+        self.commandPaletteAction.triggered.connect(self.show_command_palette)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -844,6 +852,8 @@ class Sublimeless_Zk(QObject):
     def show_referencing_notes(self, note_id=None):
         print('Show referencing note')
         editor = self.get_active_editor()
+        if not editor:
+            return
         if not isinstance(note_id, str):
             link, editor_region = self.project.select_link_in_editor(editor)
             if not editor_region:
@@ -1251,6 +1261,11 @@ class Sublimeless_Zk(QObject):
     def export_to_html(self):
         dlg = SemanticZKDialog(None, 'Export notes to HTML', self.project)
         return dlg.exec_()
+    
+    def show_command_palette(self):
+        d = {x: x for x in self.command_palette_actions.keys()}
+        actionText, _ =show_fuzzy_panel(self.gui, 'Run command', d, max_items=20)
+        self.command_palette_actions[actionText].activate(QAction.Trigger)
 
 
 if __name__ == '__main__':
