@@ -164,6 +164,9 @@ class Sublimeless_Zk(QObject):
 
         self.exportHtmlAction = QAction('Export  archive to HTML...', self)
 
+        self.quitApplicationAction = QAction('Quit the application...', self)
+        self.quitApplicationAction.setShortcut('Ctrl+Q')
+
         self.showHideSidePanelAction = QAction('Toggle Side Panel', self)
         self.showHideSidePanelAction.setShortcut('Ctrl+Shift+K')
 
@@ -254,6 +257,8 @@ class Sublimeless_Zk(QObject):
         for i in range(self.recent_projects_limit):
             self.file_menu.addAction(self.recent_projects_actions[i])
         self.update_recent_project_actions()
+        self.file_menu.addSeparator()
+        self.file_menu.addAction(self.quitApplicationAction)
 
         edit.addAction(self.undoAction)
         edit.addAction(self.redoAction)
@@ -353,6 +358,7 @@ class Sublimeless_Zk(QObject):
         self.renameNoteAction.triggered.connect(self.rename_note)
         self.deleteNoteAction.triggered.connect(self.delete_note)
         self.exportHtmlAction.triggered.connect(self.export_to_html)
+        self.quitApplicationAction.triggered.connect(self.quit_application)
         self.commandPaletteAction.triggered.connect(self.show_command_palette)
         self.showHideSidePanelAction.triggered.connect(self.show_hide_sidepanel)
         self.toggleStatusBarAction.triggered.connect(self.toggle_statusbar)
@@ -1344,6 +1350,9 @@ class Sublimeless_Zk(QObject):
     def export_to_html(self):
         dlg = SemanticZKDialog(None, 'Export notes to HTML', self.project)
         return dlg.exec_()
+
+    def quit_application(self):
+        self.app.quit()
     
     def show_command_palette(self):
         d = {x: x for x in self.command_palette_actions.keys()}
