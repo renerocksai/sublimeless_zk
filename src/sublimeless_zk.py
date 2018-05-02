@@ -164,7 +164,7 @@ class Sublimeless_Zk(QObject):
 
         self.exportHtmlAction = QAction('Export  archive to HTML...', self)
 
-        self.quitApplicationAction = QAction('Quit the application...', self)
+        self.quitApplicationAction = QAction('Exit...', self)
         self.quitApplicationAction.setShortcut('Ctrl+Q')
 
         self.showHideSidePanelAction = QAction('Toggle Side Panel', self)
