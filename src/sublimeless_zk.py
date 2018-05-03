@@ -31,6 +31,7 @@ from settings import settings_filn, base_dir, get_settings, get_pandoc, get_real
 from about import AboutDlg
 from findandreplace import FindDlg
 from semantic_zk import SemanticZKDialog
+from custmenuitem import CustomMenuItemAction
 
 
 class Sublimeless_Zk(QObject):
@@ -46,7 +47,8 @@ class Sublimeless_Zk(QObject):
         self.autosave_timer = QTimer()
         self.time_since_last_autosave = 0
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
-        self.bib_entries = None    # caching bib
+        self.bib_entries = {} # caching bib
+        
 
     def on_timer(self):
         time_now = int(time.time())
@@ -81,25 +83,26 @@ class Sublimeless_Zk(QObject):
 
         self.showPreferencesAction = QAction("Settings...", self)
 
-        self.insertLinkAction = QAction('Insert Link to Note', self)
-        self.insertLinkAction.setShortcut('[,[')
+        self.insertLinkAction = CustomMenuItemAction('Insert Link to Note', self)
+        self.insertLinkAction.setShortcut('[[')
 
         self.showReferencingNotesAction = QAction('Show referencing notes', self)
         self.showReferencingNotesAction.setShortcuts(['Alt+Return', 'Alt+Enter'])
 
-        self.insertTagAction = QAction('Insert Tag', self)
-        self.insertTagAction.setShortcut('#, ?')
+        self.insertTagAction = CustomMenuItemAction('Insert Tag', self)
+        self.insertTagAction.setShortcut('#?')
 
-        self.showTagsAction = QAction('Show all Tags', self)
-        self.showTagsAction.setShortcut('#,!')
+        self.showTagsAction = CustomMenuItemAction('Show all Tags', self)
+        self.showTagsAction.setShortcut('#!')
 
         self.expandLinkAction = QAction('Expand link', self)
         self.expandLinkAction.setShortcut('Ctrl+.')
         if sys.platform == 'darwin':
             self.expandLinkAction.setShortcut('Meta+.')
 
-        self.insertCitationAction = QAction('Insert Citation', self)
-        self.insertCitationAction.setShortcuts(['[,@', '[,#'])
+        self.insertCitationAction = CustomMenuItemAction('Insert Citation', self)
+        self.insertCitationAction.setShortcuts(['[@', '[#'])
+
 
         self.expandOverviewNoteAction = QAction('Expand Overview Note', self)
         self.expandOverviewNoteAction.setShortcut('Ctrl+E')
@@ -129,8 +132,8 @@ class Sublimeless_Zk(QObject):
         self.denumberHeadingsAction = QAction('Remove Section Numbers', self)
         self.denumberHeadingsAction.setShortcut('Ctrl+Shift+R')
 
-        self.showAllNotesAction = QAction('Show all Notes', self)
-        self.showAllNotesAction.setShortcut('[,!')
+        self.showAllNotesAction = CustomMenuItemAction('Show all Notes', self)
+        self.showAllNotesAction.setShortcut('[!')
 
         self.copyAction = QAction('Copy', self)
         self.copyAction.setShortcut('Ctrl+C')
@@ -645,7 +648,7 @@ class Sublimeless_Zk(QObject):
                 self.open_document(self.project.welcome_note)
             self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
             self.update_recent_project_actions()
-            self.bib_entries = None          
+            self.bib_entries = {}          
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
