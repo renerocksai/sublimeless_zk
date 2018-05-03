@@ -1352,7 +1352,7 @@ class Sublimeless_Zk(QObject):
         return dlg.exec_()
 
     def quit_application(self):
-        self.app.quit()
+        self.gui.close()
     
     def show_command_palette(self):
         d = {x: x for x in self.command_palette_actions.keys()}
