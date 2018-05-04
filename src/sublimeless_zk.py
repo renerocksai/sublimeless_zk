@@ -183,7 +183,7 @@ class Sublimeless_Zk(QObject):
         self.toggleWrapMarkersAction = QAction('Toggle Wrap Markers', self)
         self.toggleWrapIndentAction = QAction('Toggle Wrap Indent', self)
         self.toggleAutoIndentAction = QAction('Toggle Auto-Indent')
-        self.toggleIndentationGuidesAction = QAction('Toggle Indentation Guiedes', self)
+        self.toggleIndentationGuidesAction = QAction('Toggle Indentation Guides', self)
         self.toggleUseTabsAction = QAction('Toggle TABs / Spaces', self)
 
         # Recent folders actions
