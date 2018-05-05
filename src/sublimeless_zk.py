@@ -1371,6 +1371,8 @@ class Sublimeless_Zk(QObject):
         self.gui.close()
     
     def show_command_palette(self):
+        editor = self.get_active_editor()   # for maybe later: external command
+
         d = {x: x for x in self.command_palette_actions.keys()}
 
         # add external commands
@@ -1384,7 +1386,7 @@ class Sublimeless_Zk(QObject):
         if actionText:
             if actionText.startswith('>'):
                 # it is an external command
-                self._run_external_command(aux)
+                self._run_external_command(aux, editor)
             else:
                 self.command_palette_actions[actionText].activate(QAction.Trigger)
     
@@ -1453,11 +1455,10 @@ class Sublimeless_Zk(QObject):
         command_names_dict = {cn: cn for cn in command_names}
         selected_command, _ = show_fuzzy_panel(self.gui.qtabs, 'Run external command', command_names_dict)
         if selected_command:
-            self._run_external_command(selected_command)
+            self._run_external_command(selected_command, editor)
         return
 
-    def _run_external_command(self, selected_command):
-        editor = self.get_active_editor()
+    def _run_external_command(self, selected_command, editor):
         if not editor:
             return
         settings_dir = os.path.join(self.app_state.home, 'sublimeless_zk.rc')

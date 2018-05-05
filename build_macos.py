@@ -203,6 +203,7 @@ includefiles = [
     ('app_logo_64.png', 'app_logo_64.png'),
     ('app_picture.png', 'app_picture.png'),
     ('data/setevi-template.html', 'data/setevi-template.html'),
+    ('build_commands.json', 'build_commands.json')
 ]  #path_platforms
 
 excludes = [
