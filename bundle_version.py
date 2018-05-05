@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 DEPLOY_DIR = '_deploy'
 
-version = '0.5'
-prefix = 'pre'
+from src.version import version, prefix, bundle_version
+
 release_notes = '''
 ## New features:
 
