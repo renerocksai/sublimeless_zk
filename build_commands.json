@@ -1,0 +1,48 @@
+{
+    // convert to PDF via pandoc
+    "PDF (pandoc)" : {
+        "run": [
+            "pandoc", 
+            
+            // input file: your note: full path and extension
+            "{note_path}{note_name}{note_ext}",
+
+            "-f", "markdown",
+
+            // use --latex-engine=engine where engine is
+            // pdflatex|lualatex|xelatex. This may need to be specified with a
+            // full path, e.g. on a mac with BasicTeX
+            // "--latex-engine=/Library/TeX/texbin/pdflatex",
+            
+            "--filter=pandoc-citeproc",   // for bib
+            
+            // write into a temporary file
+            "--output={tempfile}.pdf",
+
+            // optionally specify a template for latex
+            //"--template=/path/to/your/default.latex",
+
+            "--toc",    // create a table of contents
+            "--smart",
+            "--normalize",
+            "--bibliography={bib}",
+            "--highlight-style=tango"
+        ],
+        "on_finish": {
+            // only applicable if your command creates a file like PDF or HTML
+            "open": "{tempfile}.pdf",
+
+            // only applicable if your command modifies the note externally
+            "reload_note": false,
+            
+            // only applicable if your command creates {new_note_id}*{note_ext}
+            "open_new_note": false
+        },
+        
+        "on_error": {
+            "show_error": true
+        }
+    }
+
+    // your commands go here
+}

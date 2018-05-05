@@ -13,7 +13,9 @@ from collections import Counter
 import time
 from json import JSONDecodeError
 import jstyleson as json
-
+import tempfile
+import subprocess
+from collections import defaultdict
 
 from themes import Theme
 from mainwindow import MainWindow
@@ -32,6 +34,7 @@ from about import AboutDlg
 from findandreplace import FindDlg
 from semantic_zk import SemanticZKDialog
 from custmenuitem import CustomMenuItemAction
+from buildcommands import BuildCommands
 
 
 class Sublimeless_Zk(QObject):
@@ -185,6 +188,8 @@ class Sublimeless_Zk(QObject):
         self.toggleAutoIndentAction = QAction('Toggle Auto-Indent')
         self.toggleIndentationGuidesAction = QAction('Toggle Indentation Guides', self)
         self.toggleUseTabsAction = QAction('Toggle TABs / Spaces', self)
+        self.runExternalCommandAction = QAction('Run External Command...', self)
+        self.runExternalCommandAction.setShortcut('Ctrl+Shift+X')
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -316,6 +321,7 @@ class Sublimeless_Zk(QObject):
         tools.addAction(self.reloadBibfileAction)
         tools.addAction(self.expandOverviewNoteAction)
         tools.addAction(self.refreshExpandedNoteAction)
+        tools.addAction(self.runExternalCommandAction)
 
         about.addAction(self.aboutAction)
 
@@ -373,6 +379,7 @@ class Sublimeless_Zk(QObject):
         self.toggleWrapIndentAction.triggered.connect(self.toggle_wrap_indent)
         self.toggleWrapLineAction.triggered.connect(self.toggle_wrap_line)
         self.toggleWrapMarkersAction.triggered.connect(self.toggle_wrap_markers)
+        self.runExternalCommandAction.triggered.connect(self.run_external_command)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1359,9 +1366,21 @@ class Sublimeless_Zk(QObject):
     
     def show_command_palette(self):
         d = {x: x for x in self.command_palette_actions.keys()}
-        actionText, _=show_fuzzy_panel(self.gui, 'Run command', d)
+
+        # add external commands
+        settings_dir = os.path.join(self.app_state.home, 'sublimeless_zk.rc')
+        templates_dir = base_dir()
+        bc = BuildCommands(settings_dir, templates_dir)
+        command_names = list(bc.commands.keys())
+        command_names_dict = {'> ' + cn: cn for cn in command_names}
+        d.update(command_names_dict)
+        actionText, aux =show_fuzzy_panel(self.gui, 'Run command', d)
         if actionText:
-            self.command_palette_actions[actionText].activate(QAction.Trigger)
+            if actionText.startswith('>'):
+                # it is an external command
+                self._run_external_command(aux)
+            else:
+                self.command_palette_actions[actionText].activate(QAction.Trigger)
     
     def show_hide_sidepanel(self):
         print('SHOWHIDE')
@@ -1416,6 +1435,68 @@ class Sublimeless_Zk(QObject):
             return
         if editor.editor_type == 'normal':
             editor.toggle_wrap_markers()
+
+    def run_external_command(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        settings_dir = os.path.join(self.app_state.home, 'sublimeless_zk.rc')
+        templates_dir = base_dir()
+        bc = BuildCommands(settings_dir, templates_dir)
+        command_names = list(bc.commands.keys())
+        command_names_dict = {cn: cn for cn in command_names}
+        selected_command, _ = show_fuzzy_panel(self.gui.qtabs, 'Run external command', command_names_dict)
+        if selected_command:
+            self._run_external_command(selected_command)
+        return
+
+    def _run_external_command(self, selected_command):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        settings_dir = os.path.join(self.app_state.home, 'sublimeless_zk.rc')
+        templates_dir = base_dir()
+        bc = BuildCommands(settings_dir, templates_dir)
+        note_name, ext = os.path.splitext(editor.file_name)
+        tmpf = tempfile.NamedTemporaryFile()    # create and close
+        tempfile_name = tmpf.name
+        tmpf.close() # close and delete
+        new_note_id = self.project.timestamp()
+        vars_dict = {
+            'note_path': os.path.dirname(note_name) + os.path.sep,
+            'note_name': os.path.basename(note_name),
+            'note_ext': ext,
+            'bib': Autobib.look_for_bibfile(self.project),   # up-to-date
+            'tempfile': tempfile_name,
+            'new_note_id': new_note_id
+        }
+        vars_dict = defaultdict(dict, **vars_dict)
+        if selected_command and selected_command in bc.commands:
+            cmd_json_dict = bc.commands[selected_command]
+            return_code, stdout, args = bc.run_build_command(selected_command, vars_dict)
+            if return_code == 0:
+                on_finish_dict = cmd_json_dict.get('on_finish', dict())
+                if 'open' in on_finish_dict:
+                    output_filn = on_finish_dict['open'].format(**vars_dict)
+                    if os.path.exists(output_filn):
+                        if sys.platform == 'darwin':
+                            subprocess.call(['open', output_filn])
+                        elif sys.platform == 'win32':
+                            os.startfile(output_filn)
+                        else:
+                            # assume linux
+                            subprocess.call(('xdg-open', output_filn))
+                if on_finish_dict.get('reload_note', False):
+                    self.reload(editor)
+                if on_finish_dict.get('open_new_note', False):
+                    # try to open the note with the new note_id
+                    self.clicked_noteid(new_note_id)
+            else:
+                on_error_dict = cmd_json_dict.get('on_error', dict())
+                if on_error_dict.get('show_error', False):
+                    error_text = ' '.join(args) + '\n\n' + stdout
+                    QMessageBox.information(self.gui, f'Error running {selected_command}', stdout)
+        return
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

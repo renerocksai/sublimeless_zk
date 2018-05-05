@@ -46,6 +46,7 @@ class Project:
             # prepare welcome message
             shutil.copy2(os.path.join(base_dir(), 'search_results_default.md'),
                          self.get_search_results_filn())
+        self.bibfile = Autobib.look_for_bibfile(self)
 
     def get_saved_searches_filn(self):
         return os.path.join(self.folder, '.saved_searches.zks')

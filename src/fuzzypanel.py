@@ -159,6 +159,9 @@ class FuzzySearchDialog(QDialog):
 
 
 def show_fuzzy_panel(parent, title, item_dict, max_items=50, longlines=False, manylines=False):
+    """
+    item_dict: show: return
+    """
     dlg = FuzzySearchDialog(parent, title, item_dict, max_items)
     if parent:
         pass
