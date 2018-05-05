@@ -30,6 +30,7 @@ class ZkMdLexer(QsciLexerCustom):
         self.headings = []
         self.settings = get_settings()
         self.double_brackets = self.settings.get('double_brackets', True)
+        #self.setAutoIndentStyle(QsciScintilla.AiMaintain)
 
         # Default text settings
         # ----------------------
@@ -97,6 +98,15 @@ class ZkMdLexer(QsciLexerCustom):
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
+        self.setAutoIndentStyle(0) # we are block based --> use blockLookback
+        
+
+    def blockLookback(self):
+        """
+        if autoindentstyle == 0 (block based):
+            how many lines to look up backwards to determine the indent level
+        """
+        return 1
 
     def get_headings(self):
         """
