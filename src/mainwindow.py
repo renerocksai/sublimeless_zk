@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         editor.setExtraDescent(self.theme.line_pad_bottom)
 
         # give it a good size
-        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 60))
+        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 20))
         return editor
 
     def format_editor_info(self, editor):
