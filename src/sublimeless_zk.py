@@ -1492,7 +1492,7 @@ class Sublimeless_Zk(QObject):
                             os.startfile(output_filn)
                         else:
                             # assume linux
-                            subprocess.call(('xdg-open', output_filn))
+                            subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  '+ output_filn), shell=True)
                 if on_finish_dict.get('reload_note', False):
                     self.reload(editor)
                 if on_finish_dict.get('open_new_note', False):
