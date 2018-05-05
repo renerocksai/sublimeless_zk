@@ -188,8 +188,11 @@ class Sublimeless_Zk(QObject):
         self.toggleAutoIndentAction = QAction('Toggle Auto-Indent')
         self.toggleIndentationGuidesAction = QAction('Toggle Indentation Guides', self)
         self.toggleUseTabsAction = QAction('Toggle TABs / Spaces', self)
+
         self.runExternalCommandAction = QAction('Run External Command...', self)
         self.runExternalCommandAction.setShortcut('Ctrl+Shift+X')
+        self.editExternalCommandsAction = QAction('Edit external commands...', self)
+
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -321,7 +324,9 @@ class Sublimeless_Zk(QObject):
         tools.addAction(self.reloadBibfileAction)
         tools.addAction(self.expandOverviewNoteAction)
         tools.addAction(self.refreshExpandedNoteAction)
+        tools.addSeparator()
         tools.addAction(self.runExternalCommandAction)
+        tools.addAction(self.editExternalCommandsAction)
 
         about.addAction(self.aboutAction)
 
@@ -380,6 +385,7 @@ class Sublimeless_Zk(QObject):
         self.toggleWrapLineAction.triggered.connect(self.toggle_wrap_line)
         self.toggleWrapMarkersAction.triggered.connect(self.toggle_wrap_markers)
         self.runExternalCommandAction.triggered.connect(self.run_external_command)
+        self.editExternalCommandsAction.triggered.connect(self.edit_external_commands)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -746,7 +752,7 @@ class Sublimeless_Zk(QObject):
         tab_index = self.gui.qtabs.currentIndex()
         editor = self.gui.qtabs.currentWidget()
         if editor:
-            if editor.editor_type == 'theme' or editor.editor_type == 'settings':
+            if editor.editor_type == 'theme' or editor.editor_type == 'settings' or editor.editor_type == 'build-commands':
                 txt = editor.text()
                 if not self.validate_json(editor, self.on_settings_editor_json_error):
                     return
@@ -1497,6 +1503,13 @@ class Sublimeless_Zk(QObject):
                     error_text = ' '.join(args) + '\n\n' + stdout
                     QMessageBox.information(self.gui, f'Error running {selected_command}', stdout)
         return
+    
+    def edit_external_commands(self):
+        settings_dir = os.path.join(self.app_state.home, 'sublimeless_zk.rc')
+        templates_dir = base_dir()
+        bc = BuildCommands(settings_dir, templates_dir)
+        filp = bc.filn
+        editor = self.open_document(filp, is_settings_file=True, editor_type='build-commands')
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
