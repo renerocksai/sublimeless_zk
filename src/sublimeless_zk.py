@@ -451,8 +451,8 @@ class Sublimeless_Zk(QObject):
         command = commands.find(QsciCommand.DeleteWordLeft)
         if command:
             command.setKey(Qt.AltModifier|Qt.Key_Backspace)
-        # delete line with cmd+backspace
-        command = commands.find(QsciCommand.LineDelete)
+        # delete line left from cursor with cmd+backspace
+        command = commands.find(QsciCommand.DeleteLineLeft)
         if command:
             command.setKey(Qt.ControlModifier | Qt.Key_Backspace)
 
@@ -1492,7 +1492,7 @@ class Sublimeless_Zk(QObject):
                             os.startfile(output_filn)
                         else:
                             # assume linux
-                            subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  '+ output_filn), shell=True)
+                            subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  ' + output_filn), shell=True)
                 if on_finish_dict.get('reload_note', False):
                     self.reload(editor)
                 if on_finish_dict.get('open_new_note', False):
