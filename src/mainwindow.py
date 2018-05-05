@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         editor.setExtraDescent(self.theme.line_pad_bottom)
 
         # give it a good size
-        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
+        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 60))
         return editor
 
     def format_editor_info(self, editor):
@@ -214,8 +214,8 @@ class MainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        editor.setMinimumWidth(self.recommended_editor_width(editor))
-        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40))
+        #editor.setMinimumWidth(self.recommended_editor_width(editor))
+        #editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40))
         editor.setMaximumWidth(800)
         return editor
 
@@ -257,8 +257,8 @@ class MainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        editor.setMinimumWidth(self.recommended_editor_width(editor))
-        editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40) + 20 + 12)
+        #editor.setMinimumWidth(self.recommended_editor_width(editor))
+        #editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40) + 20 + 12)
         editor.setMaximumWidth(1024)
         return editor
 
