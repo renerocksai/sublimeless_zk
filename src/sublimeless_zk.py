@@ -455,6 +455,12 @@ class Sublimeless_Zk(QObject):
         command = commands.find(QsciCommand.DeleteLineLeft)
         if command:
             command.setKey(Qt.ControlModifier | Qt.Key_Backspace)
+        
+        # zoom in
+        command = commands.find(QsciCommand.ZoomIn)
+        if command:
+            command.setKey(Qt.ControlModifier | Qt.Key_Plus)
+            command.setAlternateKey(Qt.ControlModifier | Qt.Key_Equal)
 
     def connect_editor_signals(self, editor):
         # text shortcut actions
@@ -1285,13 +1291,16 @@ class Sublimeless_Zk(QObject):
             search_term = show_input_panel(None, 'Find in files:', '')
         if not search_term:
             return
+        search_terms = search_term.split()
         note_files = self.project.get_all_note_files()
         result_notes = []
         for note in note_files:
             with open(note, mode='r', encoding='utf-8', errors='ignore') as f:
-                text = f.read()
-                if search_term in text.lower():
-                    result_notes.append(note)
+                text = f.read().lower()
+                for search_term in search_terms:
+                    if search_term in text:
+                        result_notes.append(note)
+                        break
         self.project.externalize_note_links(result_notes, '# Notes matching search ' + search_term)
         self.reload(self.gui.search_results_editor)
         return result_notes
