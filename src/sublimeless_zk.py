@@ -970,11 +970,7 @@ class Sublimeless_Zk(QObject):
         bibfile = Autobib.look_for_bibfile(self.project)
         if not bibfile:
             return
-        self.gui.statusBar().showMessage(f'Loading {bibfile} ...')
-        # call the event loop to show the status message
-        loop = QEventLoop()
-        QTimer.singleShot(1, loop.quit)
-        loop.exec_()
+        self._show_status_message(f'Loading {bibfile} ...')
         settings = self.project.settings
         convert_to_unicode = settings.get('convert_bibtex_to_unicode', True)
 
@@ -1476,6 +1472,13 @@ class Sublimeless_Zk(QObject):
             self._run_external_command(selected_command, editor)
         return
 
+    def _show_status_message(self, msg):
+        self.gui.statusBar().showMessage(msg)
+        # call the event loop to show the status message
+        loop = QEventLoop()
+        QTimer.singleShot(1, loop.quit)
+        loop.exec_()
+
     def _run_external_command(self, selected_command, editor):
         if not editor:
             return
@@ -1498,12 +1501,14 @@ class Sublimeless_Zk(QObject):
         vars_dict = defaultdict(dict, **vars_dict)
         if selected_command and selected_command in bc.commands:
             cmd_json_dict = bc.commands[selected_command]
+            self._show_status_message(f'Running {selected_command} ...')
             return_code, stdout, args = bc.run_build_command(selected_command, vars_dict)
             if return_code == 0:
                 on_finish_dict = cmd_json_dict.get('on_finish', dict())
                 if 'open' in on_finish_dict:
                     output_filn = on_finish_dict['open'].format(**vars_dict)
                     if os.path.exists(output_filn):
+                        self._show_status_message(f'Opening {output_filn} ...')
                         if sys.platform == 'darwin':
                             subprocess.call(['open', output_filn])
                         elif sys.platform == 'win32':
@@ -1521,6 +1526,7 @@ class Sublimeless_Zk(QObject):
                 if on_error_dict.get('show_error', False):
                     error_text = ' '.join(args) + '\n\n' + stdout
                     QMessageBox.information(self.gui, f'Error running {selected_command}', stdout)
+            self.gui.statusBar().clearMessage()
         return
     
     def edit_external_commands(self):
