@@ -30,8 +30,9 @@ class LicenseDialog(QDialog):
 
         self.ed_info.setText(info_txt)
         self.ed_GPL.setPlainText(gpl)
-        self.setFixedWidth(500)
-
+        my_geometry = QRect(0,0,640,400)
+        self.setGeometry(my_geometry)
+        self.move(parent.parent_for_lic.geometry().center() - my_geometry.center())
 
 class AboutDlg(QDialog):
     name = "about"
@@ -96,6 +97,7 @@ class AboutDlg(QDialog):
         self.setFixedSize(my_width, my_height)
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
+        self.parent_for_lic = parent
 
     def _close(self, event):
         """Close the widget"""
