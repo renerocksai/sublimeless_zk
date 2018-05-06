@@ -1141,7 +1141,9 @@ class Sublimeless_Zk(QObject):
                     continue
                 headings_to_skip += 1
                 heading = heading_match.group()
-                match = re.match(r'(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
+                match = re.match(r'(\s*)(#+)(\s*[0-9.]*\s)(.*)', heading)
+                if not match:
+                    continue
                 spaces, hashes, old_numbering, title = match.groups()
                 level = len(hashes) - 1
                 if level < current_level:
@@ -1178,7 +1180,9 @@ class Sublimeless_Zk(QObject):
                     continue
                 headings_to_skip += 1
                 heading = heading_match.group()
-                match = re.match(r'(\s*)(#+)(\s*[1-9.]*\s)(.*)', heading)
+                match = re.match(r'(\s*)(#+)(\s*[0-9.]*\s)(.*)', heading)
+                if not match:
+                    continue
                 spaces, hashes, old_numbering, title = match.groups()
                 new_heading = f'{hashes} {title}'
                 text = text[:heading_match.start()] \
