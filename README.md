@@ -23,6 +23,7 @@ In addition to being a specialized Markdown text-editor and text-browser, Sublim
 * auto-insertion of tables of contents
 * auto-insertion of bibliographies
 * export to stand-alone semantic text view HTML
+* support for external commands, e.g. to create PDFs
 
 See the [Usage](#usage) section below to see how this package might support your workflow.
 
@@ -59,6 +60,12 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
 * [Saved Searches](#saved-searches)
 * [HTML Export into a semantic text view](#html-export)
 * [Command Palette](#command-palette)
+* [**External Commands:**](#external-commands)
+    * Can create PDFs, e.g. via pandoc, as the provided examples
+    * Can automatically open the created PDF, HTML, ...
+    * Can create new notes
+    * Can update existing notes
+
 
 
 ## Contents
@@ -129,6 +136,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Creating a new Theme](#creating-a-new-theme)
         * [Editing Themes](#editing-themes)
         * [Switching Themes](#switching-themes)
+    * [External Commands](#external-commands)
 * [Credits](#credits)
 
 
@@ -526,6 +534,9 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Expand citekey inline](#inline-expansion-of-citekeys) (with referencing notes) <kbd>ctrl</kbd> + <kbd>.</kbd>
 * [Insert multimarkdown citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>#</kbd> (needs `"citations-mmd-style": true`)
 * [Insert pandoc citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>@</kbd> (needs `"citations-mmd-style": false`)
+* Increase Font Size: <kbd>ctrl/cmd</kbd> + <kbd>=</kbd> or <kbd>ctrl/cmd</kbd> + <kbd>+</kbd>
+* Decrease Font Size: <kbd>ctrl/cmd</kbd> + <kbd>-</kbd>
+* Run external command: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
 
 ### User Interface
 As you can see in the various screenshots, the user interface is split into three areas; they are:
@@ -607,6 +618,8 @@ Let's introduce them!
     * Reload BIB file : Do this when your `.bib` file has changed
     * Expand Overview Note : create new note from current one where all links are replaced by contents
     * Refresh expanded Note: Refresh such an expanded note if sources have changed
+    * Run External Command... : Fuzzy select an external command to run
+    * Edit external commands... : Edit external commands
 
 * About (Windows only) : Shows the about dialog
 
@@ -1430,6 +1443,83 @@ footnote | text-type | style of `^text` inside a `[^footnote]` footnote
 View > Switch Theme ... will open a fuzzy-searchable list of all installed themes. When you select a theme, you will receive a message to restart Sublimeless_ZK for the new theme to take effect.
 
 ![theme-switcher](imgs/switch-theme.png)
+
+## External Commands
+
+You can run external commands, for instance, to create a PDF or HTML from your current note; there are several ways to invoke an external command:
+
+* Use the Tool Menu > Run External Command...
+* Use the command palette: "Run External Command..."
+* Press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
+* Use the command palette and enter <kbd>></kbd>
+    * All external commands are integrated into the command palette
+    * They are prefixed with the `>` symbol
+
+Pre-configured are example commands for creating and opening PDF files from notes:
+
+* `PDF [no-bibfile] (pandoc)` : Uses pandoc (and pdflatex) to convert a note to PDF
+* `PDF (pandoc)` : Uses pandoc (and pdflatex) to convert a note to PDF, including citations and references
+    * if you don't have a `.bib` file or if you cite sources not contained in your `.bib` file, this will not work
+
+The following animation shows this in action, using the command palette to select the command `PDF [no-bibfile] (pandoc)`:
+
+![pandoc](imgs/extcmdpandoc.gif)
+
+### Writing your own external commands
+
+Let's do this by example. The following is the snippet for PDF conversion that you just saw above:
+
+```
+    // convert to PDF via pandoc
+    "PDF [no-bibfile] (pandoc)" : {
+        "run": [
+            "pandoc",  "{note_path}{note_name}{note_ext}",
+            "-f", "markdown",
+            "--output={tempfile}.pdf",
+            "--toc",    // create a table of contents
+            "--smart",
+            "--normalize",
+            "--highlight-style=tango"
+        ],
+        "on_finish": {
+            "open": "{tempfile}.pdf",
+            "reload_note": false,
+            "open_new_note": false
+        },
+        "on_error": {
+            "show_error": true
+        }
+    },
+```
+
+You can edit this with the external commands editor, which you can open with the "Edit external commands" action from the command palette or the Tools menu.
+
+Each command has a name and consists of 3 sections:
+
+* `"run"` : here comes a list of the program name, followed by optional arguments
+* `"on_finish"`
+    * `"open"`: lets you auto-open a result file
+    * `"reload_note"`: if `true`, reloads the current note, assuming your command has modified it
+    * `"open_new_note"`: if `true`, opens the new note that the external command has created
+* `"on_error"`: if `"show_error"` is `true`, which it should always be, then an error message will be shown if the command terminates with a non-zero exit code (the universal convention for error conditions).
+
+### Using variables
+
+But how to tell the name of the result file to open or the note ID of a new note that should be created by the external command?
+
+Here come the variables! Use them inside the `"run"` and the `"open"` sections:
+
+variable        | description
+----------------|-------------------------------------------------------------
+`{note_path}`   | path to the note 
+`{note_name}`   | filename of the note without extension!
+`{note_ext}`    | extension of the note file
+`{bib}`         | full path to .bib file if present, else None
+`{tempfile}`    | full path to a temporary file you can write to
+`{new_note_id}` | a timestamp based note id if you need to create a new note
+
+**Note:** Based on the above, to pass the complete filename of the current note to your external command, use: `{note_path}{note_name}{note_ext}`.
+
 
 
 ## Credits
