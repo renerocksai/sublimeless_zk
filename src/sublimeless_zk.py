@@ -667,7 +667,7 @@ class Sublimeless_Zk(QObject):
                 self.open_document(self.project.welcome_note)
             self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
             self.update_recent_project_actions()
-            self.bib_entries = {}          
+            self.bib_entries = None
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
