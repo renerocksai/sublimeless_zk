@@ -33,7 +33,8 @@ def SettingsEditor(theme, settings_filn, editor_type=None):
     editor.setAutoIndent(True)
 
     editor.setMarginType(0, QsciScintilla.SymbolMargin)
-    editor.setMarginWidth(0, "0")
+    editor.setMarginWidth(0, "")
+    editor.setMarginWidth(1, "")
     editor.setMarginsForegroundColor(QColor("#ff888888"))
 
     lexer = ZkMdLexer(editor, theme, highlight_saved_searches=False, show_block_quotes=False,
@@ -47,10 +48,7 @@ def SettingsEditor(theme, settings_filn, editor_type=None):
     editor.setCaretWidth(8)
 
     editor.setFont(lexer.default_font)
-    editor.setExtraAscent(theme.line_pad_top)
-    editor.setExtraDescent(theme.line_pad_bottom)
-
-    # give it a good size
-    editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 80))
+    # editor.setExtraAscent(theme.line_pad_top)
+    # editor.setExtraDescent(theme.line_pad_bottom)
     return editor
 
