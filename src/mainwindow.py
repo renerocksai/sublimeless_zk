@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         # load theme
         self.theme = theme
 
-        self.setGeometry(300, 200, 800, 600)
+        self.setGeometry(300, 200, 900, 600)
         self.setWindowTitle("Sublimeless Zettelkasten")
         self.setStyleSheet("QTabBar{font: 8px;}")
 
