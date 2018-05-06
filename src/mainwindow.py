@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
 
         self.qtabs = QTabWidget()
         # start with a 50:50 split
-        self.qtabs.setGeometry(0,0,250,600)
+        self.qtabs.setGeometry(0,0,300,600)
 
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
