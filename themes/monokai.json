@@ -6,7 +6,7 @@
   // - bolditalic
   "background" : "#ff202020",
   "foreground" : "#fff8f8f2",
-  "linehighlight": "#1F333333",
+  "linehighlight": "#1FBBBBBB",
   "line_padding_bottom": 4,
   "line_padding_top": 4,
   "selection" : {
@@ -51,7 +51,7 @@
   },
 
   "zettel.link" : {"color": "#7a9aff"},
-  "comment" : {"color": "#7c7865"},
+  "comment" : {"color": "#8c8875"},
   "footnote": {"color": "#66d9ef"},
 
   // search specs --- not used in default markdown

@@ -1,27 +1,37 @@
+// Available variables are:
+// - {note_path}   : path to the note 
+// - {note_name}   : filename of the note without extension!
+// - {note_ext}    : extension of the note file
+// - {bib}         : full path to .bib file if present, else None
+// - {tempfile}    : full path to a temporary file you can write to
+// - {new_note_id} : a timestamp based note id if you need to create a new note
+
+// Commands have the minimum format:
+//     "command-name" : { "run": ["program"] },
+
+// Arguments follow after "program", one by one like this:
+//     "command-name" : { "run": ["program", "argument 1", "argument 2"] },
+
+// See the examples below for optional "on_finish" and "on_error"
+
 {
     // convert to PDF via pandoc
     "PDF (pandoc)" : {
         "run": [
             "pandoc", 
-            
             // input file: your note: full path and extension
             "{note_path}{note_name}{note_ext}",
-
             "-f", "markdown",
-
             // use --latex-engine=engine where engine is
-            // pdflatex|lualatex|xelatex. This may need to be specified with a
-            // full path, e.g. on a mac with BasicTeX
-            // "--latex-engine=/Library/TeX/texbin/pdflatex",
-            
-            "--filter=pandoc-citeproc",   // for bib
-            
+            //    pdflatex|lualatex|xelatex. 
+            //    This may need to be specified with a full path, e.g. 
+            //    on a mac with BasicTeX
+            //"--latex-engine=/Library/TeX/texbin/pdflatex",
+            "--filter=pandoc-citeproc",   // for bib references
             // write into a temporary file
             "--output={tempfile}.pdf",
-
             // optionally specify a template for latex
-            //"--template=/path/to/your/default.latex",
-
+            //    "--template=/path/to/your/default.latex",
             "--toc",    // create a table of contents
             "--smart",
             "--normalize",
@@ -29,20 +39,43 @@
             "--highlight-style=tango"
         ],
         "on_finish": {
-            // only applicable if your command creates a file like PDF or HTML
+            // only applicable if your command creates 
+            // a file like PDF or HTML
             "open": "{tempfile}.pdf",
-
-            // only applicable if your command modifies the note externally
+            // only applicable if your command modifies
+            // the note externally
             "reload_note": false,
-            
-            // only applicable if your command creates {new_note_id}*{note_ext}
+            // only applicable if your command 
+            // creates {new_note_id}*{note_ext}
+            "open_new_note": false
+        },
+        "on_error": {
+            "show_error": true
+        }
+    },
+
+    // convert to PDF via pandoc
+    "PDF [no-bibfile] (pandoc)" : {
+        "run": [
+            "pandoc",  "{note_path}{note_name}{note_ext}",
+            "-f", "markdown",
+            "--output={tempfile}.pdf",
+            "--toc",    // create a table of contents
+            "--smart",
+            "--normalize",
+            "--highlight-style=tango"
+        ],
+        "on_finish": {
+            "open": "{tempfile}.pdf",
+            "reload_note": false,
             "open_new_note": false
         },
         
         "on_error": {
             "show_error": true
         }
-    }
+    },
+    
 
     // your commands go here
 }
