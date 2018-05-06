@@ -48,6 +48,8 @@ class ImageHandler:
         """
         Determine the image type of img and return its size.
         """
+        if not os.path.exists(img):
+            return 0, 0
         with open(img, 'rb') as f:
             head = f.read(24)
             # print('head:\n', repr(head))
