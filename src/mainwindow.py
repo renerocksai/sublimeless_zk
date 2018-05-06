@@ -32,6 +32,8 @@ class MainWindow(QMainWindow):
         self._myFont.setPointSize(14)
 
         self.qtabs = QTabWidget()
+        # start with a 50:50 split
+        self.qtabs.setGeometry(0,0,250,600)
 
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
@@ -67,13 +69,6 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.word_count_label)
         self.statusBar().showMessage('Welcome to Sublimeless_ZK', 3000)
         self.show()
-
-    def recommended_editor_width(self, editor):
-        font_metrics = QFontMetrics(editor.lexer().default_font)
-        max_width = 150
-        for line in editor.text().split('\n'):
-            max_width = max(max_width, font_metrics.width(line))
-        return max_width + 2 * 10 + 20    # 2 * margin width (we have 2 margins)
 
     def new_zk_editor(self, filn=None, settings=None):
         editor = ZettelkastenScintilla(document_filn=filn)
@@ -182,15 +177,15 @@ class MainWindow(QMainWindow):
 
         editor.setLexer(None)
         editor.setWrapMode(QsciScintilla.WrapWord)
-        editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
-        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+        editor.setWrapVisualFlags(QsciScintilla.WrapFlagNone)
+        editor.setWrapIndentMode(QsciScintilla.WrapIndentSame)
 
         editor.setEolMode(QsciScintilla.EolUnix)
         editor.setEolVisibility(False)
 
         editor.setIndentationsUseTabs(False)
         editor.setTabWidth(4)
-        editor.setIndentationGuides(True)
+        editor.setIndentationGuides(False)
         editor.setTabIndents(True)
         editor.setAutoIndent(True)
 
@@ -214,9 +209,7 @@ class MainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        #editor.setMinimumWidth(self.recommended_editor_width(editor))
-        #editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40))
-        editor.setMaximumWidth(800)
+        # no minimum width
         return editor
 
     def make_saved_searches_editor(self):
@@ -225,15 +218,15 @@ class MainWindow(QMainWindow):
 
         editor.setLexer(None)            # We install lexer later
         editor.setWrapMode(QsciScintilla.WrapWord)
-        editor.setWrapVisualFlags(QsciScintilla.WrapFlagByText)
-        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
+        editor.setWrapVisualFlags(QsciScintilla.WrapFlagNone)
+        editor.setWrapIndentMode(QsciScintilla.WrapIndentSame)
 
         editor.setEolMode(QsciScintilla.EolUnix)
         editor.setEolVisibility(False)
 
         editor.setIndentationsUseTabs(False)
-        editor.setTabWidth(8)
-        editor.setIndentationGuides(True)
+        editor.setTabWidth(4)
+        editor.setIndentationGuides(False)
         editor.setTabIndents(True)
         editor.setAutoIndent(True)
 
@@ -257,9 +250,7 @@ class MainWindow(QMainWindow):
         editor.setExtraAscent(theme.line_pad_top)
         editor.setExtraDescent(theme.line_pad_bottom)
 
-        #editor.setMinimumWidth(self.recommended_editor_width(editor))
-        #editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 40) + 20 + 12)
-        editor.setMaximumWidth(1024)
+        # no minimum width
         return editor
 
     def closeEvent(self, event):

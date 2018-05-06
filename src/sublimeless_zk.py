@@ -706,6 +706,11 @@ class Sublimeless_Zk(QObject):
         index, e = self.document_to_index_editor(document_filn)
         if index >= 0:
             self.gui.qtabs.setCurrentIndex(index)
+        
+        if self.gui.qtabs.count() == 1:
+            # if this is the first tab, i.e. there was no editor before:
+            pass
+            editor.setBaseSize
         return editor
     ''''''
 
