@@ -45,6 +45,8 @@ class MainWindow(QMainWindow):
         subsplit.setOrientation(Qt.Vertical)
         mainsplit.addWidget(self.qtabs)
         mainsplit.addWidget(subsplit)
+        mainsplit.setCollapsible(0, False)
+        mainsplit.setCollapsible(1, False)
 
         self.qtabs.setMovable(True)
         self.qtabs.setDocumentMode(True)
