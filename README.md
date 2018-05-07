@@ -148,7 +148,7 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 
 ### Windows
 
-**Windows 10 (64bit) only:** [Rumors](https://github.com/renerocksai/sublimeless_zk/issues/40) have it that it works on Windows 8.1 but if you don't run Windows 10 64bit, don't expect it to run. Volunteers helping to build releases for other versions of Windows are welcome to contact me on GitHub.
+**Built and tested on Windows 10 (64bit) only:** [Rumors](https://github.com/renerocksai/sublimeless_zk/issues/40) have it that it works on Windows 8.1 but if you don't run Windows 10 64bit, don't expect it to run. Volunteers helping to build releases for other versions of Windows are welcome to contact me on GitHub.
 
 * Download the Windows ZIP (`sublimeless_zk-pre-x.y-win10.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
 * Unzip `sublimeless_zk-pre-x.y-win10.zip`
@@ -160,9 +160,9 @@ The [releases](https://github.com/renerocksai/sublimeless_zk/releases) section o
 
 
 ### macOS
-* Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
-* Unzip `sublimeless_zk-pre-x.y-macOS.zip`
-* In the resulting `sublimeless_zk-pre-x.y-macOS` folder, `sublimeless_zk-pre-x.y.app` is the program you want to run.
+* Download the macOS ZIP (`sublimeless_zk-pre-x.y-macOS.app.zip`) [from the GitHub release archive](https://github.com/renerocksai/sublimeless_zk/releases)
+* Unzip `sublimeless_zk-pre-x.y-macOS.app.zip`
+* `sublimeless_zk-pre-x.y.app` is the program you want to run.
 
 ### Linux
 
@@ -178,7 +178,7 @@ If the above method doesn't work, you can try running the sources directly
 * Install required packates: `pip3 install pyqt5 qscintilla jstyleson fuzzyfinder pymmd markdown pypandoc pygments bibtexparser`
     * build the Multimarkdown shared library for pymmd (required for HTML export): `python3 -c "import pymmd; pymmd.build_mmd()"`
     * for that to work you need a working C compiler and cmake:
-        * `sudo apt-get install cmake gcc binutils`
+        * `sudo apt-get install cmake gcc g++ binutils`
 * Download or `git clone` the sources directly from [GitHub](https://github.com/renerocksai/sublimeless_zk)
 * change into the `src` folder
 * run `python3 sublimeless_zk.py`
@@ -248,7 +248,7 @@ We will go into further details later, but here is a quick reference of all curr
 "convert_bibtex_to_unicode" | true | convert bibtex strings to unicode for showing umlauts etc. **Set this to false if loading your .bib file takes ages**
 "toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
 "citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
-"seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true) or default YYYYMMDDHHMM IDs (false) |
+"seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true = default) or YYYYMMDDHHMM IDs (false) |
 "sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
 "auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
 "skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
@@ -274,7 +274,7 @@ Whether you want to use `[[this link style]]` or `[that link style]` is totally 
 
 #### Note ID precision
 
-The default note ID format is a timestamp in `YYYYMMDDHHMM` format, with minute precision. If you tend to create more than one note per minute, this can be a problem. In that case, you can change the note ID format to `YYYYMMDDHHMMSS`, with second-precision.
+The default note ID format is a timestamp in `YYYYMMDDHHMMSS` format, with second-precision. If you tend to create more than one note per minute, this is what you want. If you prefer shorter note-IDs, you can change the note ID format to `YYYYMMDDHHMM`, with minute-precision.
 
 The following setting influences the note ID format:
 
@@ -427,9 +427,6 @@ You can read more on defining your own themes in [Customizing Themes](#customizi
 
 ![monokai](imgs/monokai.png)
 
-on Windows
-
-![win](imgs/windows2.png)
 
 This theme is active per default, in the settings file:
 
