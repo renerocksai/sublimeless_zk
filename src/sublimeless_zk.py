@@ -1097,8 +1097,8 @@ class Sublimeless_Zk(QObject):
             suffix_sep = '_'
         toc_start, toc_end = find_toc_region(editor.text())
         if toc_start:
-            line_num_start, index_start = editor.lineIndexFromPosition(toc_start)
-            line_num_end, index_end = editor.lineIndexFromPosition(toc_end)
+            line_num_start, index_start = editor.lineIndexFromPosition(self.project.convert_pos_to_bytepos(editor.text(), toc_start))
+            line_num_end, index_end = editor.lineIndexFromPosition(self.project.convert_pos_to_bytepos(editor.text(), toc_end))
         else:
             line_num_start, index_start = editor.getCursorPosition()
             line_num_end, index_end = editor.getCursorPosition()

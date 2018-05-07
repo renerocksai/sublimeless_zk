@@ -197,7 +197,9 @@ class Project:
         return link_start, link_end
 
         
-        
+    def convert_pos_to_bytepos(self, text, pos):
+        return len(bytearray(text[:pos], 'utf-8'))
+
         
     def get_all_note_files(self):
         """
