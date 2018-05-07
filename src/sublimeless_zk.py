@@ -1545,6 +1545,7 @@ class Sublimeless_Zk(QObject):
         Go to open tab / heading
         """
         selections = {}
+        heading_re = re.compile(r'^#{1,6}\s')
         for i in range(self.gui.qtabs.count()):
             editor = self.gui.qtabs.widget(i)
             if editor.editor_type == 'normal':
@@ -1552,7 +1553,7 @@ class Sublimeless_Zk(QObject):
                 selections[f'{note_id} {title}'] = note_id
                 # now come the headings
                 for line_index, line in enumerate(editor.text().split('\n')):
-                    if line.startswith('# '):
+                    if heading_re.match(line):
                         selections[line] = f'{note_id}:{line_index}'
         if selections:
             selected_text, associated_noteid = show_fuzzy_panel(self.gui.qtabs, 'Goto open note', selections)
@@ -1565,6 +1566,8 @@ class Sublimeless_Zk(QObject):
                     line_index = -1
                 editor = self.clicked_noteid(note_id, ctrl=False, alt=False, shift=False)
                 if line_index != -1:
+                    stop_index = min(line_index + 5, editor.lines())
+                    editor.setCursorPosition(stop_index, 0)   # ensure we're below the line
                     editor.setCursorPosition(line_index, 0)
 
 
