@@ -580,15 +580,15 @@ class Sublimeless_Zk(QObject):
         self.advanced_tag_search(search_spec)
 
     def create_link_from_title_clicked(self, title, ctrl, alt, shift, pos, length):
+        """
+        title : nice python utf-8 string of the title
+        pos : position of link in text() -- the nice python utf-8 string
+        length :  length of the python string title
+        """
         print('create link from title', title)
         editor = self.get_active_editor()
         if not editor:
             return
-        link = editor.text()[pos:pos+length]
-        line_number, index = editor.lineIndexFromPosition(pos)
-        line_from, line_to = line_number, line_number
-        index_from = index
-        index_to = index + length
 
         # create new note with title of link
         settings = self.project.settings
@@ -605,8 +605,11 @@ class Sublimeless_Zk(QObject):
             return
         # get origin
         origin_id, origin_title = self.project.get_note_id_and_title_of(editor)
-        editor.setSelection(line_from, index_from, line_to, index_to)
-        editor.replaceSelectedText(new_id)
+        link_txt = self.project.style_link(new_id, title)
+        repl_from, repl_to = self.project.extend_link_to_brackets(editor.text(), pos, pos + length)
+        txt = editor.text()
+        txt = txt[:repl_from] + link_txt + txt[repl_to+1:]
+        editor.setText(txt)
         self.project.create_note(the_file, new_title, origin_id, origin_title)
         self.open_document(the_file)
 

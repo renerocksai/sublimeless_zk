@@ -176,7 +176,29 @@ class Project:
         if do_insert_title:
             link_txt += ' ' + title
         return link_txt
+    
+    def extend_link_to_brackets(self, line, link_start, link_end):
+        """
+        Give it a line with a [[link]] or a [link] and set link_start and link_end
+        to the word `link`. It will return the indices of `[[link]]` or `[link]`.
+        """
+        if link_start == 1:
+            link_start = 0
+        else:
+            # we are at least at pos 2
+            link_start -= 1
+            if line[link_start - 1] == '[':
+                link_start -= 1
+        last_index = len(line) - 1
+        link_end += 1
+        if last_index > link_end:
+            if line[link_end + 1] == ']':
+                link_end += 1
+        return link_start, link_end
 
+        
+        
+        
     def get_all_note_files(self):
         """
         Return all files with extension in folder.
