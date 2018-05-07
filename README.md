@@ -91,6 +91,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Color Schemes](#color-schemes)
         * [Monokai Color Scheme](#monokai-color-scheme)
         * [Solarized Color Scheme](#solarized-color-scheme)
+        * [C64 Color Scheme](#c64-color-scheme)
     * [Bibliographies and Citations](#bibliographies-and-citations)
         * [Location of your .bib file](#location-of-your-bib-file)
         * [Citation Reference Style](#citation-reference-style)
@@ -417,7 +418,7 @@ you can use the following settings:
 
 ### Color Schemes
 
-Two color schemes are provided by default. The sections below describe how you activate them in the settings file.
+Three color schemes are provided by default. The sections below describe how you activate them in the settings file.
 
 You can also use the View > Switch Theme... menu to select a different theme.
 
@@ -451,6 +452,17 @@ This theme is activated like this in the settings file:
 ```
 
 **Note:** For a theme change to take effect, you need to re-start the app.
+
+#### C64 Color Scheme
+
+![c64](imgs/c64.png)
+
+This theme is activated like this in the settings file:
+
+```
+    // Theme:
+    "theme": "themes/c64.json",
+```
 
 ### Bibliographies and Citations
 

@@ -1,0 +1,62 @@
+{
+  // We now support comments!
+  // styles can be:
+  // - italic
+  // - bold
+  // - bolditalic
+  "background" : "#4443a6",
+  "foreground" : "#9494e0",
+  "linehighlight": "#1F5151ad",
+  "line_padding_bottom": 4,
+  "line_padding_top": 4,
+  "selection" : {
+    "background": "#ffd33682",
+    "foreground": "#5151ad"
+  },
+  "font": {"face": "C64 Pro Mono", "size": 16, "style": "normal"},
+  "caret": "#9494e0",
+
+  "text.italic":     {"symbol": {"color": "#9494e0", "style": "italic"},
+                      "text" :  {"style": "italic"}},
+  "text.bold":       {"symbol": {"color": "#6463c6", "style": "italic"},
+                      "text" :  {"background": "#9494e0", "color": "#4443a6", "style": "bold"}},
+  "text.bolditalic": {"symbol": {"color": "#6463c6", "style": "italic"},
+                      "text" :  {"background": "#9494e0", "color": "#4443a6","style": "bolditalic"}},
+
+  "h.symbol" : {"color": "#4443a6", "background": "#9494e0", "style": "bold"},
+  "h1.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+  "h2.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+  "h3.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+  "h4.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+  "h5.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+  "h6.text" :  {"color": "#4443a6", "background": "#9494e0","style": "bold"},
+
+  "quote": {"symbol": {"color": "gray", "style": "italic"},
+            "text" :  {"style": "italic"}},
+
+  "code.fenced":    {"color": "gray", "background": "#000000", "style": "bold"},
+  "code":           {"color": "gray", "background": "#000000", "style": "bold"},
+
+  "list.symbol"   : {"color": "gray"},
+  "list.unordered": {},
+  "list.ordered":   {},
+
+  "tag":     {"color": "#9494e0", "style": "italic"},
+  "citekey": {"color": "#B0B0B0"},
+
+  "link": {
+    "title": {"color": "#9494e0", "style": "bold"},
+    "url"  : {"color": "#9494e0", "style": "italic"},
+    "attr": {"color": "#9494e0", "style": "italic"}
+  },
+
+  "zettel.link" : {"color": "#9494e0"},
+  "comment" : {"color": "#9494e0"},
+  "footnote": {"color": "yellow"},
+
+  // search specs --- not used in default markdown
+  // only used for saved searches area
+  "search.name": {"style": "bolditalic"},
+  "search.spec": {"color": "#e42e70",// "background": "#99ccff"
+  },
+}
