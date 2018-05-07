@@ -61,7 +61,7 @@
     // seconds in note IDs?
     // if true : YYYYMMDDHHMMSS 20171224183045
     // if false: YYYYMMDDHHMM   201712241830
-    "seconds_in_id": false,
+    "seconds_in_id": true,
 
     // Sort note lists (search results) by
     // - title
@@ -96,7 +96,7 @@
     // should wrapped lines be indented?
     // like this: this is a long line that gets
     //    wrapped with indentation
-    "indent_wrapped_lines": true,
+    "indent_wrapped_lines": false,
 
     // automatically indent lines?
     //    if this line is indented and you press return,
