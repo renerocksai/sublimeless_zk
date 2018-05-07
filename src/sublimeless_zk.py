@@ -193,6 +193,8 @@ class Sublimeless_Zk(QObject):
         self.runExternalCommandAction.setShortcut('Ctrl+Shift+X')
         self.editExternalCommandsAction = QAction('Edit external commands...', self)
 
+        self.gotoAction = QAction('Go to...', self)
+        self.gotoAction.setShortcut('Ctrl+Shift+G')
 
         # Recent folders actions
         for i in range(self.recent_projects_limit):
@@ -305,6 +307,7 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.commandPaletteAction)
         view.addAction(self.cycleTabsForwardAction)
         view.addAction(self.cycleTabsAction)
+        view.addAction(self.gotoAction)
         view.addAction(self.showHideSidePanelAction)
         view.addAction(self.toggleStatusBarAction)
         view.addSeparator()
@@ -386,6 +389,7 @@ class Sublimeless_Zk(QObject):
         self.toggleWrapMarkersAction.triggered.connect(self.toggle_wrap_markers)
         self.runExternalCommandAction.triggered.connect(self.run_external_command)
         self.editExternalCommandsAction.triggered.connect(self.edit_external_commands)
+        self.gotoAction.triggered.connect(self.goto)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -554,7 +558,7 @@ class Sublimeless_Zk(QObject):
             self.show_referencing_notes(noteid)
         else:
             if filn:
-                self.open_document(filn)
+                return self.open_document(filn)
 
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
@@ -1535,6 +1539,34 @@ class Sublimeless_Zk(QObject):
         bc = BuildCommands(settings_dir, templates_dir)
         filp = bc.filn
         editor = self.open_document(filp, is_settings_file=True, editor_type='build-commands')
+    
+    def goto(self):
+        """
+        Go to open tab / heading
+        """
+        selections = {}
+        for i in range(self.gui.qtabs.count()):
+            editor = self.gui.qtabs.widget(i)
+            if editor.editor_type == 'normal':
+                note_id, title = self.project.get_note_id_and_title_of(editor)
+                selections[f'{note_id} {title}'] = note_id
+                # now come the headings
+                for line_index, line in enumerate(editor.text().split('\n')):
+                    if line.startswith('# '):
+                        selections[line] = f'{note_id}:{line_index}'
+        if selections:
+            selected_text, associated_noteid = show_fuzzy_panel(self.gui.qtabs, 'Goto open note', selections)
+            if selected_text:
+                if ':' in associated_noteid:
+                    note_id, line_index = associated_noteid.split(':')
+                    line_index = int(line_index)
+                else:
+                    note_id = associated_noteid
+                    line_index = -1
+                editor = self.clicked_noteid(note_id, ctrl=False, alt=False, shift=False)
+                if line_index != -1:
+                    editor.setCursorPosition(line_index, 0)
+
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
