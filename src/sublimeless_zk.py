@@ -1293,22 +1293,24 @@ class Sublimeless_Zk(QObject):
         about = AboutDlg(self.gui)
         about.exec_()
 
-    def find_in_files(self, search_term=None):
-        if not search_term:
-            search_term = show_input_panel(None, 'Find in files:', '')
-        if not search_term:
+    def find_in_files(self, search_terms=None):
+        if not search_terms:
+            search_terms = show_input_panel(None, 'Find in files:', '')
+        if not search_terms:
             return
-        search_terms = search_term.split()
+        orig_search_terms = search_terms
+        search_terms = search_terms.lower().split()
         note_files = self.project.get_all_note_files()
         result_notes = []
         for note in note_files:
             with open(note, mode='r', encoding='utf-8', errors='ignore') as f:
                 text = f.read().lower()
                 for search_term in search_terms:
-                    if search_term in text:
-                        result_notes.append(note)
+                    if search_term not in text:
                         break
-        self.project.externalize_note_links(result_notes, '# Notes matching search ' + search_term)
+                else:
+                    result_notes.append(note)
+        self.project.externalize_note_links(result_notes, '# Notes matching search ' + orig_search_terms)
         self.reload(self.gui.search_results_editor)
         return result_notes
 
