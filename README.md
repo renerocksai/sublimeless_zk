@@ -648,7 +648,7 @@ The following animation shows the command palette in action:
 
 The side-panel shows the current search results at the top for you to click and your [saved searches](#saved-searches) at the bottom.
 
-**Note:** You can show and hide the side panel with View > Toggle Side Panel or <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>J</kbd>.
+**Note:** You can show and hide the side panel with View > Toggle Side Panel or <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>K</kbd>.
 
 #### Status Bar
 
