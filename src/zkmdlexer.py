@@ -522,7 +522,7 @@ class ZkMdLexer(QsciLexerCustom):
             # make clickable
             self.make_clickable(match.start(2), len(match.group(2)), self.indicator_id_only_notetitle)
 
-        self.apply_regions(regions, text)
+        self.apply_regions(regions, orig_text)
 
     def apply_regions(self, regions, text):
         # sort and split regions
