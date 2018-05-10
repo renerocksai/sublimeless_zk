@@ -134,7 +134,7 @@ class Sublimeless_Zk(QObject):
         self.numberHeadingsAction.setShortcut('Ctrl+Shift+N')
 
         self.denumberHeadingsAction = QAction('Remove Section Numbers', self)
-        self.denumberHeadingsAction.setShortcut('Ctrl+Shift+R')
+        self.denumberHeadingsAction.setShortcut('Ctrl+Shift+V')
 
         self.showAllNotesAction = CustomMenuItemAction('Show all Notes', self)
         self.showAllNotesAction.setShortcut('[!')
@@ -167,6 +167,8 @@ class Sublimeless_Zk(QObject):
         self.chooseThemeAction = QAction('Switch Theme...', self)
 
         self.renameNoteAction = QAction('Rename Note...', self)
+        self.renameNoteAction.setShortcut('Ctrl+Shift+R')
+        
         self.deleteNoteAction = QAction('Delete Note...', self)
 
         self.exportHtmlAction = QAction('Export  archive to HTML...', self)
