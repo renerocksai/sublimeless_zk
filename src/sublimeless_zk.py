@@ -503,7 +503,7 @@ class Sublimeless_Zk(QObject):
         Theme.prepare_theme_folder()
         theme_f = os.path.basename(get_settings().get('theme', 'monokai.json'))
         theme = Theme(theme_f)
-        self.gui = MainWindow(theme)
+        self.gui = MainWindow(theme, self.mainwindow_close_handler)
         self.gui.setFocus()
         self.init_actions()
         self.initMenubar()
@@ -652,13 +652,18 @@ class Sublimeless_Zk(QObject):
         """
         """
         editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
-        for editor in editor_list:
-            if editor.isModified():
-                msg = "You have unsaved changes. Save them first?"
-                buttonReply = QMessageBox.question(self.gui, 'Save Changes', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-                if buttonReply == QMessageBox.Yes:
-                    self.save_all()
-                break
+
+        # auto-save if auto-save is on, instead of nagging us
+        if self.autosave_interval > 0 and editor_list:
+            self.save_all()
+        else:
+            for editor in editor_list:
+                if editor.isModified():
+                    msg = "You have unsaved changes. Save them first?"
+                    buttonReply = QMessageBox.question(self.gui, 'Save Changes', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                    if buttonReply == QMessageBox.Yes:
+                        self.save_all()
+                    break
         if not folder:
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
@@ -1287,12 +1292,17 @@ class Sublimeless_Zk(QObject):
         if self.gui.qtabs.count() == 1:
             return
         editor = self.gui.qtabs.widget(index)
-        if editor.isModified():
-            msg = f"You have unsaved changes in {os.path.basename(editor.file_name)} Close anyway?"
-            buttonReply = QMessageBox.question(editor, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
-                                               QMessageBox.No)
-            if buttonReply == QMessageBox.No:
-                return    # ignore
+
+        # auto-save if auto-save is on, instead of nagging us
+        if self.autosave_interval > 0:
+            self.save_all()
+        else:
+            if editor.isModified():
+                msg = f"You have unsaved changes in {os.path.basename(editor.file_name)} Close anyway?"
+                buttonReply = QMessageBox.question(editor, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
+                                                QMessageBox.No)
+                if buttonReply == QMessageBox.No:
+                    return    # ignore
         self.gui.qtabs.removeTab(index)
 
     def about(self):
@@ -1581,6 +1591,22 @@ class Sublimeless_Zk(QObject):
                     editor.setCursorPosition(stop_index, 0)   # ensure we're below the line
                     editor.setCursorPosition(line_index, 0)
 
+    def mainwindow_close_handler(self):
+        if self.autosave_interval > 0:
+            self.save_all()
+            return True
+        editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
+        for editor in editor_list:
+            if editor.isModified():
+                msg = "You have unsaved changes. Quit anyway?"
+                buttonReply = QMessageBox.question(self.gui, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
+                                                   QMessageBox.No)
+                if buttonReply == QMessageBox.Yes:
+                    return True
+                else:
+                    return False
+        return True
+        
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()

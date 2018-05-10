@@ -4,7 +4,7 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
@@ -12,13 +12,14 @@ from themes import Theme
 from settings import base_dir
 
 
-class MainWindow(QMainWindow):
-    def __init__(self, theme):
+class MainWindow(QMainWindow):    
+    def __init__(self, theme, close_handler):
         super(MainWindow, self).__init__()
 
         # load theme
         self.theme = theme
-
+        self.close_handler = close_handler
+        
         self.setGeometry(300, 200, 900, 600)
         self.setWindowTitle("Sublimeless Zettelkasten")
         self.setStyleSheet("QTabBar{font: 8px;}")
@@ -256,15 +257,5 @@ class MainWindow(QMainWindow):
         return editor
 
     def closeEvent(self, event):
-        editor_list = [self.qtabs.widget(i) for i in range(self.qtabs.count())]
-        for editor in editor_list:
-            if editor.isModified():
-                msg = "You have unsaved changes. Quit anyway?"
-                buttonReply = QMessageBox.question(self, 'Unsaved Changes', msg, QMessageBox.Yes | QMessageBox.No,
-                                                   QMessageBox.No)
-                if buttonReply == QMessageBox.Yes:
-                    pass
-                else:
-                    event.ignore()
-                break
-
+        if self.close_handler() == False:
+            event.ignore()
