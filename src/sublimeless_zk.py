@@ -35,6 +35,7 @@ from findandreplace import FindDlg
 from semantic_zk import SemanticZKDialog
 from custmenuitem import CustomMenuItemAction
 from buildcommands import BuildCommands
+from zkutils import sanitize_filename
 
 
 class Sublimeless_Zk(QObject):
@@ -846,6 +847,7 @@ class Sublimeless_Zk(QObject):
                 insert_link = True
         parent = None  # or editor
         input_text = show_input_panel(parent, 'New Title:', suggested_title)
+        input_text = input_text.strip()
         if not input_text:
             return
 
@@ -854,7 +856,7 @@ class Sublimeless_Zk(QObject):
         id_in_title = settings.get('id_in_title')
 
         new_id = self.project.timestamp()
-        the_file = os.path.join(self.project.folder, new_id + ' ' + input_text + extension)
+        the_file = os.path.join(self.project.folder, new_id + ' ' + sanitize_filename(input_text) + extension)
         new_title = input_text
         if id_in_title:
             new_title = new_id + ' ' + input_text
@@ -1353,15 +1355,15 @@ class Sublimeless_Zk(QObject):
         note_filn = os.path.basename(editor.file_name)
         note_id, title = os.path.splitext(os.path.basename(note_filn))[0].split(' ', 1)
         new_title = show_input_panel(self.gui, 'New Title:', title)
+        new_title = new_title.strip()
         if not new_title:
             return
-        new_title = new_title.strip()
         if new_title == title:
             return
         self.save()
         settings = self.project.settings
         extension = settings.get('markdown_extension', '.md')
-        new_note_filn = os.path.join(self.project.folder, f'{note_id} {new_title}{extension}')
+        new_note_filn = os.path.join(self.project.folder, f'{note_id} {sanitize_filename(new_title)}{extension}')
         os.rename(editor.file_name, new_note_filn)
         # close tab
         index = self.gui.qtabs.currentIndex()
