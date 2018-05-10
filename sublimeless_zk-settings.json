@@ -79,9 +79,9 @@
     "skip_first_heading_when_numbering": false,
 
     // convert bibtex entries to unicode
-    //    - this gives you umlauts etc but parsing takes a loooong time
+    //    - set to true: gives you umlauts etc but parsing takes a loooong time
     //    - set this to false if you have a big .bib file
-    "convert_bibtex_to_unicode": true,
+    "convert_bibtex_to_unicode": false,
 
     //
     // control the editor
