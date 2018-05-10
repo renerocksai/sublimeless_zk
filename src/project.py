@@ -169,10 +169,13 @@ class Project:
                 f.write('\n' + body)
         return
 
-    def style_link(self, note_id, title):
+    def style_link(self, note_id, title, force_title=False):
         prefix, postfix = self.get_link_pre_postfix()
         link_txt = prefix + note_id + postfix
-        do_insert_title = self.settings.get('insert_links_with_titles', False)
+        if force_title:
+            do_insert_title = True
+        else:
+            do_insert_title = self.settings.get('insert_links_with_titles', False)
         if do_insert_title:
             link_txt += ' ' + title
         return link_txt
