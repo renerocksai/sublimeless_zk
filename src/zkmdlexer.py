@@ -85,6 +85,7 @@ class ZkMdLexer(QsciLexerCustom):
         self.indicator_id_search_spec = 2
         self.indicator_id_only_notetitle = 3
         self.indicator_id_citekey = 4
+        self.num_indicators = 5
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
@@ -114,6 +115,13 @@ class ZkMdLexer(QsciLexerCustom):
         tuple (line_string, heading_level, start_pos, end_pos)
         """
         return self.headings
+
+    def clear_indicators(self):
+        editor = self.parent()
+        num_bytes = editor.length()
+        for i in range(self.num_indicators):
+            editor.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, i)
+            editor.SendScintilla(QsciScintilla.SCI_INDICATORCLEARRANGE, 0, num_bytes)
 
     def make_clickable(self, startpos, length, indicator_id):
         # Tell the editor which indicator-style to use
@@ -188,6 +196,7 @@ class ZkMdLexer(QsciLexerCustom):
             return ''
 
     def styleText(self, start, end):
+        self.clear_indicators()
         self.startStyling(0)
         text = bytearray(self.parent().text(), "utf-8").decode("utf-8")
         orig_text = text
@@ -230,9 +239,9 @@ class ZkMdLexer(QsciLexerCustom):
 
         # only for search spec area: search specs:
         if self.highlight_saved_searches:
-            p = re.compile(r'(^.+?:)([ \t]*)([^\n]+)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
+            p = re.compile(r'(^.+?: )([ \t]*)([^\n]+?)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
             for match in p.finditer(text):
-                # print(match.groups())
+                #print(match.groups())
                 a1 = match.start(1)
                 a2 = match.start(3)
                 b = match.end()
