@@ -23,7 +23,7 @@ class FindRefcountDlg(QDialog):
         lblmax = QLabel('Maximum number of references')
         self.spinmax = QSpinBox()
         self.spinmax.setMaximum(1000000)
-        self.spinmax.setMinimum(1)
+        self.spinmax.setMinimum(0)
         self.spinmax.setValue(1000)
         hlaymax.addWidget(lblmax)
         hlaymax.addWidget(self.spinmax)

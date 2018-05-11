@@ -10,10 +10,13 @@ In short, it helps you manage an archive of interlinked notes that look like thi
 
 In addition to being a specialized Markdown text-editor and text-browser, Sublimeless_ZK is loaded with features for text-production:
 
-* sophisticated search methods for finding associated notes that
+* sophisticated search methods for finding (associated) notes that
     * reference the same #tag combination
     * or cite a certain source
     * or are linking to a certain note
+    * contain a certain combination of words
+    * are referenced (=linked to) a min/max number of times
+    * are un-referenced
 * expanding notes containing links to other notes (overview notes) into notes notes containing the linked notes' contents
     * can be refreshed if source notes change
     * refresh can be enabled / disabled on a per contained note basis

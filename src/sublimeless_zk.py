@@ -53,7 +53,7 @@ class Sublimeless_Zk(QObject):
         self.time_since_last_autosave = 0
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
         self.bib_entries = {} # caching bib
-        
+        self.current_search_attrs = {}
 
     def on_timer(self):
         time_now = int(time.time())
