@@ -1635,7 +1635,8 @@ class Sublimeless_Zk(QObject):
         d = self.project.get_notes_with_refcounts(refmin, refmax)
         title = f'Notes with min. {refmin} and max. {refmax} references'
         note_files = [x[2] for x in d.values()]
-        self.project.externalize_note_links(note_files, prefix=title)
+        refcounts = {note_id: x[0] for note_id, x in d.items()}  # produce a dict of refcounts 
+        self.project.externalize_note_links(note_files, prefix=title, refcounts=refcounts, sort='mtime', order='desc')
         self.reload(self.gui.search_results_editor)
         
 

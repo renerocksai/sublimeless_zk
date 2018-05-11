@@ -211,27 +211,48 @@ class Project:
         self.refresh_notes()
         return list(self.notes.values())
 
-    def externalize_note_links(self, note_files, prefix=None):
+    def externalize_note_links(self, note_files, prefix=None, refcounts=None, sort=None, order=None):
         link_prefix, link_postfix = self.get_link_pre_postfix()
         with open(self.get_search_results_filn(), mode='w', encoding='utf-8', errors='ignore') as f:
             if prefix:
                 f.write(f'{prefix}\n\n')
             results = []
+
+            if refcounts is None:
+                # refcounts are emtpy if not provided
+                refcounts = Counter()
+            if order is None:
+                order = 'asc'
+            
+            mtimes = {}
             extension = self.settings['markdown_extension']
             for line in note_files:
+                filn = line
                 line = os.path.basename(line)
                 line = line.replace(extension, '')
                 if ' ' not in line:
                     line += ' '
                 note_id, title = line.split(' ', 1)
                 note_id = os.path.basename(note_id)
-                results.append((note_id, title))
-            sort_order = self.settings.get('sort_notelists_by', 'id').lower()
+                refcount = refcounts[note_id]
+                mtime = os.path.getmtime(filn)
+                results.append((note_id, title, mtime, refcount))
+            if sort is None:
+                sort_by = self.settings.get('sort_notelists_by', 'id').lower()
+            else:
+                sort_by = sort
             column = 0
-            if sort_order == 'title':
+            if sort_by == 'title':
                 column = 1
-            results.sort(key=itemgetter(column))
-            for note_id, title in results:
+            elif sort_by == 'mtime':
+                column = 2
+            elif sort_by == 'refcount':
+                column = 3
+            reverse = False
+            if order.lower() == 'desc':
+                reverse = True
+            results.sort(key=itemgetter(column), reverse=reverse)
+            for note_id, title, mtime, refcount in results:
                 f.write('* {}{}{} {}\n'.format(link_prefix, note_id,
                                                link_postfix, title))
         return
