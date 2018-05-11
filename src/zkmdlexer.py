@@ -76,7 +76,13 @@ class ZkMdLexer(QsciLexerCustom):
                 weight = QFont.Normal
             self.setColor(QColor(current_style['color']), styleid)
             self.setPaper(QColor(current_style['background']), styleid)
-            self.setFont(QFont(default_font, default_size, weight=weight, italic=italic), styleid)
+            font_size = default_size
+            try:
+                font_size = int(current_style['size'])
+            except ValueError:
+                print('illegal size in', current_style)
+                pass
+            self.setFont(QFont(current_style['face'], font_size, weight=weight, italic=italic), styleid)
             self.setEolFill(True, styleid)
 
         # indicators for clickable links

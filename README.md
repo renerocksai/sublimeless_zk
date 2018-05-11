@@ -418,7 +418,7 @@ you can use the following settings:
 
 ### Color Schemes
 
-Three color schemes are provided by default. The sections below describe how you activate them in the settings file.
+Only a few color schemes are provided by default. The sections below describe how you activate them in the settings file.
 
 You can also use the View > Switch Theme... menu to select a different theme.
 
@@ -437,6 +437,10 @@ This theme is active per default, in the settings file:
     //    themes/solarized_light.json
     "theme": "themes/monokai.json",
 ```
+
+There is also a variant `monokai-large-headings`:
+
+![monokai-large-headings](imgs/multi-fonts.png)
 
 #### Solarized Color Scheme
 
@@ -485,7 +489,7 @@ In cases where both a bibfile setting is present *and* an actual `.bib` file is 
 
 * Your `.bib` file is loaded the first time you insert a citation
 * Strings in the `.bib` file are being converted to unicode so umlauts and special characters can be displayed in the fuzzy panel
-* This conversion can take long
+* This conversion can take long, so it is disabled by default
 * To disable the conversion and live with `u` instead of `ü`, set the setting `"convert_bibtex_to_unicode"` to `false`.
 * To re-load your `.bib` file, use the menu Tools > Reload BIB file or press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>B</kbd>
 
@@ -1409,7 +1413,7 @@ pixels | a number of pixels
 color | HTML color code
 color with alpha | HTML color code with alpha prefix (1F in #1F333333)
 style | one of "normal", "bold", "italic", and "bolditalic"
-text-type | has a "color" field of type color, a "style" field of type style, and a "background" field of type color for the background color of the text
+text-type | has a "face" and "size" field to define font-face and font-size, has a "color" field of type color, a "style" field of type style, and a "background" field of type color for the background color of the text
 markup | has a "symbol" field of type text-type for the markup symbol (`#` for headings, `*` or `_` for italic, ...), and a "text" field for styling the marked-up text
 
 The following fields define the appearance of the markdown editor:

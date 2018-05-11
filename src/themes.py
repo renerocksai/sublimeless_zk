@@ -66,13 +66,26 @@ class Theme:
             self.id2stylename[styleid] = style
 
     def get_style(self, d, key):
+        """
+        Get a text style under key: 
+        - color
+        - background
+        - style
+        """
         ret = d.get(key, {})
         ret['color'] = ret.get('color', self.style_infos['default']['color'])
         ret['background'] = ret.get('background', self.style_infos['default']['background'])
         ret['style'] = ret.get('style', self.style_infos['default']['style'])
+        ret['face'] = ret.get('face', self.font_info['face'])
+        ret['size'] = ret.get('size', self.font_info['size'])
         return ret
 
     def get_symbol_text(self, d, key):
+        """
+        Get text styles under key:
+        - symbol
+        - text 
+        """
         themed = d.get(key, {})
         for item in 'symbol', 'text':
             dd = self.get_style(themed, item)
@@ -122,7 +135,9 @@ class Theme:
         self.style_infos['default'] = {
             'color': foreground,
             'background': background,
-            'style': font['style']
+            'style': font['style'],
+            'face': font['face'],
+            'size': font['size']
         }
 
         for style in 'text.italic', 'text.bold', 'text.bolditalic', 'quote':

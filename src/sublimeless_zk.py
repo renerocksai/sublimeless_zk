@@ -990,7 +990,7 @@ class Sublimeless_Zk(QObject):
             return
         self._show_status_message(f'Loading {bibfile} ...')
         settings = self.project.settings
-        convert_to_unicode = settings.get('convert_bibtex_to_unicode', True)
+        convert_to_unicode = settings.get('convert_bibtex_to_unicode', False)
 
         self.bib_entries = Autobib.extract_all_entries(bibfile, unicode_conversion=convert_to_unicode)
         self.gui.statusBar().clearMessage()
