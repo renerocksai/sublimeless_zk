@@ -196,6 +196,7 @@ includefiles = [
     ('themes/solarized_light.json', 'themes/solarized_light.json'),
     ('themes/monokai.json', 'themes/monokai.json'),
     ('themes/monokai-large-headings.json', 'themes/monokai-large-headings.json'),
+    ('themes/C64.json', 'themes/C64.json'),
     ('saved_searches_default.md', 'saved_searches_default.md'),
     ('search_results_default.md', 'search_results_default.md'),
     ('sublimeless_zk-settings.json', 'sublimeless_zk-settings.json'),
