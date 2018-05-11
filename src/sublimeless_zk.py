@@ -1315,7 +1315,21 @@ class Sublimeless_Zk(QObject):
         if not search_terms:
             return
         orig_search_terms = search_terms
-        search_terms = search_terms.lower().split()
+
+        search_terms = search_terms.lower()
+
+        # double quotes
+        RO = re.compile(r'"(.*?)"')
+        quoted = RO.findall(search_terms)
+        search_terms = RO.sub('',search_terms)
+
+        # single quotes
+        RO = re.compile(r"'(.*?)'")
+        quoted.extend(RO.findall(search_terms))
+        search_terms = RO.sub('', search_terms)
+
+        search_terms = quoted + search_terms.split()
+
         note_files = self.project.get_all_note_files()
         result_notes = []
         for note in note_files:
