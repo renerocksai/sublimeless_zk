@@ -114,7 +114,9 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Searching for friends](#searching-for-friends)
     * [Listing all notes](#listing-all-notes)
     * [Browsing through notes](#browsing-through-notes)
+        * [Navigating opened notes](#navigating-open-notes) 
     * [Find in files](#find-in-files)
+    * [Find notes by number of links to them](#find-notes-by-number-of-links-to-them)
     * [Working with tags](#working-with-tags)
         * [Getting an overview of all your tags](#getting-an-overview-of-all-your-tags)
         * [Inserting tags](#inserting-tags)
@@ -135,6 +137,8 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Automatic Table Of Contents](#automatic-table-of-contents)
         * [Automatic Section Numbering](#automatic-section-numbering)
     * [Saved Searches](#saved-searches)
+        * [Advanced Saved Searches](#advanced-saved-searches)
+        * [Searching for un-referenced and most-referenced notes](#reference-counts---find-un-referenced-and-most-referenced-notes)
     * [HTML Export](#html-export)
     * [Customizing Themes](#customizing-themes)
         * [Creating a new Theme](#creating-a-new-theme)
@@ -252,7 +256,7 @@ We will go into further details later, but here is a quick reference of all curr
 "convert_bibtex_to_unicode" | true | convert bibtex strings to unicode for showing umlauts etc. **Set this to false if loading your .bib file takes ages**
 "toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
 "citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
-"seconds_in_id" | false | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true = default) or YYYYMMDDHHMM IDs (false) |
+"seconds_in_id" | true | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true = default) or YYYYMMDDHHMM IDs (false) |
 "sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
 "auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
 "skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
@@ -534,11 +538,14 @@ The following line in the settings turns MultiMarkdown mode on:
 ### Shortcut cheatsheet
 
 * [Command Palette](#command-palette) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>P</kbd>
+* [Fuzzy search and open note](#browsing-through-notes)  <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
+* [Goto Open Note / Heading](#navigating-open-notes) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>G</kbd>
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
-* [Fuzzy search and open note](#browsing-through-notes)  <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
+* Rename note: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>R</kbd>
 * [Find in files](#find-in-files) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>F</kbd>
+* [Find notes by number of links to them](#find-notes-by-number-of-links-to-them) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>W</kbd>
 * [Open link with keyboard](#creating-a-link) Cursor in link, then <kbd>ctrl</kbd> + <kbd>enter</kbd>
 * Cycle tabs  <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>[</kbd> (left) and <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>]</kbd> (right)
 * [Insert link](#creating-a-link) <kbd>[</kbd> + <kbd>[</kbd>
@@ -554,7 +561,7 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Insert pandoc citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>@</kbd> (needs `"citations-mmd-style": false`)
 * Increase Font Size: <kbd>ctrl/cmd</kbd> + <kbd>=</kbd> or <kbd>ctrl/cmd</kbd> + <kbd>+</kbd>
 * Decrease Font Size: <kbd>ctrl/cmd</kbd> + <kbd>-</kbd>
-* Run external command: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
+* [Run external command](#external-commands): <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
 
 ### User Interface
 As you can see in the various screenshots, the user interface is split into three areas; they are:
@@ -617,11 +624,13 @@ Let's introduce them!
     * Find/replace... : show search and (optionally) replace dialog to find/replaace text in current editor
     * Find in files : search for text in all notes
     * Search for Tag Combination : Advanced Tag Search
+    * Find notes with references... : Search for notes that are linked to a certain number of times (within a range)
 
 * View
     * Show Command Palette... : does exactly that
     * Cycle forwards through tabs: open next tab
     * Cycle backwards through tabs: open previous tab
+    * Goto... : Go to open note or a specific heading within an open note
     * Toggle Side Panel : Show / hide the side panel
     * Toggle Status Bar : Show / hide the status bar
     * Show all notes : shows all notes in the search results
@@ -868,8 +877,34 @@ The shortcut <kbd>[</kbd> + <kbd>!</kbd> produces a list of all notes in the sea
 
 To quickly open a note, you can open the note browser with <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>. This will let you fuzzy-search your notes and open the one you select.
 
+#### Navigating open notes
+
+You can jump to any open note or even an individual heading within an open note with the "Goto..." command from the command palette, via the View > Goto... menu or by pressing <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>G</kbd>.
+
+Headings are prefixed with their `#` markup and appear below their note in the fuzzy-searchable list.
+
+The following animation shows how this works:
+
+![goto](imgs/demo_goto_640.gif)
+
 ### Find in files
 <kbd>shift</kbd>+<kbd>ctrl/cmd</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
+
+**Note:** If you enter multiple words, only notes containing all those words will be shown. So when you search for `hello world`, a note containing `hello new world` will be found. A note only containing `hello` or `world` will not be found. 
+
+**Note:** You can use double `"` or single `'` quotation marks to search for texts that contain a spaces. So if you search for `'hello world'`, a note containing `hello new world` will not be found. If your string conains single or double quotes, just use double or single quotes in your search. For example: `"can't stand"` or `''the string "hello world"'`.
+
+### Find notes by number of links to them
+
+Sometimes you might want to know which notes are not linked to by other notes or which notes are linked to by at least 10 other notes. There's a command for that: Search > Find notes with references..., in the command palette "Find notes with references...", also accessible via the shortcut <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>W</kbd>. 
+
+You will be asked for the minimum (default: 0) and maximum (default:1000) number of times notes to find must be linked to. On OK, the results will show up in the search-results area.
+
+Searching for un-referenced notes or even most-referenced notes is more powerful in the form of a saved search, because you can specify the sort order there. See [Reference Counts : Find un-referenced and most-referenced notes](#reference-counts---find-un-referenced-and-most-referenced-notes) for how to do that.
+
+This is also shown in the example below:
+
+![demo_refcounts](imgs/demo_refcounts.gif)
 
 ### Working with tags
 
@@ -1014,7 +1049,7 @@ As you can see, the lines containing note links are replaced by the contents of 
 It might happen that you change some notes that are already expanded into your new expanded overview note. If that happens and you have left the comments in, then you can refresh the expanded overview:
 
 * Use the Tools menu: Tools > Refresh expanded Note
-* <kbd>Control</kbd> + <kbd>R</kbd>
+* <kbd>Control</kbd> + <kbd>V</kbd>
 
 **Note:** Only notes with comments starting with `<!-- !` will be considered for a refresh.
 
@@ -1303,6 +1338,47 @@ anything starting with auto but nothing starting with plane: #auto*, !#plane*
 ```
 
 You can execute the search by clicking on the underlined search spec.
+
+### Advanced Saved Searches
+
+You can specify how the results of saved searches should be sorted by adding a string following the syntax of `{sortby: id|title|mtime|refcount, order=asc|desc}` at the end of a saved search:
+
+* `sortby`
+    * `id` : sort by note-id
+    * `title` : sort by note title
+    * `mtime` : sort by modification time (when the note was last saved or created)
+    * `refcount` : this **only** applies to the [refcounts()](#reference-counts---find-un-referenced-and-most-referenced-notes) function, see below 
+* `order`
+    * `asc` : ascending from low to high
+    * `desc` : descending from high to low
+
+The following is an example to show all notes, sorted by last modification time, the most recently edited notes:
+
+```
+Recent notes    : [!  {sortby: mtime,    order: desc}
+```
+
+![demo_mostrecent](imgs/demo_mostrecent.gif)
+
+
+### Reference Counts : Find un-referenced and most-referenced notes
+
+Saved searches also support functions, prefixed by an equal sign. Currently the only function is `=refcounts()`, for searching for notes that are referenced (linked to) a certain number of times. It supports two paramenters _min_ and _max_, holding the minimum and maximum number of references, accordingly.
+
+Here are some examples:
+
+```
+unreferenced    : =refcounts(min:0, max:0) {sortby: mtime}
+
+most-referenced : =refcounts(min:1, max:1000) {sortby: refcount, order: desc}
+```
+
+The _unreferenced_ search lists all notes that are not referenced (linked to) by any other note: `max: 0`.
+
+The _most-referenced_ search lists all notes which are linked to at least once and sorts them by reference count (number of notes that link to it): `{sortby: refcount, order: desc}`.
+
+**Note:** sorting by **refcount** is **only applicable** to the **refcount()** function. It has no effect on other searches.
+
 
 ## HTML Export
 
