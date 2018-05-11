@@ -658,6 +658,8 @@ class Sublimeless_Zk(QObject):
     def open_folder(self, folder=None):
         """
         """
+        if self.project:
+            self.save_appstate()
         editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
 
         # auto-save if auto-save is on, instead of nagging us
@@ -680,7 +682,8 @@ class Sublimeless_Zk(QObject):
             self.app_state.recent_projects.append(folder)
             self.project = Project(folder)
             self.project.prepare()
-            self.app_state.save()
+            self.reopen_notes()
+            self.save_appstate()
             self.gui.saved_searches_editor.file_name = self.project.get_saved_searches_filn()
             self.gui.search_results_editor.file_name = self.project.get_search_results_filn()
             self.reload(self.gui.saved_searches_editor)
@@ -690,6 +693,23 @@ class Sublimeless_Zk(QObject):
             self.gui.setWindowTitle(f'Sublimeless Zettelkasten - {self.project.folder}')
             self.update_recent_project_actions()
             self.bib_entries = None
+
+    def update_open_notes(self):
+        recent_files = []
+        for i in range(self.gui.qtabs.count()):
+            editor = self.gui.qtabs.widget(i)
+            if editor.editor_type == 'normal':
+                recent_files.append(editor.file_name)
+        self.app_state.open_notes[self.project.folder] = recent_files
+
+    def reopen_notes(self):
+        if self.project.folder in self.app_state.open_notes:
+            for filn in self.app_state.open_notes[self.project.folder]:
+                self.open_document(filn)
+
+    def save_appstate(self):
+        self.update_open_notes()
+        self.app_state.save()
 
     def reload(self, editor):
         if editor == self.gui.saved_searches_editor:
@@ -1436,7 +1456,7 @@ class Sublimeless_Zk(QObject):
 
             re_what = re.compile(r'"theme":.*$', flags=re.MULTILINE)
             settings_raw = re_what.sub(repl_with, settings_raw)
-            print(settings_raw)
+
             with open(settings_filn, mode='w', encoding='utf-8', errors='ignore') as f:
                 f.write(settings_raw)
             QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
@@ -1511,7 +1531,6 @@ class Sublimeless_Zk(QObject):
                 self.command_palette_actions[actionText].activate(QAction.Trigger)
     
     def show_hide_sidepanel(self):
-        print('SHOWHIDE')
         if self.gui.saved_searches_editor.isVisible():
             self.gui.saved_searches_editor.setVisible(False)
             self.gui.search_results_editor.setVisible(False)
@@ -1673,6 +1692,7 @@ class Sublimeless_Zk(QObject):
                     editor.setCursorPosition(line_index, 0)
 
     def mainwindow_close_handler(self):
+        self.save_appstate()
         if self.autosave_interval > 0:
             self.save_all()
             return True
