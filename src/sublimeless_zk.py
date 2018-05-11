@@ -36,6 +36,7 @@ from semantic_zk import SemanticZKDialog
 from custmenuitem import CustomMenuItemAction
 from buildcommands import BuildCommands
 from zkutils import sanitize_filename
+from findrefcountdlg import show_find_refcount_dlg
 
 
 class Sublimeless_Zk(QObject):
@@ -199,6 +200,9 @@ class Sublimeless_Zk(QObject):
         self.gotoAction = QAction('Go to...', self)
         self.gotoAction.setShortcut('Ctrl+Shift+G')
 
+        self.findRefcountAction = QAction('Find notes with references...', self)
+        self.findRefcountAction.setShortcut('Ctrl+Shift+W')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -306,6 +310,7 @@ class Sublimeless_Zk(QObject):
         find.addAction(self.findReplaceAction)
         find.addAction(self.findInFilesAction)
         find.addAction(self.advancedTagSearchAction)
+        find.addAction(self.findRefcountAction)
 
         view.addAction(self.commandPaletteAction)
         view.addAction(self.cycleTabsForwardAction)
@@ -393,6 +398,7 @@ class Sublimeless_Zk(QObject):
         self.runExternalCommandAction.triggered.connect(self.run_external_command)
         self.editExternalCommandsAction.triggered.connect(self.edit_external_commands)
         self.gotoAction.triggered.connect(self.goto)
+        self.findRefcountAction.triggered.connect(self.find_notes_with_refcounts)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -1620,6 +1626,17 @@ class Sublimeless_Zk(QObject):
                 else:
                     return False
         return True
+    
+    def find_notes_with_refcounts(self):
+        refmin, refmax = show_find_refcount_dlg(self.gui)
+        if refmin is None:
+            return
+        
+        d = self.project.get_notes_with_refcounts(refmin, refmax)
+        title = f'Notes with min. {refmin} and max. {refmax} references'
+        note_files = [x[2] for x in d.values()]
+        self.project.externalize_note_links(note_files, prefix=title)
+        self.reload(self.gui.search_results_editor)
         
 
 if __name__ == '__main__':

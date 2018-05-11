@@ -6,7 +6,7 @@ import shutil
 from PyQt5.Qsci import QsciScintilla
 from settings import get_settings, base_dir
 from operator import itemgetter
-from collections import defaultdict
+from collections import defaultdict, Counter
 from autobib import Autobib
 
 
@@ -411,3 +411,59 @@ class Project:
                 citekey = match.group()[:-1]
                 return 'citekey', citekey
         return None, None
+
+    def get_note_id_and_title_of_file(self, filn):
+        note_id = self.get_note_id_of_file(filn)
+        if not note_id:
+            return None, None
+        t = os.path.basename(filn).split(' ', 1)
+        if len(t) > 1:
+            title = t[1].rsplit('.', 1)[0]
+        else:
+            title = ''
+        return note_id, title
+        
+    def get_all_note_references(self):
+        """
+        Return a dict showing what note references other notes
+        Links to self are not counted
+        For convenience, the dict contains a tuple (links, title, filn)
+        """
+        ret = {}
+        zlink_matcher = re.compile(r'\[([0-9.]{12,18})\]')
+        for filn in self.get_all_note_files():
+            note_id, title = self.get_note_id_and_title_of_file(filn)
+            if not note_id:
+                continue
+            with open(filn, mode='r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
+                links = zlink_matcher.findall(text)
+                links = set([l for l in links if l != note_id])
+                ret[note_id] = (links, title, filn)
+        return ret
+    
+    def get_notes_with_refcounts(self, min_links=0, max_links=1000000):
+        ret = {}
+        refcounts = Counter()
+        note_refs = self.get_all_note_references()
+        for note_id, (links, title, filn) in note_refs.items():
+            refcounts[(note_id, title, filn)] = 0
+            for other_note_id, (other_links, other_title, other_filn) in note_refs.items():
+                if other_note_id == note_id:
+                    continue
+                if note_id in other_links:
+                    refcounts[(note_id, title, filn)] += 1
+        
+        # now filter
+        ret = Counter()
+        for (note_id, title, filn), refcount in refcounts.items():
+            if refcount >= min_links and refcount <= max_links:
+                ret[note_id] = (refcount, title, filn)
+        return ret
+        
+
+
+        
+            
+            
+            
