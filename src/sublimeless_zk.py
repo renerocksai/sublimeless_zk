@@ -53,7 +53,7 @@ class Sublimeless_Zk(QObject):
         self.time_since_last_autosave = 0
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
         self.bib_entries = {} # caching bib
-        self.current_search_attrs = {}
+        self.current_search_attrs = None
 
     def on_timer(self):
         time_now = int(time.time())
@@ -423,6 +423,7 @@ class Sublimeless_Zk(QObject):
             Qt.ShiftModifier | Qt.Key_T,
             Qt.ShiftModifier | Qt.Key_N,
             Qt.ShiftModifier | Qt.Key_R,
+            Qt.ShiftModifier | Qt.Key_W,
         ]
 
         if sys.platform == 'darwin':
@@ -1305,9 +1306,11 @@ class Sublimeless_Zk(QObject):
 
         if search_spec.startswith('[!'):
             self.show_all_notes(check_editor=False)
+            self.current_search_attrs = None
             return
         elif search_spec.startswith('#!'):
             self.show_all_tags(check_editor=False)
+            self.current_search_attrs = None
             return
 
         if search_spec.strip().startswith('#') or search_spec.startswith('!#'):
@@ -1695,7 +1698,7 @@ class Sublimeless_Zk(QObject):
 
     def find_notes_with_refcounts(self):
         sort, order = self.retrieve_sort_and_order()
-        if not self.current_search_attrs:
+        if self.current_search_attrs is None:
             refmin, refmax = show_find_refcount_dlg(self.gui)
         else:
             args = self.current_search_attrs['args']
