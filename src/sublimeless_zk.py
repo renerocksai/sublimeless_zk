@@ -916,8 +916,9 @@ class Sublimeless_Zk(QObject):
     ''''''
 
     def show_all_notes(self, check_editor=True):
+        sort, order = self.retrieve_sort_and_order()
         note_files = self.project.get_all_note_files()
-        self.project.externalize_note_links(note_files, '# All Notes')
+        self.project.externalize_note_links(note_files, '# All Notes', sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
 
         # the lexer sends us an int, the QAction a bool
@@ -1257,11 +1258,51 @@ class Sublimeless_Zk(QObject):
         result_text = TextProduction.refresh_result(complete_text, self.project)
         editor.setText(result_text)
 
+    def parse_current_search_attrs(self, spec):
+        p_sub = re.compile(r'\s*?(=\w*?\(.*?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime)\s*?(,\s*?order:\s*?(asc|desc))?\s*}')
+        
+        match = p_sub.search(spec)
+        attrs = {
+            'function': None,
+            'args': {},
+            'sortby': None,
+            'order': None,
+            }
+        if match:
+            if match.group(1):
+                # parse function into args and name
+                p_foo = re.compile(r'\s*?=(\w+)\((.+?)\)')
+                sub_match = p_foo.match(match.group(1))
+                if sub_match:
+                    attrs['function'] = sub_match.group(1)
+                    t_args = sub_match.group(2).split(',')
+                    args = {}
+                    for t_arg in t_args:
+                        kv = t_arg.split(':')
+                        if len(kv) == 2:
+                            key, value = kv
+                            attrs['args'][key.strip()] = value.strip()
+            if match.group(2):
+                attrs['sortby'] = match.group(2)
+            if match.group(4):
+                attrs['order'] = match.group(4).lower()
+        # now remove attrs from the spec
+        new_spec = p_sub.sub('', spec)
+        return new_spec, attrs
+ 
+
     def advanced_tag_search(self, search_spec=None):
         if not search_spec:
             search_spec = show_input_panel(None, '#tags and not !#tags:', '')
         if not search_spec:
             return
+        # get search attrs and strip them from search term
+        search_spec, attrs = self.parse_current_search_attrs(search_spec)
+        
+        # remember current search attrs
+        self.current_search_attrs = attrs
+        sort, order = self.retrieve_sort_and_order()
+
         if search_spec.startswith('[!'):
             self.show_all_notes(check_editor=False)
             return
@@ -1272,10 +1313,26 @@ class Sublimeless_Zk(QObject):
         if search_spec.strip().startswith('#') or search_spec.startswith('!#'):
             notes = TagSearch.advanced_tag_search(search_spec, self.project)
             notes = [self.project.note_file_by_id(note_id) for note_id in notes]
-            self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec)
+            self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec, sort=sort, order=order)
             self.reload(self.gui.search_results_editor)
-        else:
+        elif 'function' in attrs and attrs['function'] is not None:
+            if attrs['function'] == 'refcounts':
+                # sanitize args
+                args = self.current_search_attrs['args']
+                try:
+                    refmin = int(args.get('min', 0))
+                except ValueError:
+                    refmin = 0
+                try:
+                    refmax = int(args.get('max', 1000))
+                except ValueError:
+                    refmax = 1000
+                self.current_search_attrs['args']['min'] = refmin
+                self.current_search_attrs['args']['max'] = refmax
+                self.find_notes_with_refcounts()
+        elif search_spec:
             self.find_in_files(search_spec)
+        self.current_search_attrs = None
         return
 
     def show_images(self):
@@ -1316,6 +1373,7 @@ class Sublimeless_Zk(QObject):
         about.exec_()
 
     def find_in_files(self, search_terms=None):
+        sort, order = self.retrieve_sort_and_order()
         if not search_terms:
             search_terms = show_input_panel(None, 'Find in files:', '')
         if not search_terms:
@@ -1346,7 +1404,7 @@ class Sublimeless_Zk(QObject):
                         break
                 else:
                     result_notes.append(note)
-        self.project.externalize_note_links(result_notes, '# Notes matching search ' + orig_search_terms)
+        self.project.externalize_note_links(result_notes, '# Notes matching search ' + orig_search_terms, sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
         return result_notes
 
@@ -1627,16 +1685,32 @@ class Sublimeless_Zk(QObject):
                     return False
         return True
     
+    def retrieve_sort_and_order(self):
+        sort = None
+        order = None
+        if self.current_search_attrs:
+            sort = self.current_search_attrs.get('sortby', None)
+            order = self.current_search_attrs.get('order', None)
+        return sort, order
+
     def find_notes_with_refcounts(self):
-        refmin, refmax = show_find_refcount_dlg(self.gui)
+        sort, order = self.retrieve_sort_and_order()
+        if not self.current_search_attrs:
+            refmin, refmax = show_find_refcount_dlg(self.gui)
+        else:
+            args = self.current_search_attrs['args']
+            refmin = int(args.get('min', 0))
+            refmax = int(args.get('max', 1000))
+
         if refmin is None:
             return
         
         d = self.project.get_notes_with_refcounts(refmin, refmax)
         title = f'Notes with min. {refmin} and max. {refmax} references'
         note_files = [x[2] for x in d.values()]
-        refcounts = {note_id: x[0] for note_id, x in d.items()}  # produce a dict of refcounts 
-        self.project.externalize_note_links(note_files, prefix=title, refcounts=refcounts, sort='mtime', order='desc')
+        refcounts = {note_id: x[0] for note_id, x in d.items()} # produce a dict of refcounts 
+        
+        self.project.externalize_note_links(note_files, prefix=title, refcounts=refcounts, sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
         
 

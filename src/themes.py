@@ -13,6 +13,7 @@ class Theme:
 
     @staticmethod
     def prepare_theme_folder():
+        always_deploy = ['saved_searches.json']
         if not os.path.exists(Theme.theme_folder()):
             os.makedirs(Theme.theme_folder(), exist_ok=True)
         # copy sample themes
@@ -20,7 +21,7 @@ class Theme:
         for f in os.listdir(themes_src):
             src = os.path.join(themes_src, f)
             dest = os.path.join(Theme.theme_folder(), f)
-            if not os.path.exists(dest):
+            if not os.path.exists(dest) or f in always_deploy:
                 copy2(src, dest)
         return Theme.theme_folder()
 
@@ -148,7 +149,7 @@ class Theme:
             self.get_theme_style(hname)
         for style in ('code.fenced', 'code', 'list.symbol', 'list.unordered',
                       'list.ordered', 'tag', 'citekey', 'zettel.link', 'comment',
-                      'footnote', 'search.name', 'search.spec'):
+                      'footnote', 'search.name', 'search.spec', 'search.code'):
             self.get_theme_style(style)
 
         link_dict = theme_d.get('link', {})

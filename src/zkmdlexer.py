@@ -95,14 +95,15 @@ class ZkMdLexer(QsciLexerCustom):
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
-        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_search_spec)
+        editor.indicatorDefine(QsciScintilla.RoundBoxIndicator, self.indicator_id_search_spec)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_citekey)
 
         editor.indicatorClicked.connect(self.on_click_indicator)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
-        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
+        #editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
+        editor.setIndicatorForegroundColor(QColor('#1f268bd2'), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
         self.setAutoIndentStyle(0) # we are block based --> use blockLookback
@@ -245,16 +246,32 @@ class ZkMdLexer(QsciLexerCustom):
 
         # only for search spec area: search specs:
         if self.highlight_saved_searches:
+
             p = re.compile(r'(^.+?: )([ \t]*)([^\n]+?)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
+            p_sub = re.compile(r'(=\w+?\(.+?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime)\s*?(,\s*?order:\s*?(asc|desc))?\s*?}')
             for match in p.finditer(text):
                 #print(match.groups())
                 a1 = match.start(1)
                 a2 = match.start(3)
                 b = match.end()
-                regions.append((a1, a2, match.group(1)+match.group(2), 'search.name'))
-                regions.append((a2, b, match.group(3), 'search.spec'))
+
+                regions.append((a1, a2, match.group(1) + match.group(2), 'search.name'))
+                # only style if the function is not the whole spec
+                #   because that will be done later
+                if not p_sub.match(match.group(3)):
+                    regions.append((a2, b, match.group(3), 'search.spec'))
+
                 # make clickable
                 self.make_clickable(a2, len(match.group(3)), self.indicator_id_search_spec)
+
+            # special instructions
+            for match in p_sub.finditer(text):
+                #print('search code:', match.group())
+                a = match.start()
+                b = match.end()
+                regions.append((a, b, match.group(), 'search.code'))
+            
+
 
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first
@@ -541,7 +558,7 @@ class ZkMdLexer(QsciLexerCustom):
 
     def apply_regions(self, regions, text):
         # sort and split regions
-        regions = [r for r in regions if r[0] < r[1]]    # filter out empty regions
+        regions = [r for r in regions if r[0] < r[1]] # filter out empty regions
         csr = CascadingStyleRegions(text)
         regions = csr.apply_regions(regions)
 
@@ -567,7 +584,6 @@ class ZkMdLexer(QsciLexerCustom):
         #if gap > 0:
         #    gap_b = len(bytearray(text[current_pos:], 'utf-8'))
         #    style_regions.append((gap_b, 'default'))
-
         for num_chars, style in style_regions:
             # if num_chars > 0:
                 self.setStyling(num_chars, self.style2id[style])

@@ -56,7 +56,8 @@
 
   // search specs --- not used in default markdown
   // only used for saved searches area
-  "search.name": {"style": "bolditalic"},
-  "search.spec": {"color": "#268bd2",// "background": "#99ccff"
+  "search.name": {"style": "bolditalic", "size": 10},
+  "search.spec": {"color": "#268bd2", "style": "bold", "size": 10// "background": "#99ccff"
   },
+  "search.code": {"color": "#268bd2", "style": "bolditalic", "size": 10}
 }
