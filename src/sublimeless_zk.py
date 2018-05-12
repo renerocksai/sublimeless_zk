@@ -1010,7 +1010,7 @@ class Sublimeless_Zk(QObject):
         filn = self.project.note_file_by_id(note_id)
         title = filn.split(' ', 1)[1].strip().rsplit('.')[0]
         styled_link = self.project.style_link(note_id, title, force_title=True)
-        self.project.externalize_note_links(ref_note_files, f'Notes referencing {styled_link}')
+        self.project.externalize_note_links(ref_note_files, f'# Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
 
     def reload_bibfile(self):
@@ -1730,7 +1730,7 @@ class Sublimeless_Zk(QObject):
             return
         
         d = self.project.get_notes_with_refcounts(refmin, refmax)
-        title = f'Notes with min. {refmin} and max. {refmax} references'
+        title = f'# Notes with min. {refmin} and max. {refmax} references'
         note_files = [x[2] for x in d.values()]
         refcounts = {note_id: x[0] for note_id, x in d.items()} # produce a dict of refcounts 
         
