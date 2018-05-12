@@ -1034,6 +1034,11 @@ class Sublimeless_Zk(QObject):
             self.citekey_list = []
             self.reload_bibfile()
 
+        if self.bib_entries is None:
+            bibfile = Autobib.look_for_bibfile(self.project)
+            self.gui.statusBar().showMessage('No .bib file found!', 3000)
+            return
+
         ck_choices = {}
         for citekey, d in self.bib_entries.items():
             self.citekey_list.append(citekey)
