@@ -195,6 +195,7 @@ includefiles = [
     ('themes/search_results.json', 'themes/search_results.json'),
     ('themes/solarized_light.json', 'themes/solarized_light.json'),
     ('themes/monokai.json', 'themes/monokai.json'),
+    ('themes/Office.json', 'themes/Office.json'),
     ('themes/monokai-large-headings.json', 'themes/monokai-large-headings.json'),
     ('themes/C64.json', 'themes/C64.json'),
     ('saved_searches_default.md', 'saved_searches_default.md'),

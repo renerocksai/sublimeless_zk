@@ -1,0 +1,62 @@
+{
+  // We now support comments!
+  // styles can be:
+  // - italic
+  // - bold
+  // - bolditalic
+  "background" : "#ffffffff",
+  "foreground" : "#ff000000",
+  "linehighlight": "#1F268bd2",
+  "line_padding_bottom": 0,
+  "line_padding_top": 0,
+  "selection" : {
+    "background": "#ff444444",
+    "foreground": "#ff000000"
+  },
+  "font": {"face": "Cambria", "size": 12, "style": "normal"},
+  "caret": "#ff000000",
+
+  "text.italic":     {"symbol": {"color": "#BBBBBB", "style": "italic"},
+                      "text" :  {"style": "italic"}},
+  "text.bold":       {"symbol": {"color": "#BBBBBB", "style": "italic"},
+                      "text" :  {"style": "bold"}},
+  "text.bolditalic": {"symbol": {"color": "#BBBBBB", "style": "italic"},
+                      "text" :  {"style": "bolditalic"}},
+
+  "h.symbol" : {"color": "#BBBBBB", "size" : 12 , "style": "normal"},
+  "h1.text" :  {"color": "#284777", "size" : 16 , "style": "bold"},
+  "h2.text" :  {"color": "#3f6caf", "size" : 14 , "style": "bold"},
+  "h3.text" :  {"color": "#3f6caf", "size" : 12 , "style": "bold"},
+  "h4.text" :  {"color": "#3f6caf", "size" : 12 , "style": "normal"},
+  "h5.text" :  {"color": "#3f6caf", "size" : 12 , "style": "italic"},
+  "h6.text" :  {"color": "#3f6caf", "size" : 12 , "style": "normal"},
+
+  "quote": {"symbol": {"color": "#BBBBBB"},
+            "text" :  {"style": "italic"}},
+
+  "code.fenced":    {"face": "Consolas", "size": 11},
+  "code":           {"face": "Consolas", "size": 11},
+
+  "list.symbol"   : {"color": "#BBBBBB"},
+  "list.unordered": {},
+  "list.ordered":   {},
+
+  "tag":     {"color": "#3f6caf", "style": "italic"},
+  "citekey": {"color": "#3f6caf"},
+
+  "link": {
+    "title": {"color": "#3f6caf", "style": "bold"},
+    "url"  : {"color": "#3f6caf", "style": "italic"},
+    "attr": {"color": "#8c8875", "style": "italic"}
+  },
+
+  "zettel.link" : {"color": "#3f6caf"},
+  "comment" : {"color": "#8c8875"},
+  "footnote": {"color": "#3f6caf"},
+
+  // search specs --- not used in default markdown
+  // only used for saved searches area
+  "search.name": {"style": "bolditalic"},
+  "search.spec": {"color": "#e42e70",// "background": "#99ccff"
+  },
+}

@@ -508,7 +508,7 @@ class Sublimeless_Zk(QObject):
             pass
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         Theme.prepare_theme_folder()
-        theme_f = os.path.basename(get_settings().get('theme', 'monokai.json'))
+        theme_f = os.path.basename(get_settings().get('theme', 'Office.json'))
         theme = Theme(theme_f)
         self.gui = MainWindow(theme, self.mainwindow_close_handler)
         self.gui.setFocus()
@@ -883,7 +883,7 @@ class Sublimeless_Zk(QObject):
         input_text = show_input_panel(parent, 'New Title:', suggested_title)
         if not input_text:
             return
-            
+
         input_text = input_text.strip()
 
         settings = self.project.settings
