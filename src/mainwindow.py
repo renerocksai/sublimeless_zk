@@ -124,25 +124,40 @@ class MainWindow(QMainWindow):
         editor.setMarginWidth(0, "0")        # todo: do we want margins?
         editor.setMarginWidth(1, "")
         editor.setMarginsForegroundColor(QColor("#ff888888"))
-        editor.setMarginsBackgroundColor(QColor(self.theme.style_infos['default']['background']))
 
         show_block_quotes = True
         lexer = ZkMdLexer(editor, self.theme, highlight_saved_searches=False, show_block_quotes=show_block_quotes)
         editor.setLexer(lexer)
-        editor.set_calculation_font(lexer.default_font)
-
-        editor.setCaretForegroundColor(QColor(lexer.theme.caret))
         editor.setCaretLineVisible(True)
-        editor.setCaretLineBackgroundColor(QColor(lexer.theme.highlight))
         editor.setCaretWidth(8)
         #editor.setMarginsBackgroundColor(QColor("#ff404040"))
-        editor.setFont(lexer.default_font)
-        editor.setExtraAscent(self.theme.line_pad_top)
-        editor.setExtraDescent(self.theme.line_pad_bottom)
 
         # give it a good size
         editor.setMinimumWidth(QFontMetrics(editor.lexer().default_font).width('M' * 20))
+        self.apply_theme(editor)
         return editor
+
+    def apply_theme(self, editors=None, new_theme=None):
+        if new_theme is not None:
+            self.theme = new_theme
+        if editors is not None:
+            # got passed in a single editor
+            if not isinstance(editors, list):
+                editors = [editors]
+        else:
+            editors = [self.qtabs.widget(i) for i in range(self.qtabs.count())]
+
+        for editor in editors:
+            lexer = editor.lexer()
+            lexer.apply_theme(self.theme)
+            editor.setMarginsBackgroundColor(QColor(self.theme.style_infos['default']['background']))
+            editor.set_calculation_font(lexer.default_font)
+            editor.setCaretForegroundColor(QColor(lexer.theme.caret))
+            editor.setCaretLineBackgroundColor(QColor(lexer.theme.highlight))
+            editor.setFont(lexer.default_font)
+            editor.setExtraAscent(self.theme.line_pad_top)
+            editor.setExtraDescent(self.theme.line_pad_bottom)
+
 
     def format_editor_info(self, editor):
         if editor.indentationsUseTabs():

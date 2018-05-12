@@ -30,8 +30,17 @@ class ZkMdLexer(QsciLexerCustom):
         self.headings = []
         self.settings = get_settings()
         self.double_brackets = self.settings.get('double_brackets', True)
-        #self.setAutoIndentStyle(QsciScintilla.AiMaintain)
+        editor = self.parent()
+        editor.indicatorClicked.connect(self.on_click_indicator)
+        self.setAutoIndentStyle(0) # we are block based --> use blockLookback
+        self.apply_theme()
 
+    def apply_theme(self, new_theme = None):
+        if new_theme is not None:
+            self.theme = new_theme
+            self.style2id = {}
+            self.id2stylename = {}
+            
         # Default text settings
         # ----------------------
         self.setDefaultColor(QColor(self.theme.style_infos['default']['color']))
@@ -99,14 +108,12 @@ class ZkMdLexer(QsciLexerCustom):
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_citekey)
 
-        editor.indicatorClicked.connect(self.on_click_indicator)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
         #editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['search.spec']['color']), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor('#1f268bd2'), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
-        self.setAutoIndentStyle(0) # we are block based --> use blockLookback
         
 
     def blockLookback(self):

@@ -1465,7 +1465,11 @@ class Sublimeless_Zk(QObject):
 
             with open(settings_filn, mode='w', encoding='utf-8', errors='ignore') as f:
                 f.write(settings_raw)
-            QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
+            # load the theme
+            theme_f = os.path.basename(get_settings().get('theme', 'Office.json'))
+            theme = Theme(theme_f)
+            self.gui.apply_theme(new_theme=theme)
+            #QMessageBox.information(self.gui,'New Theme selected', f'Please restart Sublimeless_ZK to load the {selected_theme} theme')
 
     def rename_note(self):
         editor = self.get_active_editor()
