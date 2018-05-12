@@ -95,7 +95,7 @@ class ZkMdLexer(QsciLexerCustom):
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
-        editor.indicatorDefine(QsciScintilla.RoundBoxIndicator, self.indicator_id_search_spec)
+        editor.indicatorDefine(QsciScintilla.FullBoxIndicator, self.indicator_id_search_spec)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_citekey)
 

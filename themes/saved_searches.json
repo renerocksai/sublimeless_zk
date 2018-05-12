@@ -23,13 +23,13 @@
   "text.bolditalic": {"symbol": {"color": "#AAAAAA", "style": "italic"},
                       "text" :  {"style": "bolditalic"}},
 
-  "h.symbol" : {"color": "#657b83", "style": "bold"},
-  "h1.text" :  {"color": "#657b83", "style": "bold"},
-  "h2.text" :  {"color": "#657b83", "style": "bold"},
-  "h3.text" :  {"color": "#657b83", "style": "bold"},
-  "h4.text" :  {"color": "#657b83", "style": "bold"},
-  "h5.text" :  {"color": "#657b83", "style": "bold"},
-  "h6.text" :  {"color": "#657b83", "style": "bold"},
+  "h.symbol" : {"color": "#455b63", "style": "bold"},
+  "h1.text" :  {"color": "#455b63", "style": "bold"},
+  "h2.text" :  {"color": "#455b63", "style": "bold"},
+  "h3.text" :  {"color": "#455b63", "style": "bold"},
+  "h4.text" :  {"color": "#455b63", "style": "bold"},
+  "h5.text" :  {"color": "#455b63", "style": "bold"},
+  "h6.text" :  {"color": "#455b63", "style": "bold"},
 
   "quote": {"symbol": {"color": "#657b83"},
             "text" :  {"color": "#657b83", "style": "italic"}},
@@ -57,7 +57,7 @@
   // search specs --- not used in default markdown
   // only used for saved searches area
   "search.name": {"style": "bolditalic", "size": 10},
-  "search.spec": {"color": "#268bd2", "style": "bold", "size": 10// "background": "#99ccff"
+  "search.spec": {"color": "#268bd2", "style": "normal", "size": 10// "background": "#99ccff"
   },
-  "search.code": {"color": "#268bd2", "style": "bolditalic", "size": 10}
+  "search.code": {"color": "#268bd2", "style": "italic", "size": 10}
 }
