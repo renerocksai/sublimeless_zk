@@ -270,6 +270,7 @@ class MainWindow(QMainWindow):
 
         # no minimum width
         return editor
+        
 
     def closeEvent(self, event):
         if self.close_handler() == False:

@@ -203,6 +203,11 @@ class Sublimeless_Zk(QObject):
         self.findRefcountAction = QAction('Find notes with references...', self)
         self.findRefcountAction.setShortcut('Ctrl+Shift+W')
 
+        self.moveLineUpAction = QAction('Move Line Up', self)
+        self.moveLineUpAction.setShortcut('Ctrl+Shift+U')
+        self.moveLineDownAction = QAction('Move Line Down', self)
+        self.moveLineDownAction.setShortcut('Ctrl+Shift+D')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -286,6 +291,8 @@ class Sublimeless_Zk(QObject):
         edit.addAction(self.copyAction)
         edit.addAction(self.cutAction)
         edit.addAction(self.pasteAction)
+        edit.addAction(self.moveLineUpAction)
+        edit.addAction(self.moveLineDownAction)
         edit.addSeparator()
 
         edit_editor = edit.addMenu('Editor')
@@ -399,6 +406,8 @@ class Sublimeless_Zk(QObject):
         self.editExternalCommandsAction.triggered.connect(self.edit_external_commands)
         self.gotoAction.triggered.connect(self.goto)
         self.findRefcountAction.triggered.connect(self.find_notes_with_refcounts)
+        self.moveLineUpAction.triggered.connect(self.move_line_up)
+        self.moveLineDownAction.triggered.connect(self.move_line_down)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -417,13 +426,17 @@ class Sublimeless_Zk(QObject):
 
         # now make sure our other actions won't get consumed by QScintilla
         other_ctrl_keys = [
-            Qt.Key_E, Qt.Key_R, Qt.Key_T, Qt.Key_B,
+            Qt.Key_E, Qt.Key_R,
+            Qt.Key_T,
+            Qt.Key_B,
             Qt.ShiftModifier | Qt.Key_I,
             Qt.ShiftModifier | Qt.Key_H,
             Qt.ShiftModifier | Qt.Key_T,
             Qt.ShiftModifier | Qt.Key_N,
             Qt.ShiftModifier | Qt.Key_R,
             Qt.ShiftModifier | Qt.Key_W,
+            Qt.ShiftModifier | Qt.Key_U,
+            Qt.ShiftModifier | Qt.Key_D,
         ]
 
         if sys.platform == 'darwin':
@@ -438,10 +451,10 @@ class Sublimeless_Zk(QObject):
         for key_combo in deletable_keys:
             command = commands.boundTo(key_combo)
             if command is not None:
-                print('Clearing key combo', key_combo, 'for command', command.description())
+                print('Clearing key combo', QKeySequence(key_combo).toString(), 'for command', command.description())
                 if command.key() == key_combo:
                     command.setKey(0)
-                elif command.alternateKey() == key_combo:
+                if command.alternateKey() == key_combo:
                     command.setAlternateKey(0)
                 #print(command.key(), command.alternateKey())
 
@@ -470,6 +483,12 @@ class Sublimeless_Zk(QObject):
         if command:
             command.setKey(Qt.ControlModifier | Qt.Key_Backspace)
         
+        # ctrl+shift+u -> convert sel to uppercase --> delete this shortcut
+        command = commands.find(QsciCommand.SelectionUpperCase)
+        if command:
+            command.setKey(0)
+            command.setAlternateKey(0)
+
         # zoom in
         command = commands.find(QsciCommand.ZoomIn)
         if command:
@@ -1745,6 +1764,36 @@ class Sublimeless_Zk(QObject):
         
         self.project.externalize_note_links(note_files, prefix=title, refcounts=refcounts, sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
+        
+    def move_line_up(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        line_index, col_index = editor.getCursorPosition()
+        if line_index == 0:
+            return
+        lines = editor.text().split('\n')
+        new_lines = lines[:line_index - 1]
+        new_lines.extend([lines[line_index], lines[line_index - 1]])
+        new_lines.extend(lines[line_index + 1:])
+        editor.setText('\n'.join(new_lines))
+        editor.ensureLineVisible(line_index + 1)
+        editor.setCursorPosition(line_index - 1, col_index)
+
+    def move_line_down(self):
+        editor = self.get_active_editor()
+        if not editor:
+            return
+        line_index, col_index = editor.getCursorPosition()
+        if line_index == editor.lines() - 1:
+            return
+        lines = editor.text().split('\n')
+        new_lines = lines[:line_index]
+        new_lines.extend([lines[line_index + 1], lines[line_index]])
+        new_lines.extend(lines[line_index + 2:])
+        editor.setText('\n'.join(new_lines))
+        editor.ensureLineVisible(line_index + 1)
+        editor.setCursorPosition(line_index + 1, col_index)
         
 
 if __name__ == '__main__':
