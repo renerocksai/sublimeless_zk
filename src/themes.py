@@ -13,7 +13,7 @@ class Theme:
 
     @staticmethod
     def prepare_theme_folder():
-        always_deploy = ['saved_searches.json']
+        always_deploy = ['saved_searches.json', 'search_results.json']
         if not os.path.exists(Theme.theme_folder()):
             os.makedirs(Theme.theme_folder(), exist_ok=True)
         # copy sample themes

@@ -4,8 +4,8 @@
   // - italic
   // - bold
   // - bolditalic
-  "background" : "#DCDCDC",
-  "foreground" : "#505050",
+  "background" : "#ffECECEC",
+  "foreground" : "#303030",
   "linehighlight": "#1f333333",
   "line_padding_bottom": 0,
   "line_padding_top": 0,
@@ -13,7 +13,7 @@
     "background": "#444444",
     "foreground": "#fffdf6e3"
   },
-  "font": {"face": "Ubuntu Mono", "size": 11, "style": "normal"},
+  "font": {"face": "Helvetica", "size": 11, "style": "normal"},
   "caret": "#f8f8f0",
 
   "text.italic":     {"symbol": {"color": "#AAAAAA", "style": "italic"},

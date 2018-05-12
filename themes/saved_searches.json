@@ -4,8 +4,8 @@
   // - italic
   // - bold
   // - bolditalic
-  "background" : "#DCDCDC",
-  "foreground" : "#505050",
+  "background" : "#ffECECEC",
+  "foreground" : "#303030",
   "linehighlight": "#1f333333",
   "line_padding_bottom": 0,
   "line_padding_top": 0,
