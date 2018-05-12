@@ -6,7 +6,7 @@ If you follow the (plain-text) Zettelkasten method (as proposed by [Zettelkasten
 
 In short, it helps you manage an archive of interlinked notes that look like this:
 
-![about](imgs/about.png)
+![about](imgs/about2.png)
 
 In addition to being a specialized Markdown text-editor and text-browser, Sublimeless_ZK is loaded with features for text-production:
 
@@ -244,7 +244,7 @@ We will go into further details later, but here is a quick reference of all curr
 
 | setting | default | remarks |
 |---------|---------|---------|
-"theme" | "themes/monokai.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
+"theme" | "themes/Office.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
 "markdown_extension" | ".md" | Extension of your note files. |
 "new_note_template" | `"---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
 "double_brackets" | true | Insert links with [[double brackets]] (true) or [single brackets] (false)|
@@ -431,12 +431,23 @@ You can also use the View > Switch Theme... menu to select a different theme.
 
 You can read more on defining your own themes in [Customizing Themes](#customizing-themes).
 
+#### Office Color Scheme
+
+![office](imgs/office2.png)
+
+This theme is active per default, in the settings file:
+
+```
+    // Theme:
+    //    themes/monokai.json
+    //    themes/solarized_light.json
+    "theme": "themes/Office.json",
+```
 #### Monokai Color Scheme
 
 ![monokai](imgs/monokai.png)
 
-
-This theme is active per default, in the settings file:
+This theme in the settings file:
 
 ```
     // Theme:

@@ -2,7 +2,7 @@
     // Theme:
     //    themes/monokai.json
     //    themes/solarized_light.json
-    "theme": "themes/monokai.json",
+    "theme": "themes/Office.json",
 
     // The preferred markdown extension
     "markdown_extension": ".md",
