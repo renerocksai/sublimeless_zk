@@ -881,9 +881,10 @@ class Sublimeless_Zk(QObject):
                 insert_link = True
         parent = None  # or editor
         input_text = show_input_panel(parent, 'New Title:', suggested_title)
-        input_text = input_text.strip()
         if not input_text:
             return
+            
+        input_text = input_text.strip()
 
         settings = self.project.settings
         extension = settings.get('markdown_extension')
