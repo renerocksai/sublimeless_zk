@@ -91,7 +91,7 @@
     "wrap_lines": true,
 
     // show markers at end of line if line is wrapped
-    "show_wrap_markers": true,
+    "show_wrap_markers": false,
 
     // should wrapped lines be indented?
     // like this: this is a long line that gets
@@ -105,7 +105,7 @@
     "auto_indent": true,
 
     // show indentation guides?
-    "show_indentation_guides": true,
+    "show_indentation_guides": false,
 
     // use tabs instead of spaces?
     "use_tabs": false,
