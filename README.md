@@ -1341,7 +1341,7 @@ You can execute the search by clicking on the underlined search spec.
 
 ### Advanced Saved Searches
 
-You can specify how the results of saved searches should be sorted by adding a string following the syntax of `{sortby: id|title|mtime|refcount, order=asc|desc}` at the end of a saved search:
+You can specify how the results of saved searches should be sorted by adding a string following the syntax of `{sortby: id|title|mtime|refcount, order: asc|desc}` at the end of a saved search:
 
 * `sortby`
     * `id` : sort by note-id
