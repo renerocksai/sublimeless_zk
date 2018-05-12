@@ -8,11 +8,11 @@ release_notes = '''
 
 *
 
-See the [README](https://github.com/renerocksai/sublimeless_zk) for intstructions.
+See the [README](https://github.com/renerocksai/sublimeless_zk#the-sublime-less-zettelkasten) for intstructions.
 
 **Released files:**
 
-* **macOS:** `sublimeless_zk-{prefix}-{version}-macOS.zip`
+* **macOS:** `sublimeless_zk-{prefix}-{version}-macOS.app.zip`
 * **Windows 10:** `sublimeless_zk-{prefix}-{version}-win10.zip`
 * **Linux:** `sublimeless_zk-{prefix}-{version}-linux.tar.gz`
 '''.format(version=version, prefix=prefix)

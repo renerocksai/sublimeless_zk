@@ -34,8 +34,8 @@
   "quote": {"symbol": {"color": "#BBBBBB"},
             "text" :  {"style": "italic"}},
 
-  "code.fenced":    {"face": "Consolas", "size": 11},
-  "code":           {"face": "Consolas", "size": 11},
+  "code.fenced":    {"face": "Courier New", "size": 11},
+  "code":           {"face": "Courier New", "size": 11},
 
   "list.symbol"   : {"color": "#BBBBBB"},
   "list.unordered": {},
