@@ -78,7 +78,6 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [macOS](#macos)
     * [Linux](#linux)
     * [Installing Pandoc](#installing-pandoc)
-    * [Installing the Ubuntu Mono Font](#installing-the-ubuntu-mono-font)
 
 * [Usage](#usage)
     * [Shortcut cheatsheet](#shortcut-cheatsheet)
@@ -122,7 +121,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Automatic Section Numbering](#automatic-section-numbering)
     * [Saved Searches](#saved-searches)
         * [Advanced Saved Searches](#advanced-saved-searches)
-        * [Searching for un-referenced and most-referenced notes](#reference-counts---find-un-referenced-and-most-referenced-notes)
+        * [Searching for un-referenced and most-referenced notes](#reference-counts--find-un-referenced-and-most-referenced-notes)
     * [HTML Export](#html-export)
     * [Customizing Themes](#customizing-themes)
         * [Creating a new Theme](#creating-a-new-theme)
