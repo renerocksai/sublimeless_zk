@@ -838,7 +838,11 @@ class Sublimeless_Zk(QObject):
                 self.project.reload_settings()
             elif editor.editor_type == 'theme':
                 if os.path.basename(editor.file_name) == self.gui.theme.theme_name + '.json':
-                    QMessageBox.information(self.gui, 'Please restart', 'Please restart Sublime_ZK for the theme changes to take effect.')
+                    # load the theme
+                    theme_f = os.path.basename(editor.file_name)
+                    theme = Theme(theme_f)
+                    self.gui.apply_theme(new_theme=theme)
+                    #QMessageBox.information(self.gui, 'Please restart', 'Please restart Sublime_ZK for the theme changes to take effect.')
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
