@@ -128,6 +128,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Editing Themes](#editing-themes)
         * [Switching Themes](#switching-themes)
     * [External Commands](#external-commands)
+        * [Convert note to PDF](#external-commands)
 
 * [Configuration](#configuration)
     * [Files](#files)
