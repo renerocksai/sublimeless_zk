@@ -196,7 +196,7 @@ class MainWindow(QMainWindow):
         editor.setLexer(None)
         editor.setWrapMode(QsciScintilla.WrapWord)
         editor.setWrapVisualFlags(QsciScintilla.WrapFlagNone)
-        editor.setWrapIndentMode(QsciScintilla.WrapIndentSame)
+        editor.setWrapIndentMode(QsciScintilla.WrapIndentIndented)
 
         editor.setEolMode(QsciScintilla.EolUnix)
         editor.setEolVisibility(False)
