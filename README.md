@@ -572,6 +572,8 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Insert pandoc citation](#inserting-a-citation) <kbd>[</kbd> + <kbd>@</kbd> (needs `"citations-mmd-style": false`)
 * Increase Font Size: <kbd>ctrl/cmd</kbd> + <kbd>=</kbd> or <kbd>ctrl/cmd</kbd> + <kbd>+</kbd>
 * Decrease Font Size: <kbd>ctrl/cmd</kbd> + <kbd>-</kbd>
+* Move line up: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>U</kbd>
+* Moe line down: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>D</kbd>
 * [Run external command](#external-commands): <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
 
 ### User Interface
