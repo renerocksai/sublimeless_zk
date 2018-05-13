@@ -1038,7 +1038,7 @@ class Sublimeless_Zk(QObject):
             print(note_id, editor_region)
         ref_note_files = self.project.find_referencing_notes(note_id)
         filn = self.project.note_file_by_id(note_id)
-        title = filn.split(' ', 1)[1].strip().rsplit('.')[0]
+        title = os.path.basename(filn).split(' ', 1)[1].strip().rsplit('.')[0]
         styled_link = self.project.style_link(note_id, title, force_title=True)
         self.project.externalize_note_links(ref_note_files, f'# Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
