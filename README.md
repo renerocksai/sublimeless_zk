@@ -199,7 +199,7 @@ Whether you use [Pandoc](https://pandoc.org) or not for Markdown processing, the
 
 ## Usage
 
-This app comes with sane defaults. You can start using it right away. Once you have become accustomed, it is worth checking out the [Configuration] section, though.
+This app comes with sane defaults. You can start using it right away. Once you have become accustomed, it is worth checking out the [Configuration](#configuration) section, though.
 
 ### Shortcut cheatsheet
 
