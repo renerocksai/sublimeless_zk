@@ -52,7 +52,7 @@ class Sublimeless_Zk(QObject):
         self.autosave_timer = QTimer()
         self.time_since_last_autosave = 0
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
-        self.bib_entries = {} # caching bib
+        self.bib_entries = None # caching bib
         self.current_search_attrs = None
 
     def on_timer(self):
@@ -1061,7 +1061,6 @@ class Sublimeless_Zk(QObject):
             return
         
         if self.bib_entries is None:
-            self.citekey_list = []
             self.reload_bibfile()
 
         if self.bib_entries is None:
@@ -1071,7 +1070,6 @@ class Sublimeless_Zk(QObject):
 
         ck_choices = {}
         for citekey, d in self.bib_entries.items():
-            self.citekey_list.append(citekey)
             if not d['authors']:
                 d['authors'] = d['editors']
             item = '{} {} - {} ({})'.format(d['authors'], d['year'], d['title'], citekey)
