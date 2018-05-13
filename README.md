@@ -230,7 +230,7 @@ This app comes with sane defaults. You can start using it right away. Once you h
 * Increase Font Size: <kbd>ctrl/cmd</kbd> + <kbd>=</kbd> or <kbd>ctrl/cmd</kbd> + <kbd>+</kbd>
 * Decrease Font Size: <kbd>ctrl/cmd</kbd> + <kbd>-</kbd>
 * Move line up: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>U</kbd>
-* Moe line down: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>D</kbd>
+* Move line down: <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>D</kbd>
 * [Run external command](#external-commands): <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
 
 ### User Interface
@@ -605,7 +605,7 @@ Sometimes you want some sort of "browse history", to see what notes you have vie
 
 * View > Show recently viewed notes
 * "Show recently viewed notes" from the command palette
-* Press <kbd>alt/option></kbd> + <kbd>shift</kbd> <kbd>ctrl/cmd</kbd> + <kbd>H</kbd>
+* Press <kbd>alt/option</kbd> + <kbd>shift</kbd> <kbd>ctrl/cmd</kbd> + <kbd>H</kbd>
 * Click on the saved search `View History : =view_history(){sortby: history}`
 
 It produces an overview of your history in the search results like this:
