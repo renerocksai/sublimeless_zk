@@ -272,6 +272,8 @@ Let's introduce them!
     * Copy : copy selected text to clipboard
     * Cut : cut selected text to clipboard
     * Paste : paste clipboard into current editor
+    * Move Line Up : move the current line one line up, cool for lists
+    * Move Line Down: move the current line one line down, cool for lists
     * Editor:
         * Toggle Auto-Indent : auto-indent on/off
         * Toggle Line Wrap : line wrap on/off
@@ -290,7 +292,7 @@ Let's introduce them!
     * Settings... (Windows only) : Opens the settings file for editing
 
 * Search
-    * Find/replace... : show search and (optionally) replace dialog to find/replaace text in current editor
+    * Find/replace... : show search and (optionally) replace dialog to find/replace text in current editor
     * Find in files : search for text in all notes
     * Search for Tag Combination : Advanced Tag Search
     * Find notes with references... : Search for notes that are linked to a certain number of times (within a range)
@@ -303,6 +305,7 @@ Let's introduce them!
     * Toggle Side Panel : Show / hide the side panel
     * Toggle Status Bar : Show / hide the status bar
     * Show all notes : shows all notes in the search results
+    * Show recently viewed notes : Shows a "browsing history" of recently opened notes
     * Show all referencing notes : If cursor is in a link / tag / citation key, search for all notes with the same reference (link/tag/citekey)
     * Show all Tags: shows a tag list in the search results
     * New Theme... : Create a new theme 
@@ -317,7 +320,7 @@ Let's introduce them!
     * Run External Command... : Fuzzy select an external command to run
     * Edit external commands... : Edit external commands
 
-* About (Windows only) : Shows the about dialog
+* About (Windows, Linux only) : Shows the about dialog
 
 #### Command Palette
 
@@ -1410,7 +1413,7 @@ We will go into further details later, but here is a quick reference of all curr
 |---------|---------|---------|
 "theme" | "themes/Office.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
 "markdown_extension" | ".md" | Extension of your note files. |
-"new_note_template" | `"---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
+"new_note_template" | `"# {id} {title}\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
 "double_brackets" | true | Insert links with [[double brackets]] (true) or [single brackets] (false)|
 "insert_links_with_titles" | false | insert note title after inserted link |
 "id_in_title" | false | New notes title will contain the note id (true) or not (false) |
