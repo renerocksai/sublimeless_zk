@@ -80,31 +80,13 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Installing Pandoc](#installing-pandoc)
     * [Installing the Ubuntu Mono Font](#installing-the-ubuntu-mono-font)
 
-* [Configuration](#configuration)
-    * [Files](#files)
-        * [The settings file](#the-settings-file)
-        * [Markdown filename extension](#markdown-filename-extension)
-        * [Auto-Save Interval](#auto-save-interval)
-    * [Notes and Links](#notes-and-links)
-        * [Single or double brackets](#single-or-double-brackets)
-        * [Note ID precision](#note-id-precision)
-        * [Insert links with or without titles](#insert-links-with-or-without-titles)
-        * [IDs in titles of new notes](#ids-in-titles-of-new-notes)
-        * [New Note templates](#new-note-templates)
-    * [Color Schemes](#color-schemes)
-        * [Monokai Color Scheme](#monokai-color-scheme)
-        * [Solarized Color Scheme](#solarized-color-scheme)
-        * [C64 Color Scheme](#c64-color-scheme)
-    * [Bibliographies and Citations](#bibliographies-and-citations)
-        * [Location of your .bib file](#location-of-your-bib-file)
-        * [Citation Reference Style](#citation-reference-style)
-
 * [Usage](#usage)
     * [Shortcut cheatsheet](#shortcut-cheatsheet)
     * [User Interface](#user-interface)
         * [Menus](#menus)
         * [Command Palette](#command-palette)
         * [Status Bar](#status-bar)
+        * [Themes](#switching-themes)
     * [Note Archive Folder](#note-archive-folder)
     * [Creating a new note](#creating-a-new-note)
     * [Creating a new note and link from selected text](#creating-a-new-note-and-link-from-selected-text)
@@ -115,6 +97,8 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
     * [Listing all notes](#listing-all-notes)
     * [Browsing through notes](#browsing-through-notes)
         * [Navigating opened notes](#navigating-open-notes) 
+        * [Browsing recently opened notes](#browsing-recently-opened-notes)
+        * [Browsing recently modified notes](#browsing-recently-modified-notes)
     * [Find in files](#find-in-files)
     * [Find notes by number of links to them](#find-notes-by-number-of-links-to-them)
     * [Working with tags](#working-with-tags)
@@ -145,6 +129,26 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Editing Themes](#editing-themes)
         * [Switching Themes](#switching-themes)
     * [External Commands](#external-commands)
+
+* [Configuration](#configuration)
+    * [Files](#files)
+        * [The settings file](#the-settings-file)
+        * [Markdown filename extension](#markdown-filename-extension)
+        * [Auto-Save Interval](#auto-save-interval)
+    * [Notes and Links](#notes-and-links)
+        * [Single or double brackets](#single-or-double-brackets)
+        * [Note ID precision](#note-id-precision)
+        * [Insert links with or without titles](#insert-links-with-or-without-titles)
+        * [IDs in titles of new notes](#ids-in-titles-of-new-notes)
+        * [New Note templates](#new-note-templates)
+    * [Color Schemes](#color-schemes)
+        * [Monokai Color Scheme](#monokai-color-scheme)
+        * [Solarized Color Scheme](#solarized-color-scheme)
+        * [C64 Color Scheme](#c64-color-scheme)
+    * [Bibliographies and Citations](#bibliographies-and-citations)
+        * [Location of your .bib file](#location-of-your-bib-file)
+        * [Citation Reference Style](#citation-reference-style)
+
 * [Credits](#credits)
 
 
@@ -198,353 +202,9 @@ If the above method doesn't work, you can try running the sources directly
 Whether you use [Pandoc](https://pandoc.org) or not for Markdown processing, the [AutoBib](#automatic-bibliographies) feature requires it. Luckily it is [easy to install](https://pandoc.org/installing.html).
 
 
-### Installing the Ubuntu Mono Font
-
-If you want the best aesthetics, [download](https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip) the [Ubuntu Mono](https://design.ubuntu.com/font/) fonts and install the following 4 by double-clicking them:
-
-* `UbuntuMono-R.ttf`
-* `UbuntuMono-RI.ttf`
-* `UbuntuMono-B.ttf`
-* `UbuntuMono-BI.ttf`
-
-
-## Configuration
-
-### Files
-
-#### The Settings File
-You can edit all settings by opening the settings file:
-
-* Windows: Use the menu: Edit > Settings
-* macOS:
-    * press <kbd>Command</kbd> + <kbd>,</kbd>
-    * alternatively use the menu: sublimeless_zk > Preferences...
-
-**Note:** You need to save the settings after you changed them.
-
-**Note:** Some changes only take effect after restarting the app: color scheme, for instance.
-
-
-The settings file is just a text file an can be edited like any other text file. Here is an excerpt from the default settings:
-
-**Note:** All lines starting with `//` are just comments.
-
-```
-{
-    // Theme:
-    //    themes/monokai.json
-    //    themes/solarized_light.json
-    "theme": "themes/monokai.json",
-
-    // The preferred markdown extension
-    "markdown_extension": ".md",
-```
-
-We will go into further details later, but here is a quick reference of all currently supported settings:
-
-| setting | default | remarks |
-|---------|---------|---------|
-"theme" | "themes/Office.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
-"markdown_extension" | ".md" | Extension of your note files. |
-"new_note_template" | `"---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
-"double_brackets" | true | Insert links with [[double brackets]] (true) or [single brackets] (false)|
-"insert_links_with_titles" | false | insert note title after inserted link |
-"id_in_title" | false | New notes title will contain the note id (true) or not (false) |
-"tag_prefix" | "#" | Prefix character(s) for tags. |
-"path_to_pandoc" | "/usr/local/bin/pandoc" | Explicit location of the pandoc program. Only needed for auto-bib, and if pandoc can't be found automatically.|
-"bibfile" | "/path/to/zotero.bib" | bibliography file to use if none is contained in the notes folder |
-"convert_bibtex_to_unicode" | true | convert bibtex strings to unicode for showing umlauts etc. **Set this to false if loading your .bib file takes ages**
-"toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
-"citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
-"seconds_in_id" | true | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true = default) or YYYYMMDDHHMM IDs (false) |
-"sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
-"auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
-"skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
-"wrap_lines" | true | wrap lines or rather scroll horizontally
-"show_wrap_markers" | true | show markers at the end of wrapping lines
-"indent_wrapped_lines" | false | should wrapping lines be indented even further
-"auto_indent" | true | automatically indent next line when pressing return
-"show_indentation_guides" | true | show guides for indented lines
-"use_tabs" | false | use tabs instead of 4 spaces when pressing the <kbd>TAB</kbd> key
-
-
-#### Markdown filename extension
-By default, the extension `.md` is used for your notes. If that does not match your style, you can change it with the `markdown_extension` setting. Just replace `.md` with `.txt` or `.mdown` or whatever you like.
-
-#### Auto-Save Interval
-
-The setting `auto_save_interval` specifies the interval in seconds, at which unsaved notes will be saved automatically. Set this to `0` to disable auto-save.
-
-### Notes and Links
-
-#### Single or double brackets
-Whether you want to use `[[this link style]]` or `[that link style]` is totally up to you. Both work. But you need to configure which style you prefer, so automatically inserted links will match your style. `[[double bracket]]` links are the default, and if you want to change that to single bracket links, set the `double_brackets` parameter to `false` in the settings file.
-
-#### Note ID precision
-
-The default note ID format is a timestamp in `YYYYMMDDHHMMSS` format, with second-precision. If you tend to create more than one note per minute, this is what you want. If you prefer shorter note-IDs, you can change the note ID format to `YYYYMMDDHHMM`, with minute-precision.
-
-The following setting influences the note ID format:
-
-```
-    // seconds in note IDs?
-    // if true : YYYYMMDDHHMMSS 20171224183045
-    // if false: YYYYMMDDHHMM   201712241830
-    "seconds_in_id": true,
-```
-
-#### Insert links with or without titles
-There are numerous times where the app inserts a `[[link]]` to a note into your text on your behalf. You may not only choose the single or double-bracketness of the links, you may also choose whether the **note title** should follow the inserted link.
-
-The setting `"insert_links_with_titles"` takes care of that and is set to `false` by default:
-
-```
-// links like "[[199901012359]] and note title" instead of "[[199901012359]]"
-"insert_links_with_titles": false,
-```
-
-Examples how inserted links might look like depending on this setting:
-
-```markdown
-`insert_links_with_titles` is `true`:
-[[199901012359]] and note title
-
-
-`insert_links_with_titles` is `false`:
-[[199901012359]]
-```
-
-#### IDs in titles of new notes
-
-When you create a new note, its title will automatically be inserted and an ID will be assigned to it (see [Creating a new note](#creating-a-new-note)). If you want the ID to be part of the title, change the setting `id_in_title` from `false` to `true`.
-
-Example for a note created with ID:
-
-```markdown
-# 201710310128 This is a note with its ID in the title
-tags=
-
-The setting id_in_title is set to true.
-```
-
-Example for a note created without ID:
-
-```markdown
-# A note without an ID
-tags =
-
-The setting id_in_title is set to false.
-```
-
-#### New Note templates
-
-If you need further customizing of how your new notes should look like, you can define your own template:
-
-In the settings just edit the `new_note_template` like this:
-
-```
-  "new_note_template": "---\nuid: {id}\ntags: \n---\n",
-```
-
-To produce new notes like this:
-
-```
----
-uid: 201711150402
-tags:
----
-```
-
-The format string works like this:
-
-* `\n` creates a new line.
-* `{id}` : the note id like `201712241830`
-* `{title}` : note title like `Why we should celebrate Christmas`
-* `{origin_id}` : the id of the note you came from when creating a new note
-* `{origin_title}` : the title of the note you came from when creating a new note
-* `{file}` : the filename of the note like `201712241830 Why we should celebrate Christmas.md`
-* `{path}` : the path of the note like `/home/reschal/Dropbox/Zettelkasten`
-* `{timestamp: format-string}`: the date timestamp formatted by _format-string_, see [below]
-
-`origin` might need a bit of explanation: When you are in note `201701010101` and create a new note via `[shift]+[enter]` or via `[[implicit note creation via title]]`, the new note will get a new id, maybe `201702020202`. Its `{id}` therefore will be `201702020202` and its `{origin}` will be `201701010101`.
-
-#### Date and time formatting options for timestamp
-
-| Directive | Meaning | Example |
-|-----------|---------|---------|
-|`%a`|Weekday as locale’s abbreviated name.|Sun, Mon, …, Sat (en_US); So, Mo, …, Sa (de_DE)|
-|`%A`|Weekday as locale’s full name.|Sunday, Monday, …, Saturday (en_US); Sonntag, Montag, …, Samstag (de_DE)|
-|`%d`|Day of the month as a zero-padded decimal number.|01, 02, …, 31 |
-|`%b`|Month as locale’s abbreviated name. | Jan, Feb, …, Dec (en_US); Jan, Feb, …, Dez (de_DE) |
-|`%B`|Month as locale’s full name. | January, February, …, December (en_US); Januar, Februar, …, Dezember (de_DE) |
-|`%m`|Month as a zero-padded decimal number.|01, 02, …, 12 |
-|`%y`|Year without century as a zero-padded decimal number.|00, 01, …, 99|
-|`%Y`|Year with century as a decimal number.|2017, 2018, …|
-|`%H`|Hour (24-hour clock) as a zero-padded decimal number.|00, 01, …, 23|
-|`%I`|Hour (12-hour clock) as a zero-padded decimal number.|00, 01, …, 12|
-|`%p`|Locale’s equivalent of either AM or PM.|AM, PM (en_US); am, pm (de_DE)|
-|`%M`|Minute as a zero-padded decimal number.|01, 02, …, 59 |
-|`%S`|Second as a zero-padded decimal number.|01, 02, …, 59 |
-|`%j`|Day of the year as a zero-padded decimal number.|001, 002, …, 366|
-|`%U`|Week number of the year (Sunday as the first day of the week) as a zero padded decimal number. All days in a new year preceding the first Sunday are considered to be in week 0.|00, 01, …, 53|
-|`%W`|Week number of the year (Monday as the first day of the week) as a zero padded decimal number. All days in a new year preceding the first Monday are considered to be in week 0.|00, 01, …, 53|
-|`%c`|Locale’s appropriate date and time representation.|Tue Aug 16 21:30:00 1988 (en_US); Di 16 Aug 21:30:00 1988 (de_DE)|
-|`%c`|Locale’s appropriate date representation.|08/16/88 (None); 08/16/1988 (en_US); 16.08.1988 (de_DE)|
-|`%%`|A literal `%` character.|%|
-
-##### Examples for note id **201802261632**:
-
-* `{timestamp: %Y-%m-%d %H:%M}`: _2018-02-26 16:32_
-* `{timestamp: %a, %b %d, %Y}`: _Mon, Feb 26, 2018_
-
-##### Example YAML note header
-
-To produce a YAML note header (for pandoc), like this:
-
-```yaml
----
-note-id: 201802270019
-title:  Date Test
-author: First Last
-date: 2018-02-27
-tags:
----
-```
-
-you can use the following settings:
-
-```
-// when creating a new note, put id into title?
- // false to disable
-"id_in_title": false,
-
-// Template for new notes
-"new_note_template":
-    "---\nnote-id: {id}\ntitle: {title}\nauthor: First Last\ndate: {timestamp: %Y-%m-%d}\ntags: \n---\n",
-```
-
-### Color Schemes
-
-Only a few color schemes are provided by default. The sections below describe how you activate them in the settings file.
-
-You can also use the View > Switch Theme... menu to select a different theme.
-
-You can read more on defining your own themes in [Customizing Themes](#customizing-themes).
-
-#### Office Color Scheme
-
-![office](imgs/office2.png)
-
-This theme is active per default, in the settings file:
-
-```
-    // Theme:
-    //    themes/monokai.json
-    //    themes/solarized_light.json
-    "theme": "themes/Office.json",
-```
-#### Monokai Color Scheme
-
-![monokai](imgs/monokai.png)
-
-This theme in the settings file:
-
-```
-    // Theme:
-    //    themes/monokai.json
-    //    themes/solarized_light.json
-    "theme": "themes/monokai.json",
-```
-
-There is also a variant `monokai-large-headings`:
-
-![monokai-large-headings](imgs/multi-fonts.png)
-
-#### Solarized Color Scheme
-
-![solarized](imgs/solarized.png)
-
-This theme is activated like this in the settings file:
-
-```
-    // Theme:
-    //    themes/monokai.json
-    //    themes/solarized_light.json
-    "theme": "themes/solarized_light.json",
-```
-
-**Note:** For a theme change to take effect, you need to re-start the app.
-
-#### C64 Color Scheme
-
-![c64](imgs/c64.png)
-
-This theme is activated like this in the settings file:
-
-```
-    // Theme:
-    "theme": "themes/c64.json",
-```
-
-### Bibliographies and Citations
-
-#### Location of your .bib file
-If you [work with bibliographies](#working-with-bibliographies), this app can make use of your `.bib` files to enable insertion of `@citekeys` (or `#citekeys` if you use MultiMarkdown) and [automatic creation of bibliographies](#automatic-bibliographies) inside of your notes.
-
-**Note:** If a `.bib` file resides in your note archive folder then the app will find it automatically. No configuration needed!
-
-**Hint:** If you happen to work with multiple note archives, each requiring its own `.bib` file, it makes sense to make the `.bib` files part of their corresponding note archives.
-
-However, if you maintain your `.bib` file outside of your note archive, then you can configure its location in the settings; just add a line like this:
-
-```
-    "bibfile": "/path/to/zotero.bib",
-```
-
-In cases where both a bibfile setting is present *and* an actual `.bib` file is found in your note archive, the one in the note archive will be used.
-
-**Note** 
-
-* Your `.bib` file is loaded the first time you insert a citation
-* Strings in the `.bib` file are being converted to unicode so umlauts and special characters can be displayed in the fuzzy panel
-* This conversion can take long, so it is disabled by default
-* To disable the conversion and live with `u` instead of `ü`, set the setting `"convert_bibtex_to_unicode"` to `false`.
-* To re-load your `.bib` file, use the menu Tools > Reload BIB file or press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>B</kbd>
-
-#### Citation Reference Style
-
-Two major ways to handle citations in Markdown documents exist: Pandoc and MultiMarkdown. Which one you use, depends on your preferred tool-chain.
-
-**Note:** Pandoc style is the default, see below how to change this.
-
-Example for pandoc:
-
-```markdown
-Reference to some awesome article [@awesome2017].
-
-<!-- bibliography
-[@awesome2017]: Mr. Awesome. 2017. _On Being Awesome_
--->
-```
-
-Example for MultiMarkdown:
-
-```markdown
-Reference to some awesome article [][#awesome2017].
-
-<!-- bibliography -->
-[#awesome2017]: Mr. Awesome. 2017. _On Being Awesome_
-
-```
-
-The following line in the settings turns MultiMarkdown mode on:
-
-```
-"citations-mmd-style": true,
-```
-
-
 ## Usage
+
+This app comes with sane defaults. You can start using it right away. Once you have become accustomed, it is worth checking out the [Configuration] section, though.
 
 ### Shortcut cheatsheet
 
@@ -563,6 +223,7 @@ The following line in the settings turns MultiMarkdown mode on:
 * [Find referencing (friend) notes](#searching-for-friends) <kbd>ALT</kbd> + click link to note
 * [View all tags](#getting-an-overview-of-all-your-tags) <kbd>#</kbd> + <kbd>!</kbd>
 * [View all notes](#listing-all-notes) <kbd>[</kbd> + <kbd>!</kbd>
+* [Browse note history](#browsing-recently-opened-notes) : <kbd>alt/option></kbd> + <kbd>shift</kbd> <kbd>ctrl/cmd</kbd> + <kbd>H</kbd>
 * [Insert tag](#inserting-tags) <kbd>#</kbd> + <kbd>?</kbd>
 * [Find tag references](#searching-for-notes-containing-specific-tags): Just click a #tag
 * [Expand link inline](#inline-expansion-of-note-links) <kbd>ctrl</kbd> + <kbd>.</kbd>
@@ -699,6 +360,48 @@ The above image shows:
 * indentation guides are shown (yes)
 
 **Note:** You can show and hide the status bar with View > Toggle Status Bar or <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>J</kbd>.
+
+#### Switching Themes
+
+View > Switch Theme ... will open a fuzzy-searchable list of all installed themes. When you select a theme it will be applied immediately.
+
+![theme-switcher](imgs/switch-theme.png)
+
+Only a few color schemes are provided by default. 
+
+You can read more on defining your own themes in [Customizing Themes](#customizing-themes).
+
+##### Office Color Scheme
+
+![office](imgs/office2.png)
+
+
+##### Monokai Color Scheme
+
+![monokai](imgs/monokai.png)
+
+There is also a variant `monokai-large-headings`:
+
+![monokai-large-headings](imgs/multi-fonts.png)
+
+##### Solarized Color Scheme
+
+![solarized](imgs/solarized.png)
+
+If you want the best aesthetics, [download](https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip) the [Ubuntu Mono](https://design.ubuntu.com/font/) fonts and install the following 4 by double-clicking them:
+
+* `UbuntuMono-R.ttf`
+* `UbuntuMono-RI.ttf`
+* `UbuntuMono-B.ttf`
+* `UbuntuMono-BI.ttf`
+
+##### C64 Color Scheme
+
+![c64](imgs/c64.png)
+
+For a perfect C64 experience, [download](http://style64.org/file/C64_TrueType_v1.2-STYLE.zip) the [best C64 True Type Font](http://style64.org/release/c64-truetype-v1.2-style), unzip it, and install the `C64 Pro Mono.ttf` by double clicking it.
+
+
 
 ### Note Archive Folder
 
@@ -899,6 +602,44 @@ Headings are prefixed with their `#` markup and appear below their note in the f
 The following animation shows how this works:
 
 ![goto](imgs/demo_goto_640.gif)
+
+#### Browsing recently opened notes
+
+Sometimes you want some sort of "browse history", to see what notes you have viewed or modified recently. Well, there's a command for that:
+
+* View > Show recently viewed notes
+* "Show recently viewed notes" from the command palette
+* Press <kbd>alt/option></kbd> + <kbd>shift</kbd> <kbd>ctrl/cmd</kbd> + <kbd>H</kbd>
+* Click on the saved search `View History : =view_history(){sortby: history}`
+
+It produces an overview of your history in the search results like this:
+
+```markdown
+# Recently Opened Notes
+
+## Last hour
+* [[201804250103]] Working with Bibliographies
+* [[201804141018]] Welcome
+* [[201804250052]] Creating a Link
+* [[201804250048]] Working with Notes
+* [[201804250059]] Working with Tags
+* [[201804250100]] Advanced Tag Search
+
+## Last 24 hours
+
+## Last 7 days
+
+## Last 30 days
+```
+
+#### Browsing recently modified notes
+
+This is only available via an [advanced saved search](#advanced-saved-searches). By default, your saved searches contain the line:
+
+`Recent notes      :   [!  {sortby: mtime,    order: desc}` 
+
+This command basically means: Show all notes like `[!` does, then sort them by modification time in descending order. When you click the (blue) search, the search results will show the list of recently modified notes.
+
 
 ### Find in files
 <kbd>shift</kbd>+<kbd>ctrl/cmd</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
@@ -1313,7 +1054,7 @@ The animation below shows both section (re-)numbering and auto-TOC:
 
 ![section-numbers](imgs/auto-numbering.gif)
 
-## Saved Searches
+### Saved Searches
 
 The bottom right editor shows a saved searches file. This is a simple Text file where you can name and store search terms.
 
@@ -1352,7 +1093,7 @@ anything starting with auto but nothing starting with plane: #auto*, !#plane*
 
 You can execute the search by clicking on the underlined search spec.
 
-### Advanced Saved Searches
+#### Advanced Saved Searches
 
 You can specify how the results of saved searches should be sorted by adding a string following the syntax of `{sortby: id|title|mtime|refcount, order: asc|desc}` at the end of a saved search:
 
@@ -1361,6 +1102,7 @@ You can specify how the results of saved searches should be sorted by adding a s
     * `title` : sort by note title
     * `mtime` : sort by modification time (when the note was last saved or created)
     * `refcount` : this **only** applies to the [refcounts()](#reference-counts---find-un-referenced-and-most-referenced-notes) function, see below 
+    * `history` : this **only** applies to the [view_history()](#note-history) function, also described [here](#browsing-recently-opened-notes).
 * `order`
     * `asc` : ascending from low to high
     * `desc` : descending from high to low
@@ -1374,7 +1116,7 @@ Recent notes    : [!  {sortby: mtime,    order: desc}
 ![demo_mostrecent](imgs/demo_mostrecent.gif)
 
 
-### Reference Counts : Find un-referenced and most-referenced notes
+##### Reference Counts : Find un-referenced and most-referenced notes
 
 Saved searches also support functions, prefixed by an equal sign. Currently the only function is `=refcounts()`, for searching for notes that are referenced (linked to) a certain number of times. It supports two paramenters _min_ and _max_, holding the minimum and maximum number of references, accordingly.
 
@@ -1392,8 +1134,20 @@ The _most-referenced_ search lists all notes which are linked to at least once a
 
 **Note:** sorting by **refcount** is **only applicable** to the **refcount()** function. It has no effect on other searches.
 
+##### Note History 
 
-## HTML Export
+There is a simple function that doesn't take any parameters and produces the search results you know from [Browsing recently opened notes](#browsing-recently-opened-notes).
+
+It only has one valid syntax: `=view_history(){sortby: history}`.
+
+In the default saved searches it is usually put like this: 
+
+```
+View History       :    =view_history(){sortby: history}
+```
+
+
+### HTML Export
 
 
 You can export your note archive, or parts thereof, into a semantic text view, consisting of one big HTML file and optional images:
@@ -1445,7 +1199,7 @@ On Linux, unfortunately there is no HTML preview, but an "open in browser" butto
 
 ![linuxexport](imgs/htmlexport-linux.png)
 
-### About the available parsers
+#### About the available parsers
 
 There are 3 different markdown parsers available:
 
@@ -1471,7 +1225,7 @@ You should always use the default mmd parser, even if your text uses pandoc synt
 The only exception is: If your text contains pandoc style tables, then go for the pandoc parser. Pandoc `[@citations]` and pandoc `~~~fenced cod blocks~~~` will be converted internally automatically by the tool, so that the multimarkdown parser can handle them.
 
 
-## Customizing Themes
+### Customizing Themes
 
 Themes are simple JSON files that define 
 
@@ -1481,16 +1235,16 @@ Themes are simple JSON files that define
 
 of the Markdown editor.
 
-### Creating a new Theme 
+#### Creating a new Theme 
 
 To create a new theme, run View > Create new Theme ... from the menu. You will be prompted for a name and upon entering it:
 
 * a copy of your currently active theme will be made your new theme
 * a json editor opens where you can modify your new theme
 
-When you File > Save (<kbd>ctrl/cmd</kbd> + <kbd>S</kbd>) the file, your new theme is ready. You can switch to it via View > Switch Theme. After switching, you need to restart Sublimeless_ZK to load the new theme.
+When you File > Save (<kbd>ctrl/cmd</kbd> + <kbd>S</kbd>) the file, your new theme is ready. You can switch to it via View > Switch Theme. 
 
-### Editing Themes
+#### Editing Themes
 
 When you create a new theme or when you run View > Edit current theme, a JSON editor opens so you can modify the theme.
 
@@ -1545,13 +1299,8 @@ footnote | text-type | style of `^text` inside a `[^footnote]` footnote
 
 **Note:** On save, the editor will display an error message if your JSON contains errors. The error message will contain a short description including the line and column number of the first character where the error occured. The cursor will be set at exactly that position so you can figure out more easily what is incorrect. Syntax-coloring should also help you formatting the theme file.
 
-### Switching Themes
 
-View > Switch Theme ... will open a fuzzy-searchable list of all installed themes. When you select a theme, you will receive a message to restart Sublimeless_ZK for the new theme to take effect.
-
-![theme-switcher](imgs/switch-theme.png)
-
-## External Commands
+### External Commands
 
 You can run external commands, for instance, to create a PDF or HTML from your current note; there are several ways to invoke an external command:
 
@@ -1572,7 +1321,7 @@ The following animation shows this in action, using the command palette to selec
 
 ![pandoc](imgs/extcmdpandoc.gif)
 
-### Writing your own external commands
+#### Writing your own external commands
 
 Let's do this by example. The following is the snippet for PDF conversion that you just saw above:
 
@@ -1610,7 +1359,7 @@ Each command has a name and consists of 3 sections:
     * `"open_new_note"`: if `true`, opens the new note that the external command has created
 * `"on_error"`: if `"show_error"` is `true`, which it should always be, then an error message will be shown if the command terminates with a non-zero exit code (the universal convention for error conditions).
 
-### Using variables
+#### Using variables
 
 But how to tell the name of the result file to open or the note ID of a new note that should be created by the external command?
 
@@ -1626,6 +1375,280 @@ variable        | description
 `{new_note_id}` | a timestamp based note id if you need to create a new note
 
 **Note:** Based on the above, to pass the complete filename of the current note to your external command, use: `{note_path}{note_name}{note_ext}`.
+
+
+## Configuration
+
+### Files
+
+#### The Settings File
+You can edit all settings by opening the settings file:
+
+* Windows: Use the menu: Edit > Settings
+* macOS:
+    * press <kbd>Command</kbd> + <kbd>,</kbd>
+    * alternatively use the menu: sublimeless_zk > Preferences...
+
+**Note:** You need to save the settings after you changed them.
+
+**Note:** Some changes only take effect after restarting the app: color scheme, for instance.
+
+
+The settings file is just a text file an can be edited like any other text file. Here is an excerpt from the default settings:
+
+**Note:** All lines starting with `//` are just comments.
+
+```
+{
+    // Theme:
+    //    themes/monokai.json
+    //    themes/solarized_light.json
+    "theme": "themes/monokai.json",
+
+    // The preferred markdown extension
+    "markdown_extension": ".md",
+```
+
+We will go into further details later, but here is a quick reference of all currently supported settings:
+
+| setting | default | remarks |
+|---------|---------|---------|
+"theme" | "themes/Office.json" | Theme for the note editor. Alternative theme: "themes/solarized_light.json" |
+"markdown_extension" | ".md" | Extension of your note files. |
+"new_note_template" | `"---\nnote-id: {id}\ntitle: {title}\nauthor: My Self\ndate: {timestamp: %Y-%m-%d}\n---\n<!-- tags: -->"` | Template for new notes. Fields in `{curly braces}` will be substituted.|
+"double_brackets" | true | Insert links with [[double brackets]] (true) or [single brackets] (false)|
+"insert_links_with_titles" | false | insert note title after inserted link |
+"id_in_title" | false | New notes title will contain the note id (true) or not (false) |
+"tag_prefix" | "#" | Prefix character(s) for tags. |
+"path_to_pandoc" | "/usr/local/bin/pandoc" | Explicit location of the pandoc program. Only needed for auto-bib, and if pandoc can't be found automatically.|
+"bibfile" | "/path/to/zotero.bib" | bibliography file to use if none is contained in the notes folder |
+"convert_bibtex_to_unicode" | true | convert bibtex strings to unicode for showing umlauts etc. **Set this to false if loading your .bib file takes ages**
+"toc_suffix_separator" | "_" | suffix separator for distinguishing links to identically named sections in table of contents. If you plan to use pandoc for HTML conversion, set this to "-" |
+"citations-mmd-style" | false | `[@citekey]` pandoc notation (false) or `[][#citekey]` multimarkdown notation for inserted citations |
+"seconds_in_id" | true | Long YYYYMMDDHHMMSS timestamp IDs containing seconds (true = default) or YYYYMMDDHHMM IDs (false) |
+"sort_notelists_by" | "id" | in search-results, search by note "id" or note "title" |
+"auto_save_interval" | 60 | auto-save unsaved notes every n seconds. 0 to disable |
+"skip_first_heading_when_numbering" | false | exclude first heading when auto-numbering sections 
+"wrap_lines" | true | wrap lines or rather scroll horizontally
+"show_wrap_markers" | true | show markers at the end of wrapping lines
+"indent_wrapped_lines" | false | should wrapping lines be indented even further
+"auto_indent" | true | automatically indent next line when pressing return
+"show_indentation_guides" | true | show guides for indented lines
+"use_tabs" | false | use tabs instead of 4 spaces when pressing the <kbd>TAB</kbd> key
+
+
+#### Markdown filename extension
+By default, the extension `.md` is used for your notes. If that does not match your style, you can change it with the `markdown_extension` setting. Just replace `.md` with `.txt` or `.mdown` or whatever you like.
+
+#### Auto-Save Interval
+
+The setting `auto_save_interval` specifies the interval in seconds, at which unsaved notes will be saved automatically. Set this to `0` to disable auto-save.
+
+### Notes and Links
+
+#### Single or double brackets
+Whether you want to use `[[this link style]]` or `[that link style]` is totally up to you. Both work. But you need to configure which style you prefer, so automatically inserted links will match your style. `[[double bracket]]` links are the default, and if you want to change that to single bracket links, set the `double_brackets` parameter to `false` in the settings file.
+
+#### Note ID precision
+
+The default note ID format is a timestamp in `YYYYMMDDHHMMSS` format, with second-precision. If you tend to create more than one note per minute, this is what you want. If you prefer shorter note-IDs, you can change the note ID format to `YYYYMMDDHHMM`, with minute-precision.
+
+The following setting influences the note ID format:
+
+```
+    // seconds in note IDs?
+    // if true : YYYYMMDDHHMMSS 20171224183045
+    // if false: YYYYMMDDHHMM   201712241830
+    "seconds_in_id": true,
+```
+
+#### Insert links with or without titles
+There are numerous times where the app inserts a `[[link]]` to a note into your text on your behalf. You may not only choose the single or double-bracketness of the links, you may also choose whether the **note title** should follow the inserted link.
+
+The setting `"insert_links_with_titles"` takes care of that and is set to `false` by default:
+
+```
+// links like "[[199901012359]] and note title" instead of "[[199901012359]]"
+"insert_links_with_titles": false,
+```
+
+Examples how inserted links might look like depending on this setting:
+
+```markdown
+`insert_links_with_titles` is `true`:
+[[199901012359]] and note title
+
+
+`insert_links_with_titles` is `false`:
+[[199901012359]]
+```
+
+#### IDs in titles of new notes
+
+When you create a new note, its title will automatically be inserted and an ID will be assigned to it (see [Creating a new note](#creating-a-new-note)). If you want the ID to be part of the title, change the setting `id_in_title` from `false` to `true`.
+
+Example for a note created with ID:
+
+```markdown
+# 201710310128 This is a note with its ID in the title
+tags=
+
+The setting id_in_title is set to true.
+```
+
+Example for a note created without ID:
+
+```markdown
+# A note without an ID
+tags =
+
+The setting id_in_title is set to false.
+```
+
+#### New Note templates
+
+If you need further customizing of how your new notes should look like, you can define your own template:
+
+In the settings just edit the `new_note_template` like this:
+
+```
+  "new_note_template": "---\nuid: {id}\ntags: \n---\n",
+```
+
+To produce new notes like this:
+
+```
+---
+uid: 201711150402
+tags:
+---
+```
+
+The format string works like this:
+
+* `\n` creates a new line.
+* `{id}` : the note id like `201712241830`
+* `{title}` : note title like `Why we should celebrate Christmas`
+* `{origin_id}` : the id of the note you came from when creating a new note
+* `{origin_title}` : the title of the note you came from when creating a new note
+* `{file}` : the filename of the note like `201712241830 Why we should celebrate Christmas.md`
+* `{path}` : the path of the note like `/home/reschal/Dropbox/Zettelkasten`
+* `{timestamp: format-string}`: the date timestamp formatted by _format-string_, see [below]
+
+`origin` might need a bit of explanation: When you are in note `201701010101` and create a new note via `[shift]+[enter]` or via `[[implicit note creation via title]]`, the new note will get a new id, maybe `201702020202`. Its `{id}` therefore will be `201702020202` and its `{origin}` will be `201701010101`.
+
+#### Date and time formatting options for timestamp
+
+| Directive | Meaning | Example |
+|-----------|---------|---------|
+|`%a`|Weekday as locale’s abbreviated name.|Sun, Mon, …, Sat (en_US); So, Mo, …, Sa (de_DE)|
+|`%A`|Weekday as locale’s full name.|Sunday, Monday, …, Saturday (en_US); Sonntag, Montag, …, Samstag (de_DE)|
+|`%d`|Day of the month as a zero-padded decimal number.|01, 02, …, 31 |
+|`%b`|Month as locale’s abbreviated name. | Jan, Feb, …, Dec (en_US); Jan, Feb, …, Dez (de_DE) |
+|`%B`|Month as locale’s full name. | January, February, …, December (en_US); Januar, Februar, …, Dezember (de_DE) |
+|`%m`|Month as a zero-padded decimal number.|01, 02, …, 12 |
+|`%y`|Year without century as a zero-padded decimal number.|00, 01, …, 99|
+|`%Y`|Year with century as a decimal number.|2017, 2018, …|
+|`%H`|Hour (24-hour clock) as a zero-padded decimal number.|00, 01, …, 23|
+|`%I`|Hour (12-hour clock) as a zero-padded decimal number.|00, 01, …, 12|
+|`%p`|Locale’s equivalent of either AM or PM.|AM, PM (en_US); am, pm (de_DE)|
+|`%M`|Minute as a zero-padded decimal number.|01, 02, …, 59 |
+|`%S`|Second as a zero-padded decimal number.|01, 02, …, 59 |
+|`%j`|Day of the year as a zero-padded decimal number.|001, 002, …, 366|
+|`%U`|Week number of the year (Sunday as the first day of the week) as a zero padded decimal number. All days in a new year preceding the first Sunday are considered to be in week 0.|00, 01, …, 53|
+|`%W`|Week number of the year (Monday as the first day of the week) as a zero padded decimal number. All days in a new year preceding the first Monday are considered to be in week 0.|00, 01, …, 53|
+|`%c`|Locale’s appropriate date and time representation.|Tue Aug 16 21:30:00 1988 (en_US); Di 16 Aug 21:30:00 1988 (de_DE)|
+|`%c`|Locale’s appropriate date representation.|08/16/88 (None); 08/16/1988 (en_US); 16.08.1988 (de_DE)|
+|`%%`|A literal `%` character.|%|
+
+##### Examples for note id **201802261632**:
+
+* `{timestamp: %Y-%m-%d %H:%M}`: _2018-02-26 16:32_
+* `{timestamp: %a, %b %d, %Y}`: _Mon, Feb 26, 2018_
+
+##### Example YAML note header
+
+To produce a YAML note header (for pandoc), like this:
+
+```yaml
+---
+note-id: 201802270019
+title:  Date Test
+author: First Last
+date: 2018-02-27
+tags:
+---
+```
+
+you can use the following settings:
+
+```
+// when creating a new note, put id into title?
+ // false to disable
+"id_in_title": false,
+
+// Template for new notes
+"new_note_template":
+    "---\nnote-id: {id}\ntitle: {title}\nauthor: First Last\ndate: {timestamp: %Y-%m-%d}\ntags: \n---\n",
+```
+
+
+### Bibliographies and Citations
+
+#### Location of your .bib file
+If you [work with bibliographies](#working-with-bibliographies), this app can make use of your `.bib` files to enable insertion of `@citekeys` (or `#citekeys` if you use MultiMarkdown) and [automatic creation of bibliographies](#automatic-bibliographies) inside of your notes.
+
+**Note:** If a `.bib` file resides in your note archive folder then the app will find it automatically. No configuration needed!
+
+**Hint:** If you happen to work with multiple note archives, each requiring its own `.bib` file, it makes sense to make the `.bib` files part of their corresponding note archives.
+
+However, if you maintain your `.bib` file outside of your note archive, then you can configure its location in the settings; just add a line like this:
+
+```
+    "bibfile": "/path/to/zotero.bib",
+```
+
+In cases where both a bibfile setting is present *and* an actual `.bib` file is found in your note archive, the one in the note archive will be used.
+
+**Note** 
+
+* Your `.bib` file is loaded the first time you insert a citation
+* Strings in the `.bib` file are being converted to unicode so umlauts and special characters can be displayed in the fuzzy panel
+* This conversion can take long, so it is disabled by default
+* To disable the conversion and live with `u` instead of `ü`, set the setting `"convert_bibtex_to_unicode"` to `false`.
+* To re-load your `.bib` file, use the menu Tools > Reload BIB file or press <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>B</kbd>
+
+#### Citation Reference Style
+
+Two major ways to handle citations in Markdown documents exist: Pandoc and MultiMarkdown. Which one you use, depends on your preferred tool-chain.
+
+**Note:** Pandoc style is the default, see below how to change this.
+
+Example for pandoc:
+
+```markdown
+Reference to some awesome article [@awesome2017].
+
+<!-- bibliography
+[@awesome2017]: Mr. Awesome. 2017. _On Being Awesome_
+-->
+```
+
+Example for MultiMarkdown:
+
+```markdown
+Reference to some awesome article [][#awesome2017].
+
+<!-- bibliography -->
+[#awesome2017]: Mr. Awesome. 2017. _On Being Awesome_
+
+```
+
+The following line in the settings turns MultiMarkdown mode on:
+
+```
+"citations-mmd-style": true,
+```
 
 
 
