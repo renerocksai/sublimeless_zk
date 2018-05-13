@@ -2,6 +2,7 @@ import re
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import *
 from PyQt5.Qsci import *
+from PyQt5.QtGui import *
 
 
 class FindInputLine(QTextEdit):
@@ -43,8 +44,7 @@ class FindDlg(QDialog):
 
 
         self.findField = FindInputLine(self)
-        self.findField.resize(250,50)
-
+        self.findField.setMaximumHeight(40)
 
         self.caseSens = QCheckBox("Case sensitive",self)
         if self.caseSens.isChecked():
@@ -69,7 +69,7 @@ class FindDlg(QDialog):
         self.regexRadio.toggled.connect(self.regexMode)
 
         self.replaceField = FindInputLine(self)
-        self.replaceField.resize(250,50)
+        self.replaceField.setMaximumHeight(40)
 
         optionsLabel = QLabel("Options: ",self)
 
