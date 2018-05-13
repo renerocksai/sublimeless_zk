@@ -456,7 +456,7 @@ class Sublimeless_Zk(QObject):
         for key_combo in deletable_keys:
             command = commands.boundTo(key_combo)
             if command is not None:
-                print('Clearing key combo', QKeySequence(key_combo).toString(), 'for command', command.description())
+                #print('Clearing key combo', QKeySequence(key_combo).toString(), 'for command', command.description())
                 if command.key() == key_combo:
                     command.setKey(0)
                 if command.alternateKey() == key_combo:
@@ -571,7 +571,7 @@ class Sublimeless_Zk(QObject):
         editor = self.get_active_editor()
         if not editor:
             return
-        finder = FindDlg(self.gui, editor)
+        finder = FindDlg(self.gui, qtabs=self.gui.qtabs)
         finder.show()
 
     def update_recent_project_actions(self):
@@ -670,6 +670,8 @@ class Sublimeless_Zk(QObject):
         elif self.app.focusWidget() == self.gui.saved_searches_editor:
             return self.gui.saved_searches_editor
         else:
+            if self.gui.qtabs.count():
+                return self.gui.qtabs.currentWidget()
             return None
 
     def document_to_index_editor(self, filn):

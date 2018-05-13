@@ -45,4 +45,3 @@ class AppState:
         if project_folder not in self.recently_viewed:
             self.recently_viewed[project_folder] = {}
         self.recently_viewed[project_folder][filn] = int(time())
-        print('accessed', filn)

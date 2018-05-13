@@ -20,11 +20,11 @@ class FindInputLine(QTextEdit):
 
 
 class FindDlg(QDialog):
-    def __init__(self, parent=None, editor=None):
-        QDialog.__init__(self, parent)
+    def __init__(self, parent=None, qtabs=None):
+        QDialog.__init__(self, parent, Qt.WindowStaysOnTopHint)
         self.parent = parent
         self.initUI()
-        self.editor = editor
+        self.qtabs = qtabs
 
     def initUI(self):
         self.re = False
@@ -100,7 +100,7 @@ class FindDlg(QDialog):
         self.replaceField.enter_pressed.connect(self.replace)
 
     def getCurrentEditor(self):
-        return self.editor
+        return self.qtabs.currentWidget()
 
     def regexMode(self):
         # Uncheck and then disable case sensitive/whole words in regex mode
