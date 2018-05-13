@@ -255,7 +255,7 @@ class ZkMdLexer(QsciLexerCustom):
         if self.highlight_saved_searches:
 
             p = re.compile(r'(^.+?: )([ \t]*)([^\n]+?)$', flags=re.MULTILINE)    # don't capture the newline! we don't want to highlight till EOL
-            p_sub = re.compile(r'(=\w+?\(.+?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime)\s*?(,\s*?order:\s*?(asc|desc))?\s*?}')
+            p_sub = re.compile(r'(=\w+?\(.*?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime|history)\s*?(,\s*?order:\s*?(asc|desc))?\s*?}')
             for match in p.finditer(text):
                 #print(match.groups())
                 a1 = match.start(1)
@@ -283,13 +283,16 @@ class ZkMdLexer(QsciLexerCustom):
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first
         # fenced code blocks
-        p = re.compile(r'(```)(.|\n)*?(```)')
+        p = re.compile(r'(\n[ \t]*\n)(```)(.|\n)*?(\n```\n)')
         for match in p.finditer(text):
-            a = match.start(1)
-            b = match.end(3)
-            regions.append((a, b+1, match.group() + '\n', 'code.fenced'))
+            #print('fenced', match.groups())
+            a = match.start() + 1
+            a2 = match.start(2) # just the ````
+            b = match.end()
+            regions.append((a2, b, 'nop', 'code.fenced'))
+            # above: nop will be replaced by the CSR anyway
             # consume
-            text = text[:a] + 'x' * (len(match.group())) + text[b:]
+            text = text[:a] + 'x' * (len(match.group()) - 1) + text[b:]
 
 
         # headings
@@ -341,9 +344,14 @@ class ZkMdLexer(QsciLexerCustom):
         # indented code blocks
         ### NEED TO STYLE THE \n !!!
         if self.show_block_quotes:
-            p = re.compile(r'^( {4}|\t)+(.+$)', flags=re.MULTILINE)
-            for match in p.finditer(text):
-                a = match.start()
+            p = re.compile(r'(\n[ \t]*\n)(( {4}|\t)+[^\n]*?\n)+')
+            pos = 0
+            while True:
+                match = p.search(text, pos)
+                if not match:
+                    break
+                a = match.start(1) + 1
+                a2 = match.start(2)
                 b = match.end()
                 # don't block-quote list-sub-items
                 skip_this = False
@@ -352,9 +360,11 @@ class ZkMdLexer(QsciLexerCustom):
                         skip_this = True
                 if skip_this:
                     continue
-                regions.append((a, a + len(match.group(1)), match.group(1), 'code.fenced'))
-                regions.append((a + len(match.group(1)), b+1, match.group(2) + '\n', 'code.fenced'))
-                # +1 to also style the \n
+                regions.append((a + len(match.group(1)) - 1, b, match.group(2)[:-1], 'code.fenced'))
+                # above: match.group(2) only captures the last match. this is OK here, since the text will be ignored here and CSR will figure the real text out later, based on the indices
+                # consume
+                text = text[:a] + 'x' * (len(match.group()) - 2) + text[b - 1:]
+                pos = b - 1
 
         ### inline markup
 
@@ -568,30 +578,19 @@ class ZkMdLexer(QsciLexerCustom):
         regions = [r for r in regions if r[0] < r[1]] # filter out empty regions
         csr = CascadingStyleRegions(text)
         regions = csr.apply_regions(regions)
-
         style_regions = []
         # now translate regions to byte arrays
-        # and fill gaps with default style
         current_pos = 0
         for region in regions:
             region_start = region[0]
             region_end = region[1]
             region_text = region[2]
             region_style = region[3]
-            # gap = region_start - current_pos
-            # gap_b = len(bytearray(text[current_pos:region_start], 'utf-8'))
-            # if gap_b > 0:
-            #    style_regions.append((gap_b, 'default'))
+
             match_b = len(bytearray(region_text, 'utf-8'))
             match = region_end - region_start
             style_regions.append((match_b, region_style))
-            # current_pos += gap + match
             current_pos += match
-        #gap = len(text) - current_pos
-        #if gap > 0:
-        #    gap_b = len(bytearray(text[current_pos:], 'utf-8'))
-        #    style_regions.append((gap_b, 'default'))
         for num_chars, style in style_regions:
-            # if num_chars > 0:
-                self.setStyling(num_chars, self.style2id[style])
+            self.setStyling(num_chars, self.style2id[style])
     ''''''

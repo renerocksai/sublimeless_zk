@@ -211,7 +211,7 @@ class Project:
         self.refresh_notes()
         return list(self.notes.values())
 
-    def externalize_note_links(self, note_files, prefix=None, refcounts=None, sort=None, order=None):
+    def externalize_note_links(self, note_files, prefix=None, refcounts=None, sort=None, order=None, do_write=True):
         link_prefix, link_postfix = self.get_link_pre_postfix()
         with open(self.get_search_results_filn(), mode='w', encoding='utf-8', errors='ignore') as f:
             if prefix:
@@ -228,6 +228,8 @@ class Project:
             extension = self.settings['markdown_extension']
             for line in note_files:
                 filn = line
+                if not os.path.exists(filn):
+                    continue
                 line = os.path.basename(line)
                 line = line.replace(extension, '')
                 if ' ' not in line:
@@ -252,10 +254,14 @@ class Project:
             if order.lower() == 'desc':
                 reverse = True
             results.sort(key=itemgetter(column), reverse=reverse)
+            lines = []
             for note_id, title, mtime, refcount in results:
-                f.write('* {}{}{} {}\n'.format(link_prefix, note_id,
-                                               link_postfix, title))
-        return
+                line = '* {}{}{} {}\n'.format(link_prefix, note_id,
+                                               link_postfix, title)
+                if do_write:
+                    f.write(line)
+                lines.append(line.strip())
+        return lines
 
     def format_note_links(self, note_files):
         link_prefix, link_postfix = self.get_link_pre_postfix()

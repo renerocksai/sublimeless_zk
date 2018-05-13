@@ -208,6 +208,9 @@ class Sublimeless_Zk(QObject):
         self.moveLineDownAction = QAction('Move Line Down', self)
         self.moveLineDownAction.setShortcut('Ctrl+Shift+D')
 
+        self.showRecentViewsAction = QAction('Show recently viewed notes')
+        self.showRecentViewsAction.setShortcut('Shift+Ctrl+Alt+H')
+        
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -327,6 +330,7 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.toggleStatusBarAction)
         view.addSeparator()
         view.addAction(self.showAllNotesAction)
+        view.addAction(self.showRecentViewsAction)
         view.addAction(self.showReferencingNotesAction)
         view.addAction(self.showTagsAction)
         view.addSeparator()
@@ -408,6 +412,7 @@ class Sublimeless_Zk(QObject):
         self.findRefcountAction.triggered.connect(self.find_notes_with_refcounts)
         self.moveLineUpAction.triggered.connect(self.move_line_up)
         self.moveLineDownAction.triggered.connect(self.move_line_down)
+        self.showRecentViewsAction.triggered.connect(self.show_recent_views)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -721,6 +726,7 @@ class Sublimeless_Zk(QObject):
                 recent_files.append(editor.file_name)
         self.app_state.open_notes[self.project.folder] = recent_files
 
+
     def reopen_notes(self):
         if self.project.folder in self.app_state.open_notes:
             for filn in self.app_state.open_notes[self.project.folder]:
@@ -749,6 +755,7 @@ class Sublimeless_Zk(QObject):
         """
         #check if exists
         tab_index, editor = self.document_to_index_editor(document_filn)
+        self.app_state.register_note_access(self.project.folder, document_filn)
         if editor:
             self.gui.qtabs.setCurrentIndex(tab_index)
             editor.setFocus()
@@ -1309,7 +1316,7 @@ class Sublimeless_Zk(QObject):
         editor.setText(result_text)
 
     def parse_current_search_attrs(self, spec):
-        p_sub = re.compile(r'\s*?(=\w*?\(.*?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime)\s*?(,\s*?order:\s*?(asc|desc))?\s*}')
+        p_sub = re.compile(r'\s*?(=\w*?\(.*?\)\s*?)?{sortby:\s*?(id|title|refcount|mtime|history)\s*?(,\s*?order:\s*?(asc|desc))?\s*}')
         
         match = p_sub.search(spec)
         attrs = {
@@ -1321,7 +1328,7 @@ class Sublimeless_Zk(QObject):
         if match:
             if match.group(1):
                 # parse function into args and name
-                p_foo = re.compile(r'\s*?=(\w+)\((.+?)\)')
+                p_foo = re.compile(r'\s*?=(\w+)\((.*?)\)')
                 sub_match = p_foo.match(match.group(1))
                 if sub_match:
                     attrs['function'] = sub_match.group(1)
@@ -1382,6 +1389,8 @@ class Sublimeless_Zk(QObject):
                 self.current_search_attrs['args']['min'] = refmin
                 self.current_search_attrs['args']['max'] = refmax
                 self.find_notes_with_refcounts()
+            elif attrs['function'] == 'view_history':
+                self.show_recent_views()
         elif search_spec:
             self.find_in_files(search_spec)
         self.current_search_attrs = None
@@ -1798,7 +1807,41 @@ class Sublimeless_Zk(QObject):
         editor.setText('\n'.join(new_lines))
         editor.ensureLineVisible(line_index + 1)
         editor.setCursorPosition(line_index + 1, col_index)
+
+    def show_recent_views(self):
+        d = self.app_state.recently_viewed.get(self.project.folder, {})
+        now = int(time.time())
+        days30 = now - 30 * 24 * 60 * 60
+        days7 = now - 7 * 24 * 60 * 60
+        hours24 = now - 24 * 60 * 60
+        hour1 = now - 60 * 60
+
+        # sort and filter
+        hour_notes = {note_filn: t for t, note_filn in sorted([(t, note_filn) for note_filn, t in d.items() if t > hour1])}
+        day_notes = {note_filn: t for t, note_filn in sorted([(t, note_filn) for note_filn, t in d.items() if t > hours24 and note_filn not in hour_notes])}
+        week_notes = {note_filn: t for t, note_filn in sorted([(t, note_filn) for note_filn, t in d.items() if t > days7 and note_filn not in hour_notes and note_filn not in day_notes])}
+        rest_notes = {note_filn: t for t, note_filn in sorted([(t, note_filn) for note_filn, t in d.items() if t > days30 and note_filn not in hour_notes and note_filn not in day_notes and note_filn not in week_notes])}
+
+        lines = ['# Recently Opened Notes']
+        for desc, d in {'Last hour': hour_notes, 'Last 24 hours': day_notes, 'Last 7 days': week_notes, 'Last 30 days': rest_notes}.items():
+            lines.append(f'\n## {desc}')
+            fake_refcounts = {os.path.basename(filn).split(' ', 1)[0]: t for filn, t in d.items()}
+            note_files = list(d.keys())
+            lines.extend(self.project.externalize_note_links(note_files, refcounts=fake_refcounts, sort='refcount', order='desc', do_write=False))
+        self.gui.search_results_editor.setText('\n'.join(lines))
+
         
+
+            
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     Sublimeless_Zk().run()
