@@ -1499,9 +1499,9 @@ class Sublimeless_Zk(QObject):
         note_filn = os.path.basename(editor.file_name)
         note_id, title = os.path.splitext(os.path.basename(note_filn))[0].split(' ', 1)
         new_title = show_input_panel(self.gui, 'New Title:', title)
-        new_title = new_title.strip()
         if not new_title:
             return
+        new_title = new_title.strip()
         if new_title == title:
             return
         self.save()
