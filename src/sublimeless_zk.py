@@ -1450,7 +1450,15 @@ class Sublimeless_Zk(QObject):
     def find_in_files(self, search_terms=None):
         sort, order = self.retrieve_sort_and_order()
         if not search_terms:
-            search_terms = show_input_panel(None, 'Find in files:', '')
+            suggested_terms = ''
+            editor = self.get_active_editor()
+            if editor and editor.hasSelectedText():
+                sel = editor.getSelection()
+                sel_start = editor.positionFromLineIndex(sel[0], sel[1])
+                sel_end = editor.positionFromLineIndex(sel[2], sel[3])
+                textbytes = bytearray(editor.text(), "utf-8")
+                suggested_terms = textbytes[sel_start:sel_end].decode('utf-8')
+            search_terms = show_input_panel(None, 'Find in files:', suggested_terms)
         if not search_terms:
             return
         orig_search_terms = search_terms
