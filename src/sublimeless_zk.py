@@ -732,10 +732,17 @@ class Sublimeless_Zk(QObject):
     def reopen_notes(self):
         if self.project.folder in self.app_state.open_notes:
             for filn in self.app_state.open_notes[self.project.folder]:
-                self.open_document(filn)
+                # if file still exists
+                if os.path.exists(filn):
+                    self.open_document(filn)
 
     def save_appstate(self):
         self.update_open_notes()
+        if self.project:
+            # only keep files that exist
+            pfolder = self.project.folder
+            self.app_state.open_notes[pfolder] = [f for f in self.app_state.open_notes[pfolder] if os.path.exists(f)]
+            self.app_state.recently_viewed[pfolder] = {f: t for f, t in self.app_state.recently_viewed[pfolder].items() if os.path.exists(f)}
         self.app_state.save()
 
     def reload(self, editor):
@@ -757,11 +764,18 @@ class Sublimeless_Zk(QObject):
         """
         #check if exists
         tab_index, editor = self.document_to_index_editor(document_filn)
-        self.app_state.register_note_access(self.project.folder, document_filn)
+        if os.path.exists(document_filn):
+            # only if file exists
+            self.app_state.register_note_access(self.project.folder, document_filn)
         if editor:
+            # if file in editor: open it
+            # if file removed from disk but still in open editor, open it
             self.gui.qtabs.setCurrentIndex(tab_index)
             editor.setFocus()
             return editor
+
+        if not os.path.exists(document_filn):
+            return
 
         # make new editor from file
         if is_settings_file:
