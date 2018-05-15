@@ -597,16 +597,16 @@ class Sublimeless_Zk(QObject):
     def clicked_tag(self, tag, ctrl, alt, shift):
         print('tag', tag)
         id2tags, tags2ids = self.project.find_all_notes_all_tags()
-        title = f'# Notes referencing {tag}'
         note_ids = tags2ids[tag]
         notes = [self.project.note_file_by_id(note_id) for note_id in note_ids]
+        title = f'# {len(notes)} Notes referencing {tag}'
         self.project.externalize_note_links(notes, title)
         self.reload(self.gui.search_results_editor)
 
     def clicked_citekey(self, citekey, ctrl, alt, shift):
         print('citekey', citekey)
         notes = self.project.find_all_citations(citekey)
-        self.project.externalize_note_links(notes, prefix=f'# Notes citing {citekey}')
+        self.project.externalize_note_links(notes, prefix=f'# {len(notes)} Notes citing {citekey}')
         self.reload(self.gui.search_results_editor)
 
     def search_spec_clicked(self, search_spec, ctrl, alt, shift):
@@ -986,7 +986,7 @@ class Sublimeless_Zk(QObject):
     def show_all_notes(self, check_editor=True):
         sort, order = self.retrieve_sort_and_order()
         note_files = self.project.get_all_note_files()
-        self.project.externalize_note_links(note_files, '# All Notes', sort=sort, order=order)
+        self.project.externalize_note_links(note_files, f'# All Notes ({len(note_files)})', sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
 
         # the lexer sends us an int, the QAction a bool
@@ -1056,7 +1056,7 @@ class Sublimeless_Zk(QObject):
         filn = self.project.note_file_by_id(note_id)
         title = os.path.basename(filn).split(' ', 1)[1].strip().rsplit('.')[0]
         styled_link = self.project.style_link(note_id, title, force_title=True)
-        self.project.externalize_note_links(ref_note_files, f'# Notes referencing {styled_link}')
+        self.project.externalize_note_links(ref_note_files, f'# {len(ref_note_files)} Notes referencing {styled_link}')
         self.reload(self.gui.search_results_editor)
 
     def reload_bibfile(self):
@@ -1386,7 +1386,7 @@ class Sublimeless_Zk(QObject):
         if search_spec.strip().startswith('#') or search_spec.startswith('!#'):
             notes = TagSearch.advanced_tag_search(search_spec, self.project)
             notes = [self.project.note_file_by_id(note_id) for note_id in notes]
-            self.project.externalize_note_links(notes, '# Notes matching search ' + search_spec, sort=sort, order=order)
+            self.project.externalize_note_links(notes, f'# {len(notes)} Notes matching search ' + search_spec, sort=sort, order=order)
             self.reload(self.gui.search_results_editor)
         elif 'function' in attrs and attrs['function'] is not None:
             if attrs['function'] == 'refcounts':
@@ -1479,7 +1479,7 @@ class Sublimeless_Zk(QObject):
                         break
                 else:
                     result_notes.append(note)
-        self.project.externalize_note_links(result_notes, '# Notes matching search ' + orig_search_terms, sort=sort, order=order)
+        self.project.externalize_note_links(result_notes, f'# {len(result_notes)} Notes matching search ' + orig_search_terms, sort=sort, order=order)
         self.reload(self.gui.search_results_editor)
         return result_notes
 
@@ -1785,7 +1785,7 @@ class Sublimeless_Zk(QObject):
             return
         
         d = self.project.get_notes_with_refcounts(refmin, refmax)
-        title = f'# Notes with min. {refmin} and max. {refmax} references'
+        title = f'# {len(d)} Notes with min. {refmin} and max. {refmax} references'
         note_files = [x[2] for x in d.values()]
         refcounts = {note_id: x[0] for note_id, x in d.items()} # produce a dict of refcounts 
         
