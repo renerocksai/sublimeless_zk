@@ -236,7 +236,7 @@ class Project:
                     line += ' '
                 note_id, title = line.split(' ', 1)
                 note_id = os.path.basename(note_id)
-                refcount = refcounts[note_id]
+                refcount = refcounts.get(note_id, 0) # see #76
                 mtime = os.path.getmtime(filn)
                 results.append((note_id, title, mtime, refcount))
             if sort is None:
