@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         
         self.setGeometry(300, 200, 900, 600)
         self.setWindowTitle("Sublimeless Zettelkasten")
-        self.setStyleSheet("QTabBar{font: 8px;}")
+        #self.setStyleSheet("QTabBar{font: 8px;}")
 
         self._frm = QFrame(self)
         self._frm.setStyleSheet("QWidget { background-color: #ffeaeaea }")
@@ -58,11 +58,11 @@ class MainWindow(QMainWindow):
             self.setWindowIcon(QIcon(f"{os.path.join(base_dir(), 'sublimeless_zk.ico')}"))
             
         self.tab_spaces_label = QLabel('')
-        self.tab_spaces_label.setStyleSheet('QLabel{ font: 9px; color: #606060; }')
+        self.tab_spaces_label.setStyleSheet('QLabel{ color: #606060; }')
         self.line_count_label = QLabel('')
-        self.line_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
+        self.line_count_label.setStyleSheet('QLabel{ color: #303030; }')
         self.word_count_label = QLabel('')
-        self.word_count_label.setStyleSheet('QLabel{ font: 9px; color: #303030; }')
+        self.word_count_label.setStyleSheet('QLabel{ color: #303030; }')
         self.statusBar().addPermanentWidget(self.tab_spaces_label)
         spc = QWidget()
         spc.setMinimumWidth(20)
@@ -73,6 +73,35 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage('Welcome to Sublimeless_ZK', 3000)
         self.show()
 
+    def apply_font_settings(self, settings):
+        # apply font settings
+        if 'ui.tabs.font.face' in settings and 'ui.tabs.font.size' in settings:
+            try:
+                self.qtabs.setFont(QFont(settings['ui.tabs.font.face'], settings['ui.tabs.font.size']))
+            except:
+                pass
+        else:
+            self.qtabs.setFont(QFont(self.qtabs.font().family(), 8))
+        if 'ui.statusbar.font.face' in settings and 'ui.statusbar.font.size' in settings:
+            try:
+                self.statusBar().setFont(QFont(settings['ui.statusbar.font.face'], settings['ui.statusbar.font.size']))
+            except:
+                pass
+        if 'ui.editorinfo.font.face' in settings and 'ui.editorinfo.font.size' in settings:
+            try:
+                font = QFont(settings['ui.editorinfo.font.face'], settings['ui.editorinfo.font.size'])
+                self.line_count_label.setFont(font)
+                self.word_count_label.setFont(font)
+                self.tab_spaces_label.setFont(font)
+            except:
+                pass
+        else:
+            font = QFont(self.line_count_label.font().family(), 9)
+            self.line_count_label.setFont(font)
+            self.word_count_label.setFont(font)
+            self.tab_spaces_label.setFont(font)
+
+        
     def new_zk_editor(self, filn=None, settings=None):
         editor = ZettelkastenScintilla(document_filn=filn)
         editor.setUtf8(True)             # Set encoding to UTF-8

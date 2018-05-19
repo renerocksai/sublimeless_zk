@@ -463,17 +463,28 @@ class Sublimeless_Zk(QObject):
                     command.setAlternateKey(0)
                 #print(command.key(), command.alternateKey())
 
+        # 
         # ctrl/cmd + shift + [
         command = commands.find(QsciCommand.ParaUpExtend)
         if command:
-            command.setKey(0)
+            command.setKey(Qt.ShiftModifier | Qt.ControlModifier | Qt.Key_Up)
             command.setAlternateKey(0)
         # ctrl/cmd + shift + ]
         command = commands.find(QsciCommand.ParaDownExtend)
         if command:
-            command.setKey(0)
+            command.setKey(Qt.ShiftModifier | Qt.ControlModifier | Qt.Key_Down)
             command.setAlternateKey(0)
 
+        command = commands.find(QsciCommand.ParaDown)
+        if command:
+            command.setKey(Qt.AltModifier | Qt.Key_Down)
+            command.setAlternateKey(0)
+        
+        command = commands.find(QsciCommand.ParaUp)
+        if command:
+            command.setKey(Qt.AltModifier | Qt.Key_Up)
+            command.setAlternateKey(0)
+        
         # change opt+del from undo
         command = commands.find(QsciCommand.Undo)
         if command:
@@ -543,7 +554,12 @@ class Sublimeless_Zk(QObject):
         self.open_folder(self.app_state.recent_projects[-1])
         self.autosave_timer.start(1000)
         test_settings = get_settings(raw=False, on_error=self.on_settings_editor_json_error)
-
+        if 'ui.font.face' in test_settings and 'ui.font.size' in test_settings:
+            try:
+                self.app.setFont(QFont(test_settings['ui.font.face'], test_settings['ui.font.size']))
+            except:
+                pass
+        self.gui.apply_font_settings(test_settings)
         exit_code = 0
         try:
             exit_code = self.app.exec_()
