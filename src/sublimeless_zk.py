@@ -878,8 +878,8 @@ class Sublimeless_Zk(QObject):
         for tab_index in range(self.gui.qtabs.count()):
             editor = self.gui.qtabs.widget(tab_index)
             if editor and editor.isModified():
-                    with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
-                        f.write(editor.text())
+                with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
+                    f.write(editor.text())
                 editor.setModified(False)
                 self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
 
