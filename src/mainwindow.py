@@ -10,7 +10,7 @@ from zkscintilla import ZettelkastenScintilla
 from zkmdlexer import ZkMdLexer
 from themes import Theme
 from settings import base_dir
-
+from opennoteswidget import OpenNotesPanel
 
 class MainWindow(QMainWindow):    
     def __init__(self, theme, close_handler):
@@ -39,15 +39,19 @@ class MainWindow(QMainWindow):
         mainsplit = QSplitter()
         mainsplit.setOrientation(Qt.Horizontal)
         subsplit = QSplitter()
+        self.notelist_panel = OpenNotesPanel()
+        self.notelist_panel.setVisible(False)
         self.search_results_editor = self.make_search_results_editor()
         self.saved_searches_editor = self.make_saved_searches_editor()
         subsplit.addWidget(self.search_results_editor)
         subsplit.addWidget(self.saved_searches_editor)
         subsplit.setOrientation(Qt.Vertical)
+        mainsplit.addWidget(self.notelist_panel)
         mainsplit.addWidget(self.qtabs)
         mainsplit.addWidget(subsplit)
         mainsplit.setCollapsible(0, False)
         mainsplit.setCollapsible(1, False)
+        mainsplit.setCollapsible(2, False)
 
         self.qtabs.setMovable(True)
         self.qtabs.setDocumentMode(True)
@@ -100,7 +104,13 @@ class MainWindow(QMainWindow):
             self.line_count_label.setFont(font)
             self.word_count_label.setFont(font)
             self.tab_spaces_label.setFont(font)
-
+        if 'ui.notepanel.font.face' in settings and 'ui.notepanel.font.size' in settings:
+            try:
+                self.notelist_panel.setFont(QFont(settings['ui.notepanel.font.face'], settings['ui.notepanel.font.size']))
+            except:
+                pass
+        else:
+            self.notelist_panel.setFont(QFont(self.notelist_panel.font().family(), 10))
         
     def new_zk_editor(self, filn=None, settings=None):
         editor = ZettelkastenScintilla(document_filn=filn)

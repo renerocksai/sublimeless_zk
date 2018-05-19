@@ -210,7 +210,10 @@ class Sublimeless_Zk(QObject):
 
         self.showRecentViewsAction = QAction('Show recently viewed notes')
         self.showRecentViewsAction.setShortcut('Shift+Ctrl+Alt+H')
-        
+
+        self.toggleOpenFilesPanelAction = QAction('Toggle Open Files Panel', self)
+        self.toggleOpenFilesPanelAction.setShortcut('Shift+Alt+K')
+
         # Recent folders actions
         for i in range(self.recent_projects_limit):
             self.recent_projects_actions.append(
@@ -327,6 +330,7 @@ class Sublimeless_Zk(QObject):
         view.addAction(self.cycleTabsAction)
         view.addAction(self.gotoAction)
         view.addAction(self.showHideSidePanelAction)
+        view.addAction(self.toggleOpenFilesPanelAction)
         view.addAction(self.toggleStatusBarAction)
         view.addSeparator()
         view.addAction(self.showAllNotesAction)
@@ -413,6 +417,9 @@ class Sublimeless_Zk(QObject):
         self.moveLineUpAction.triggered.connect(self.move_line_up)
         self.moveLineDownAction.triggered.connect(self.move_line_down)
         self.showRecentViewsAction.triggered.connect(self.show_recent_views)
+
+        self.toggleOpenFilesPanelAction.triggered.connect(self.toggle_open_files_panel)
+        self.gui.notelist_panel.file_clicked.connect(self.open_document)
 
     def init_editor_text_shortcuts(self, editor):
         commands = editor.standardCommands()
@@ -719,6 +726,7 @@ class Sublimeless_Zk(QObject):
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
             self.gui.qtabs.clear()
+            self.gui.notelist_panel.clear()
             if folder in self.app_state.recent_projects:
                 self.app_state.recent_projects = [f for f in self.app_state.recent_projects if f != folder]
             self.app_state.recent_projects.append(folder)
@@ -827,7 +835,7 @@ class Sublimeless_Zk(QObject):
         if self.gui.qtabs.count() == 1:
             # if this is the first tab, i.e. there was no editor before:
             pass
-            editor.setBaseSize
+        self.gui.notelist_panel.add_note_filn(document_filn)
         return editor
     ''''''
 
@@ -1469,6 +1477,7 @@ class Sublimeless_Zk(QObject):
                 if buttonReply == QMessageBox.No:
                     return    # ignore
         self.gui.qtabs.removeTab(index)
+        self.gui.notelist_panel.remove_note_filn(editor.file_name)
 
     def about(self):
         about = AboutDlg(self.gui)
@@ -1870,7 +1879,8 @@ class Sublimeless_Zk(QObject):
             lines.extend(self.project.externalize_note_links(note_files, refcounts=fake_refcounts, sort='refcount', order='desc', do_write=False))
         self.gui.search_results_editor.setText('\n'.join(lines))
 
-        
+    def toggle_open_files_panel(self):
+        self.gui.notelist_panel.setVisible(not self.gui.notelist_panel.isVisible())        
 
             
 
