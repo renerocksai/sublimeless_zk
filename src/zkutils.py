@@ -51,6 +51,6 @@ def split_search_terms(search_string):
     return [(not in_neg, s) for in_neg, s in results]
 
 if __name__ == '__main__':
-    line = 'hello !!""new world!!!"" this !! is awesome!! isn\'t !!it??'
+    line = 'hello !!""new world!!!"" this !! is awesome!! is!!n\'t !!it??'
     print(line)
     print('    \n'.join([str(x) for x in split_search_terms(line)]))
