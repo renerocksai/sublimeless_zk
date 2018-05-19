@@ -35,7 +35,7 @@ from findandreplace import FindDlg
 from semantic_zk import SemanticZKDialog
 from custmenuitem import CustomMenuItemAction
 from buildcommands import BuildCommands
-from zkutils import sanitize_filename
+from zkutils import sanitize_filename, split_search_terms
 from findrefcountdlg import show_find_refcount_dlg
 
 
@@ -1464,26 +1464,17 @@ class Sublimeless_Zk(QObject):
         orig_search_terms = search_terms
 
         search_terms = search_terms.lower()
-
-        # double quotes
-        RO = re.compile(r'"(.*?)"')
-        quoted = RO.findall(search_terms)
-        search_terms = RO.sub('',search_terms)
-
-        # single quotes
-        RO = re.compile(r"'(.*?)'")
-        quoted.extend(RO.findall(search_terms))
-        search_terms = RO.sub('', search_terms)
-
-        search_terms = quoted + search_terms.split()
+        search_terms = split_search_terms(search_terms)
 
         note_files = self.project.get_all_note_files()
         result_notes = []
         for note in note_files:
             with open(note, mode='r', encoding='utf-8', errors='ignore') as f:
                 text = f.read().lower()
-                for search_term in search_terms:
-                    if search_term not in text:
+                for presence, search_term in search_terms:
+                    if presence and search_term not in text:
+                        break
+                    elif not presence and search_term in text:
                         break
                 else:
                     result_notes.append(note)
