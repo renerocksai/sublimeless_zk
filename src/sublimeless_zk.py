@@ -737,12 +737,23 @@ class Sublimeless_Zk(QObject):
                     self.open_document(filn)
 
     def save_appstate(self):
+        print('save appstate')
         self.update_open_notes()
+        now = int(time.time())
+        too_old = now - 31 * 24 * 60 * 60
         if self.project:
             # only keep files that exist
             pfolder = self.project.folder
-            self.app_state.open_notes[pfolder] = [f for f in self.app_state.open_notes[pfolder] if os.path.exists(f)]
-            self.app_state.recently_viewed[pfolder] = {f: t for f, t in self.app_state.recently_viewed[pfolder].items() if os.path.exists(f)}
+            if pfolder in self.app_state.open_notes:
+                open_notes = self.app_state.open_notes[pfolder]
+                self.app_state.open_notes[pfolder] = [f for f in open_notes if os.path.exists(f)]
+            else:
+                self.app_state.open_notes[pfolder] = []
+            if pfolder in self.app_state.recently_viewed:
+                rv = self.app_state.recently_viewed[pfolder]
+                self.app_state.recently_viewed[pfolder] = {f: t for f, t in rv.items() if os.path.exists(f) and t > too_old} # keep only files that exist and have been viewed within the last 30 days
+            else:
+                self.app_state.recently_viewed[pfolder] = {}
         self.app_state.save()
 
     def reload(self, editor):
