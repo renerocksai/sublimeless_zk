@@ -1,5 +1,9 @@
 # stuff that didn't make it anywhere else
 import re
+import sys
+import os
+import subprocess
+
 
 evil_fn_chars_re = re.compile('[\\/:"*?<>|]+')
 def sanitize_filename(filename):
@@ -49,6 +53,16 @@ def split_search_terms(search_string):
     if current_snippet:
         results.append((in_neg, current_snippet))
     return [(not in_neg, s) for in_neg, s in results]
+
+
+def open_hyperlink(hyperlink):
+    if sys.platform == 'darwin':
+        subprocess.call(['open', hyperlink])
+    elif sys.platform == 'win32':
+        os.startfile(hyperlink)
+    else:
+        # assume linux
+        subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  ' + hyperlink), shell=True)
 
 if __name__ == '__main__':
     line = 'hello !!""new world!!!"" this !! is awesome!! is!!n\'t !!it??'

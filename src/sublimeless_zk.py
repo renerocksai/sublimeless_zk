@@ -35,7 +35,7 @@ from findandreplace import FindDlg
 from semantic_zk import SemanticZKDialog
 from custmenuitem import CustomMenuItemAction
 from buildcommands import BuildCommands
-from zkutils import sanitize_filename, split_search_terms
+from zkutils import sanitize_filename, split_search_terms, open_hyperlink
 from findrefcountdlg import show_find_refcount_dlg
 
 
@@ -526,6 +526,7 @@ class Sublimeless_Zk(QObject):
         editor.lexer().cite_key_clicked.connect(self.clicked_citekey)
         editor.lexer().note_id_clicked.connect(self.clicked_noteid)
         editor.lexer().search_spec_clicked.connect(self.search_spec_clicked)
+        editor.lexer().hyperlink_clicked.connect(self.open_hyperlink)
         editor.lexer().create_link_from_title_clicked.connect(self.create_link_from_title_clicked)
         editor.text_shortcut_handler.shortcut_insert_link.connect(self.insert_link)
         editor.text_shortcut_handler.shortcut_tag_selector.connect(self.insert_tag)
@@ -1882,6 +1883,8 @@ class Sublimeless_Zk(QObject):
     def toggle_open_files_panel(self):
         self.gui.notelist_panel.setVisible(not self.gui.notelist_panel.isVisible())        
 
+    def open_hyperlink(self, hyperlink):
+        open_hyperlink(hyperlink)
             
 
 

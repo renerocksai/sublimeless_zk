@@ -16,6 +16,8 @@ class ZkMdLexer(QsciLexerCustom):
     search_spec_clicked = pyqtSignal(str, bool, bool, bool)
     create_link_from_title_clicked = pyqtSignal(str, bool, bool, bool, int, int)
     cite_key_clicked = pyqtSignal(str, bool, bool, bool)
+    hyperlink_clicked = pyqtSignal(str)
+
 
     def __init__(self, parent, theme, highlight_saved_searches=False, show_block_quotes=True,
                  settings_mode=False):
@@ -100,13 +102,15 @@ class ZkMdLexer(QsciLexerCustom):
         self.indicator_id_search_spec = 2
         self.indicator_id_only_notetitle = 3
         self.indicator_id_citekey = 4
-        self.num_indicators = 5
+        self.indicator_id_hyperlink = 5
+        self.num_indicators = 6
         editor = self.parent()
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_noteid)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_tag)
         editor.indicatorDefine(QsciScintilla.FullBoxIndicator, self.indicator_id_search_spec)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_only_notetitle)
         editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_citekey)
+        editor.indicatorDefine(QsciScintilla.PlainIndicator, self.indicator_id_hyperlink)
 
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_noteid)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['tag']['color']), self.indicator_id_tag)
@@ -114,6 +118,7 @@ class ZkMdLexer(QsciLexerCustom):
         editor.setIndicatorForegroundColor(QColor('#1f268bd2'), self.indicator_id_search_spec)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['zettel.link']['color']), self.indicator_id_only_notetitle)
         editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['citekey']['color']), self.indicator_id_citekey)
+        editor.setIndicatorForegroundColor(QColor(self.theme.style_infos['link.url']['color']), self.indicator_id_hyperlink)
         
 
     def blockLookback(self):
@@ -164,6 +169,7 @@ class ZkMdLexer(QsciLexerCustom):
         search_spec_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_search_spec, position)
         only_notetitle_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_only_notetitle, position)
         citekey_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_citekey, position)
+        hyperlink_pos = self.parent().SendScintilla(QsciScintilla.SCI_INDICATORVALUEAT, self.indicator_id_hyperlink, position)
 
         if search_spec_pos:
             # get until end of line
@@ -198,6 +204,12 @@ class ZkMdLexer(QsciLexerCustom):
                 citekey = match.group()[:-1]
                 # emit tag clicked signal
                 self.cite_key_clicked.emit(citekey, ctrl, alt, shift)
+        elif hyperlink_pos:
+            p = re.compile('.*?\)')
+            match = p.match(self.parent().text()[hyperlink_pos:hyperlink_pos + 200])
+            if match:
+                hyperlink = match.group()[:-1]
+                self.hyperlink_clicked.emit(hyperlink)
 
 
     def language(self):
@@ -478,6 +490,7 @@ class ZkMdLexer(QsciLexerCustom):
                 replace_str = ''.join(gtexts)
             # consume
             text = text[:a] + 'x' * len(replace_str) + text[b:]
+            self.make_clickable(gstarts[3], len(gtexts[3]), self.indicator_id_hyperlink)
 
         # links
         p = re.compile(r'(\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
@@ -512,6 +525,7 @@ class ZkMdLexer(QsciLexerCustom):
                 replace_str = ''.join(gtexts)
             # consume
             text = text[:a] + 'x' * len(replace_str) + text[b:]
+            self.make_clickable(gstarts[3], len(gtexts[3]), self.indicator_id_hyperlink)
 
         # bolditalic
         p = re.compile(r'(\*{3}|_{3})(?!\s)([^\n]+?)(?<!\s)(\1)')
