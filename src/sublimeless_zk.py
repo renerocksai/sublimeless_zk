@@ -959,9 +959,11 @@ class Sublimeless_Zk(QObject):
         for tab_index in range(self.gui.qtabs.count()):
             editor = self.gui.qtabs.widget(tab_index)
             if editor and editor.isModified():
+                self.notes_watcher.on_ignore_clicked(editor.file_name)
                 with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
                     f.write(editor.text())
                 editor.setModified(False)
+                self.notes_watcher.on_file_saved(editor.file_name)
                 self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
 
         # always save saved searches
