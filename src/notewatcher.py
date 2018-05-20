@@ -36,7 +36,7 @@ class NotesWatcher(QObject):
         if d:
             print('files changed:')
             for fn, mt in d.items():
-                print(f'file={fn} : mtime={mt}')
+                print(f'    file={fn} : mtime={mt}')
         else:
             pass    # no files changed
         
@@ -83,7 +83,6 @@ class NotesWatcher(QObject):
         Connect this to your app's aboutToQuit handler
         """
         self._thread.quit()
-        time.sleep(0.2)
     
     def keep_going(self):
         """
@@ -150,6 +149,7 @@ class NotesWatcher(QObject):
         Remove file from blacklist, update mtime
         """
         #print(f'on_file_saved {file_name} in', QThread.currentThread().objectName())
+
         with QMutexLocker(self._mutex):
             self.blacklist = set([f for f in self.blacklist if f != file_name])
         self.on_file_open(file_name)

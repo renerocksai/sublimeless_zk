@@ -37,6 +37,7 @@ from custmenuitem import CustomMenuItemAction
 from buildcommands import BuildCommands
 from zkutils import sanitize_filename, split_search_terms, open_hyperlink
 from findrefcountdlg import show_find_refcount_dlg
+from notewatcher import NotesWatcher
 
 
 class Sublimeless_Zk(QObject):
@@ -54,6 +55,7 @@ class Sublimeless_Zk(QObject):
         self.autosave_interval = get_settings().get('auto_save_interval', 0)
         self.bib_entries = None # caching bib
         self.current_search_attrs = None
+        self.notes_watcher = None
 
     def on_timer(self):
         time_now = int(time.time())
@@ -107,7 +109,6 @@ class Sublimeless_Zk(QObject):
 
         self.insertCitationAction = CustomMenuItemAction('Insert Citation', self)
         self.insertCitationAction.setShortcuts(['[@', '[#'])
-
 
         self.expandOverviewNoteAction = QAction('Expand Overview Note', self)
         self.expandOverviewNoteAction.setShortcut('Ctrl+E')
@@ -542,6 +543,9 @@ class Sublimeless_Zk(QObject):
         QMessageBox.critical(editor, "Parsing Error in JSON", f'{jsonerror.msg} in line {jsonerror.lineno} column {jsonerror.colno}')
         editor.setCursorPosition(jsonerror.lineno, jsonerror.colno)
 
+    def about_to_quit(self):
+        self.notes_watcher.quit_thread()
+        time.sleep(0.3)
 
     def run(self):
         self.app = QApplication(sys.argv)
@@ -549,6 +553,15 @@ class Sublimeless_Zk(QObject):
             # TODO: this sort-of fixes the menu formatting for [,[ style shortcuts
             # self.app.setAttribute(Qt.AA_DontUseNativeMenuBar)
             pass
+
+        # notes watcher!!!
+        self.notes_watcher = NotesWatcher.create(1000)
+        self.notes_watcher.files_changed_on_disk.connect(self.files_changed_on_disk)
+        self.app.aboutToQuit.connect(self.about_to_quit)
+        time.sleep(0.1)
+        self.notes_watcher.keep_going()
+        # end of notes watcher
+
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         Theme.prepare_theme_folder()
         theme_f = os.path.basename(get_settings().get('theme', 'Office.json'))
@@ -569,6 +582,7 @@ class Sublimeless_Zk(QObject):
                 pass
         self.gui.apply_font_settings(test_settings)
         exit_code = 0
+
         try:
             exit_code = self.app.exec_()
         except Exception as e:
@@ -586,6 +600,28 @@ class Sublimeless_Zk(QObject):
     #
     # Qt SLOTS
     #
+
+    def files_changed_on_disk(self, d):
+        if d:
+            print('Files changed:')
+            for fn, mt in d.items():
+                print(f'    file={fn} : mtime={mt}')
+
+            editor_list = [self.gui.qtabs.widget(i) for i in range(self.gui.qtabs.count())]
+            for fn in d:
+                msg = f"{os.path.basename(fn)} has changed on disk. Reload?"
+                buttonReply = QMessageBox.question(self.gui, 'External file change', msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                if buttonReply == QMessageBox.Yes:
+                    for i, editor in enumerate(editor_list):
+                        if editor.file_name == fn:
+                            self.gui.qtabs.removeTab(i)
+                            self.gui.notelist_panel.remove_note_filn(fn)
+                            self.open_document(fn)
+                            break
+                else:
+                    self.notes_watcher.on_ignore_clicked(fn)
+        self.notes_watcher.keep_going()
+
     def open_recent_project(self):
         action = self.sender()
         if action:
@@ -727,6 +763,7 @@ class Sublimeless_Zk(QObject):
             folder = str(QFileDialog.getExistingDirectory(self.gui, "Select Directory"))
         if folder:
             self.gui.qtabs.clear()
+            self.notes_watcher.reset()
             self.gui.notelist_panel.clear()
             if folder in self.app_state.recent_projects:
                 self.app_state.recent_projects = [f for f in self.app_state.recent_projects if f != folder]
@@ -798,6 +835,9 @@ class Sublimeless_Zk(QObject):
         """
         Helper function to open a markdown or settings document in a new tab
         """
+        # if it exists or not, we start watching. it might jump into existence
+        self.notes_watcher.on_file_open(document_filn)
+
         #check if exists
         tab_index, editor = self.document_to_index_editor(document_filn)
         if os.path.exists(document_filn):
@@ -812,7 +852,7 @@ class Sublimeless_Zk(QObject):
 
         if not os.path.exists(document_filn):
             return
-
+        
         # make new editor from file
         if is_settings_file:
             if editor_type is None:
@@ -887,8 +927,13 @@ class Sublimeless_Zk(QObject):
                 txt = editor.text()
                 if not self.validate_json(editor, self.on_settings_editor_json_error):
                     return
+            # ignore watching this file for now
+            self.notes_watcher.on_ignore_clicked(editor.file_name)
             with open(editor.file_name, mode='w', encoding='utf-8', errors='ignore') as f:
                 f.write(editor.text())
+            # start tracking this file again
+            self.notes_watcher.on_file_saved(editor.file_name)
+
             editor.setModified(False)
             self.gui.qtabs.setTabText(tab_index, os.path.basename(editor.file_name))
             # Settings changed
@@ -1479,6 +1524,7 @@ class Sublimeless_Zk(QObject):
                     return    # ignore
         self.gui.qtabs.removeTab(index)
         self.gui.notelist_panel.remove_note_filn(editor.file_name)
+        self.notes_watcher.on_file_closed(editor.file_name)
 
     def about(self):
         about = AboutDlg(self.gui)
