@@ -18,13 +18,47 @@ class MyThread(QThread):
 class NotesWatcher(QObject):
     """
     Use like this:
-        noteswatcher = NotesWatcher.create(1000)
-        def aboutToQuit():
-            noteswatcher.quit_thread()
+        self.noteswatcher = NotesWatcher.create(1000)
+        self.noteswatcher.files_changed_on_disk.connect(___your___handler___)
+        
+        # catch app quitting -> terminate thread
+        def aboutToQuit(self):
+            self.noteswatcher.quit_thread()
             time.sleep(0.3)    # give it time to terminate
-        app.aboutToQuit.connect(aboutToQuit)
+        app.aboutToQuit.connect(self.aboutToQuit)
+
+        # initial start of the watcher
         time.sleep(0.1)
-        noteswatcher.keep_going()   # fire once to get things started
+        self.noteswatcher.keep_going()   # fire once to get things started
+    
+    # what to do when files have changed:
+    def ___your___handler___(self, d):
+        if d:
+            print('files changed:')
+            for fn, mt in d.items():
+                print(f'file={fn} : mtime={mt}')
+        else:
+            pass    # no files changed
+        
+        # re-trigger watching!
+        self.notewatcher.keep_going()
+
+    Once started, use the following methods:
+
+    - on_file_open(file_name) : every time you open a note
+        - even if it's already open, doesn't matter
+
+    - on_file_closed(file_name) : every time you close a note
+
+    - on_ignore_clicked(file_name) : when a user does not want to re-load the changed file
+
+    - on_file_saved(file_name) : every time a note is saved
+
+    - reset() : do this when you open a new folder in the app
+        - this makes the watcher forget all files
+
+    - update_open_files(files) : you can use this when you open a list of notes at once, from a new folder
+        - this is like calling reset(), followed by on_file_open() for each file
     """
     files_changed_on_disk = pyqtSignal(dict)
 
@@ -69,7 +103,6 @@ class NotesWatcher(QObject):
         noteswatcher._thread = MyThread("Watcher")
         noteswatcher.moveToThread(noteswatcher._thread)
         noteswatcher._thread.started.connect(noteswatcher.thread_started)
-        noteswatcher.files_changed_on_disk.connect(watch_result)
         noteswatcher.timer.timeout.connect(noteswatcher.watch_open_files)
         noteswatcher.start_thread()
         return noteswatcher
@@ -234,6 +267,7 @@ if __name__ == "__main__":
         noteswatcher.keep_going()
 
     noteswatcher = NotesWatcher.create(1000)
+    noteswatcher.files_changed_on_disk.connect(watch_result)
     app.aboutToQuit.connect(aboutToQuit)
     time.sleep(0.1)
     noteswatcher.keep_going()   # fire once to get things started
