@@ -86,6 +86,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [Command Palette](#command-palette)
         * [Status Bar](#status-bar)
         * [Themes](#switching-themes)
+        * [Clickable Links](#clickable-links)
     * [Note Archive Folder](#note-archive-folder)
     * [Creating a new note](#creating-a-new-note)
     * [Creating a new note and link from selected text](#creating-a-new-note-and-link-from-selected-text)
@@ -135,6 +136,7 @@ This app is the result of trying to make a stand-alone version of [sublime_zk](h
         * [The settings file](#the-settings-file)
         * [Markdown filename extension](#markdown-filename-extension)
         * [Auto-Save Interval](#auto-save-interval)
+    * [User Interface Fonts](#user-interface-fonts)
     * [Notes and Links](#notes-and-links)
         * [Single or double brackets](#single-or-double-brackets)
         * [Note ID precision](#note-id-precision)
@@ -207,6 +209,9 @@ This app comes with sane defaults. You can start using it right away. Once you h
 * [Command Palette](#command-palette) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>P</kbd>
 * [Fuzzy search and open note](#browsing-through-notes)  <kbd>ctrl/cmd</kbd> + <kbd>P</kbd>
 * [Goto Open Note / Heading](#navigating-open-notes) <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>G</kbd>
+* Show / Hide right side-panel : <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>K</kbd>
+* Show / Hide status bar : <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>J</kbd>
+* Show / Hide open files panel : <kbd>shift</kbd> + <kbd>alt/opt</kbd> + <kbd>K</kbd>
 * [Create a new note](#creating-a-new-note) <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text](#creating-a-new-note-and-link-from-selected-text) Select text, then <kbd>shift</kbd> + <kbd>enter</kbd>
 * [New note from text link](#implicitly-creating-a-new-note-via-a-link) : Click [the text link]
@@ -234,14 +239,22 @@ This app comes with sane defaults. You can start using it right away. Once you h
 * [Run external command](#external-commands): <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>X</kbd>
 
 ### User Interface
-As you can see in the various screenshots, the user interface is split into three areas; they are:
 
+![leftpanel](imgs/leftpanel.png)
+As you can see in the various screenshots, the user interface is split into four areas; they are:
+
+* very left (optional): open files panel
+    * this panel is hidden by default. You can show it by: 
+    * Menu: View > Toggle Open Files Panel
+    * Keyboard Shortcut <kbd>shift</kbd> + <kbd>alt/opt</kbd> + <kbd>K</kbd>
+    * Command Palette (described later): "Toggle Open Files Panel"
 * left: note editor tabs
 * right: side-panel
     * top right: search results area
         * will display results of various implicit or explicit searches you perform
     * bottom right: [saved searches](#saved-searches) area
 * bottom: status bar
+
 
 #### Menus
 
@@ -305,6 +318,7 @@ Let's introduce them!
     * Goto... : Go to open note or a specific heading within an open note
     * Toggle Side Panel : Show / hide the side panel
     * Toggle Status Bar : Show / hide the status bar
+    * Toggle Open Files Panel : Show / hide the open files panel
     * Show all notes : shows all notes in the search results
     * Show recently viewed notes : Shows a "browsing history" of recently opened notes
     * Show all referencing notes : If cursor is in a link / tag / citation key, search for all notes with the same reference (link/tag/citekey)
@@ -400,7 +414,23 @@ If you want the best aesthetics, [download](https://assets.ubuntu.com/v1/fad7939
 
 For a perfect C64 experience, [download](http://style64.org/file/C64_TrueType_v1.2-STYLE.zip) the [best C64 True Type Font](http://style64.org/release/c64-truetype-v1.2-style), unzip it, and install the `C64 Pro Mono.ttf` by double clicking it.
 
+#### Clickable Links
 
+Links in the app are click-able. Everything that's underlined (or highlighted in the saved searches), can be clicked. Links trigger an action, which could be one of the following:
+
+* open a note
+* trigger a search (tag, citation, find-in-files, history, ...)
+* open a hyperlink in the browser
+* open a hyperlink in another app
+
+_Examples:_
+![links](imgs/ex_link.png)
+
+The latter two might need some explanations:
+
+If you put a Markdown link in a note, like this: `[link to website](https://www.zettelkasten.de)`, then you can open the linked-to web page by simply clicking the link.
+
+You can even link to other applications on your system; here is an example for [DevonThink](https://www.devontechnologies.com/): `[link to devon-think](x-devonthink-item://3240FC0C-E669-461A-8814-2D078A619E77?page=0)`.
 
 ### Note Archive Folder
 
@@ -643,10 +673,20 @@ This command basically means: Show all notes like `[!` does, then sort them by m
 ### Find in files
 <kbd>shift</kbd>+<kbd>ctrl/cmd</kbd>+<kbd>F</kbd> brings up a panel that lets you enter text you search for. On <kbd>enter</kbd>, the search results area will show links to notes containing your search-term.
 
-**Note:** If you enter multiple words, only notes containing all those words will be shown. So when you search for `hello world`, a note containing `hello new world` will be found. A note only containing `hello` or `world` will not be found. 
+* The search is case-insensitive: `hello` will match `Hello`.
+* If you enter multiple words, only notes containing **all** those words will be shown. So when you search for `hello world`, a note containing `hello new world` will be found. A note only containing `hello` or `world` will not be found. 
+* If you have text selected in the current editor, the panel will be pre-filled with that text
+* If your what you search for contains blanks, you can use ""double quotation marks""
+* If you want to exclude words or ""double quoted strings"", then prefix them with `!!`
 
-**Note:** You can use double `"` or single `'` quotation marks to search for texts that contain a spaces. So if you search for `'hello world'`, a note containing `hello new world` will not be found. If your string conains single or double quotes, just use double or single quotes in your search. For example: `"can't stand"` or `''the string "hello world"'`.
+Examples:
 
+* `    hello world    `: searches for notes containing `hello` and `world`
+* `  ""hello world""  `: searches for notes containing `hello world`
+* `!!""hello world""  `: searches for notes *not* containing `hello world`
+* `  !!hello world    `: searches for notes _not_ containing `hello` and containing `world`.
+
+    
 ### Find notes by number of links to them
 
 Sometimes you might want to know which notes are not linked to by other notes or which notes are linked to by at least 10 other notes. There's a command for that: Search > Find notes with references..., in the command palette "Find notes with references...", also accessible via the shortcut <kbd>ctrl/cmd</kbd> + <kbd>shift</kbd> + <kbd>W</kbd>. 
@@ -1442,6 +1482,22 @@ By default, the extension `.md` is used for your notes. If that does not match y
 #### Auto-Save Interval
 
 The setting `auto_save_interval` specifies the interval in seconds, at which unsaved notes will be saved automatically. Set this to `0` to disable auto-save.
+
+### User-Interface Fonts
+
+To change the appearance of the user interface, experiment with the following settings:
+
+```json   
+    "ui.font.face": "Arial",
+    "ui.font.size": 14,
+    "ui.tabs.font.face": "Arial",
+    "ui.tabs.font.size": 14,
+    "ui.statusbar.font.face": "Arial",
+    "ui.statusbar.font.size": 14,
+    "ui.editorinfo.font.face": "Arial",
+    "ui.editorinfo.font.size": 14,
+``` 
+These settings are **not** in the settings file by default.
 
 ### Notes and Links
 
