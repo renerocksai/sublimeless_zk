@@ -297,7 +297,7 @@ class ZkMdLexer(QsciLexerCustom):
         # fenced code blocks
         p = re.compile(r'(\n[ \t]*\n)(```)(.|\n)*?(\n```\n)')
         for match in p.finditer(text):
-            #print('fenced', match.groups())
+            # print('fenced', match.groups())
             a = match.start() + 1
             a2 = match.start(2) # just the ````
             b = match.end()
@@ -333,8 +333,6 @@ class ZkMdLexer(QsciLexerCustom):
         cont_line_re = re.compile(r'(^[ \t]+)([^-\* \t])([^\n]*)$', flags=re.MULTILINE)
 
         for match in p.finditer(text):
-            print(match.group())
-            print(match.groups())
             a = match.start()
             b = match.end()
             a1 = match.start()
