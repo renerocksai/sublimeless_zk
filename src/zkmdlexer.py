@@ -295,7 +295,7 @@ class ZkMdLexer(QsciLexerCustom):
         # tags in comments (but not in code blocks)
         # hence, consume code blocks first
         # fenced code blocks
-        p = re.compile(r'(\n[ \t]*\n)(```)(.|\n)*?(\n```\n)')
+        p = re.compile(r'(\n[ \t]*\n)(```)(.|\n)*?(\n```[ \t]*?\n)')
         for match in p.finditer(text):
             # print('fenced', match.groups())
             a = match.start() + 1
