@@ -329,32 +329,102 @@ class ZkMdLexer(QsciLexerCustom):
 
         no_blocks_in = []
         # list unordered
-        p = re.compile(r'^(( {4}|\t)*[\*-])(\s+.+?)$', flags=re.MULTILINE)
+        p = re.compile(r'^( {4}|\t)*([\*-])([ \t]+[^\n]+?)$', flags=re.MULTILINE)
+        cont_line_re = re.compile(r'(^[ \t]+)([^-\* \t])([^\n]*)$', flags=re.MULTILINE)
+
         for match in p.finditer(text):
+            print(match.group())
+            print(match.groups())
             a = match.start()
             b = match.end()
+            a1 = match.start()
+            b1 = match.end(1)
+            a2 = match.start(2)
+            b2 = match.end(2)
+            a3 = match.start(3)
+            b3 = match.end(3)
+
+            if match.start(1) < 0:
+                # we are at the outmost level, so a1 = -1
+                a1 = match.start()
+            else:
+                # we are at an inner level
+                # --> check if we are a continuation
+                if not no_blocks_in:
+                    # skip this, as it is not a continuation
+                    continue
+                prev_item_start, prev_item_end = no_blocks_in[-1]
+                if a1 - prev_item_end >= 2:
+                    continue
+            # now look for continuation lines:
+            #    (lines that start with an indentation > len_symbol)
+            len_symbol = b2 - a1
+            keep_looking = True
+            while keep_looking:
+                cont_text = text[b + 1:]
+                cont_match = cont_line_re.match(cont_text)
+                if not cont_match:
+                    break
+                if len(cont_match.group(1)) < len_symbol - 1:
+                    break
+                b += cont_match.end() + 1
+
             no_blocks_in.append((a, b))
-            len_symbol = match.end(1) - match.start(1)
+            symbol = match.group()[:len_symbol]
             nosymbol = match.group()[len_symbol:]
-            regions.append((a, a + len_symbol, match.group(1), 'list.symbol'))
+            regions.append((a, a + len_symbol, symbol, 'list.symbol'))
             regions.append((a + len_symbol, b, nosymbol, 'list.unordered'))
             # consume the symbol
-            sym_start = match.start(1)
-            sym_end = match.end(1)
+            sym_start = a1
+            sym_end = b2
             text = text[:sym_start] + 'B' * len_symbol + text[sym_end:] 
 
         # list ordered
-        p = re.compile(r'^(( {4}|\t)*[0-9]+\.\s)(.+)$', flags=re.MULTILINE)
+        p = re.compile(r'^( {4}|\t)*([0-9\.]+?\.)([ \t]+[^\n]+)$', flags=re.MULTILINE)
         for match in p.finditer(text):
             #print('ordered', match.groups())
             a = match.start()
             b = match.end()
+            a1 = match.start()
+            b1 = match.end(1)
+            a2 = match.start(2)
+            b2 = match.end(2)
+            a3 = match.start(3)
+            b3 = match.end(3)
+
+            if match.start(1) < 0:
+                # we are at the outmost level
+                a1 = match.start()
+            else:
+                # we are at an inner level
+                # --> check if we are a continuation
+                if not no_blocks_in:
+                    # skip this, as it is not a continuation
+                    continue
+                prev_item_start, prev_item_end = no_blocks_in[-1]
+                if a1 - prev_item_end >= 2:
+                    continue
+            # now look for continuation lines:
+            #    (lines that start with an indentation > len_symbol)
+            len_symbol = b2 - a1
+            keep_looking = True
+            while keep_looking:
+                cont_text = text[b + 1:]
+                cont_match = cont_line_re.match(cont_text)
+                if not cont_match:
+                    break
+                if len(cont_match.group(1)) < len_symbol - 1:
+                    break
+                b += cont_match.end() + 1
+
             no_blocks_in.append((a, b))
-            regions.append((a, a + len(match.group(1)), match.group(1), 'list.symbol'))
-            regions.append((a + len(match.group(1)), b, match.group(3), 'list.ordered'))
+            symbol = match.group()[:len_symbol]
+            nosymbol = match.group()[len_symbol:]
+            regions.append((a, a + len_symbol, symbol, 'list.symbol'))
+            regions.append((a + len(nosymbol), b, nosymbol, 'list.ordered'))
 
         # indented code blocks
-        ### NEED TO STYLE THE \n !!!
+        ### NEED TO STYLE THE \n at the end!!!
         if self.show_block_quotes:
             p = re.compile(r'(\n[ \t]*\n)(( {4}|\t)+[^\n]*?\n)+')
             pos = 0
@@ -371,6 +441,7 @@ class ZkMdLexer(QsciLexerCustom):
                     if a >= no_a and b <= no_b + 1:
                         skip_this = True
                 if skip_this:
+                    pos = b - 1
                     continue
                 regions.append((a + len(match.group(1)) - 1, b, match.group(2)[:-1], 'code.fenced'))
                 # above: match.group(2) only captures the last match. this is OK here, since the text will be ignored here and CSR will figure the real text out later, based on the indices
