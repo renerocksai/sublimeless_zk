@@ -527,7 +527,7 @@ class ZkMdLexer(QsciLexerCustom):
             text = text[:a] + 'x' * len(match.group()) + text[b:]
 
         # images
-        p = re.compile(r'(!\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
+        p = re.compile(r'(!\[)([^\n\]]*)(\]\()([^\n\)]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
             #print('image', match.group())
             a = match.start()
@@ -562,7 +562,7 @@ class ZkMdLexer(QsciLexerCustom):
             self.make_clickable(gstarts[3], len(gtexts[3]), self.indicator_id_hyperlink)
 
         # links
-        p = re.compile(r'(\[)([^\n]*)(\]\()([^\n]*)(\))(\s*\{)?([^\}\n]*)(\})?')
+        p = re.compile(r'(\[)([^\n\]]*)(\]\()([^\n\)]*)(\))(\s*\{)?([^\}\n]*)(\})?')
         for match in p.finditer(text):
             a = match.start()
             #print('link', match.group(), match.groups())
