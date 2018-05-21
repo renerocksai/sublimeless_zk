@@ -1,7 +1,12 @@
 {
     // Theme:
     //    themes/monokai.json
+    //    themes/monokai-large-headings.json
     //    themes/solarized_light.json
+    //    themes/C64.json
+    //
+    //    Default:
+    //    themes/Office.json
     "theme": "themes/Office.json",
 
     // The preferred markdown extension
@@ -17,7 +22,7 @@
     "insert_links_with_titles": false,
 
     // when creating a new note, put id into title?
-     // false to disable
+    // false to disable
     "id_in_title": false,
 
     // prefix for #tags
