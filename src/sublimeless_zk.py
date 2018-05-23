@@ -968,10 +968,11 @@ class Sublimeless_Zk(QObject):
 
         # always save saved searches
         editor = self.gui.saved_searches_editor
-        with open(self.project.get_saved_searches_filn(),
-                  mode='w', encoding='utf-8', errors='ignore') as f:
-            f.write(editor.text())
-        editor.setModified(False)
+        if editor.isModified():
+            with open(self.project.get_saved_searches_filn(),
+                    mode='w', encoding='utf-8', errors='ignore') as f:
+                f.write(editor.text())
+            editor.setModified(False)
 
     def show_preferences(self, filn=None):
         if not filn:
