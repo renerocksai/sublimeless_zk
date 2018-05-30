@@ -56,13 +56,17 @@ def split_search_terms(search_string):
 
 
 def open_hyperlink(hyperlink):
-    if sys.platform == 'darwin':
-        subprocess.call(['open', hyperlink])
-    elif sys.platform == 'win32':
-        os.startfile(hyperlink)
-    else:
-        # assume linux
-        subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  ' + hyperlink), shell=True)
+    try:
+        if sys.platform == 'darwin':
+            subprocess.call(['open', hyperlink])
+        elif sys.platform == 'win32':
+            os.startfile(hyperlink)
+        else:
+            # assume linux
+            subprocess.call(('LD_LIBRARY_PATH="" ; xdg-open  ' + hyperlink), shell=True)
+    except:
+        # TODO: better error handling 
+        pass
 
 if __name__ == '__main__':
     line = 'hello !!""new world!!!"" this !! is awesome!! is!!n\'t !!it??'
