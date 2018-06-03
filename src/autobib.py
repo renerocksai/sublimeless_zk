@@ -93,7 +93,7 @@ class Autobib:
                     if unicode_conversion:
                         editors = convert_to_unicode({'editor': editors})['editor']
                     editors = Autobib.parse_authors(editors)
-                    entries[current_citekey]['editors'] = authors
+                    entries[current_citekey]['editors'] = editors
                     continue
                 match = Autobib.title_matcher.findall(line)
                 if match:
